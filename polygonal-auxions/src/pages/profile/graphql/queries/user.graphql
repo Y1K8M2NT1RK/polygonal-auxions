@@ -1,0 +1,26 @@
+query User($handle_name: String!) {
+    user(handle_name: $handle_name) {
+        name
+        name_kana
+        handle_name
+        introduction
+        address
+        email
+        created_at
+        artworks {
+            slug_id
+            title
+            likes
+            bads
+            created_at
+        }
+        comments {
+            body
+            created_at
+            artwork {
+                slug_id
+                title
+            }
+        }
+    }
+}
