@@ -1,0 +1,11 @@
+query Artworks {
+	artworks {
+        title,
+        slug_id,
+        feature,
+        created_at,
+        user {
+            handle_name
+        }
+    }
+}

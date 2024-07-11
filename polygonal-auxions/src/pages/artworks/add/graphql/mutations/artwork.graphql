@@ -1,0 +1,23 @@
+mutation addArtwork(
+  $title: String!,
+  $feature: String!,
+) {
+  addArtwork (
+    title: $title,
+    feature: $feature
+  ) {
+		__typename,
+    ... on MutationAddArtworkSuccess {
+      data {
+        slug_id
+      }
+    }
+    ... on ZodError {
+      message,
+      __typename,
+      fieldErrors {
+        message
+      }
+    }
+  }
+}
