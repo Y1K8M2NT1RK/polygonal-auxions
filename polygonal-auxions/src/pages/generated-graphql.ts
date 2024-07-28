@@ -21,11 +21,11 @@ export type Scalars = {
 
 export type Artwork = {
   __typename?: 'Artwork';
-  bads: Scalars['ID']['output'];
+  bads: Scalars['Int']['output'];
   comments: Array<Comment>;
   created_at: Scalars['Date']['output'];
   feature: Scalars['String']['output'];
-  likes: Scalars['ID']['output'];
+  likes: Scalars['Int']['output'];
   slug_id: Scalars['ID']['output'];
   title: Scalars['String']['output'];
   user: User;
@@ -47,6 +47,7 @@ export type Error = {
 export type Mutation = {
   __typename?: 'Mutation';
   addArtwork: MutationAddArtworkResult;
+  validateUser: MutationValidateUserResult;
 };
 
 
@@ -55,11 +56,24 @@ export type MutationAddArtworkArgs = {
   title: Scalars['String']['input'];
 };
 
+
+export type MutationValidateUserArgs = {
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+};
+
 export type MutationAddArtworkResult = MutationAddArtworkSuccess | ZodError;
 
 export type MutationAddArtworkSuccess = {
   __typename?: 'MutationAddArtworkSuccess';
   data: Artwork;
+};
+
+export type MutationValidateUserResult = MutationValidateUserSuccess | ZodError;
+
+export type MutationValidateUserSuccess = {
+  __typename?: 'MutationValidateUserSuccess';
+  data: Scalars['Boolean']['output'];
 };
 
 export type Query = {
@@ -90,6 +104,7 @@ export type User = {
   introduction: Scalars['String']['output'];
   name: Scalars['String']['output'];
   name_kana?: Maybe<Scalars['String']['output']>;
+  slug_id: Scalars['String']['output'];
 };
 
 export type ZodError = Error & {
@@ -104,34 +119,97 @@ export type ZodFieldError = {
   path: Array<Scalars['String']['output']>;
 };
 
-export type ArtworkQueryVariables = Exact<{
-  slug_id: Scalars['String']['input'];
-}>;
-
-
-export type ArtworkQuery = { __typename?: 'Query', artwork: { __typename?: 'Artwork', slug_id: string, title: string, likes: string, bads: string, feature: string, created_at: any, user: { __typename?: 'User', handle_name: string }, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, user: { __typename?: 'User', handle_name: string } }> } };
-
 export type AddArtworkMutationVariables = Exact<{
   title: Scalars['String']['input'];
   feature: Scalars['String']['input'];
 }>;
 
 
-export type AddArtworkMutation = { __typename?: 'Mutation', addArtwork: { __typename: 'MutationAddArtworkSuccess', data: { __typename?: 'Artwork', slug_id: string } } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
+export type AddArtworkMutation = { __typename?: 'Mutation', addArtwork: { __typename: 'MutationAddArtworkSuccess' } | { __typename: 'ZodError', message: string } };
+
+export type LoginMutationVariables = Exact<{
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+}>;
+
+
+export type LoginMutation = { __typename?: 'Mutation', validateUser: { __typename: 'MutationValidateUserSuccess' } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
 
 export type ArtworksQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type ArtworksQuery = { __typename?: 'Query', artworks: Array<{ __typename?: 'Artwork', title: string, slug_id: string, feature: string, created_at: any, user: { __typename?: 'User', handle_name: string } }> };
 
+export type ArtworkQueryVariables = Exact<{
+  slug_id: Scalars['String']['input'];
+}>;
+
+
+export type ArtworkQuery = { __typename?: 'Query', artwork: { __typename?: 'Artwork', slug_id: string, title: string, likes: number, bads: number, feature: string, created_at: any, user: { __typename?: 'User', handle_name: string }, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, user: { __typename?: 'User', handle_name: string } }> } };
+
 export type UserQueryVariables = Exact<{
   handle_name: Scalars['String']['input'];
 }>;
 
 
-export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', name: string, name_kana?: string | null, handle_name: string, introduction: string, address: string, email: string, created_at: any, artworks: Array<{ __typename?: 'Artwork', slug_id: string, title: string, likes: string, bads: string, created_at: any }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, artwork: { __typename?: 'Artwork', slug_id: string, title: string } }> } };
+export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', name: string, name_kana?: string | null, handle_name: string, introduction: string, address: string, email: string, created_at: any, artworks: Array<{ __typename?: 'Artwork', slug_id: string, title: string, likes: number, bads: number, created_at: any }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, artwork: { __typename?: 'Artwork', slug_id: string, title: string } }> } };
 
 
+export const AddArtworkDocument = gql`
+    mutation AddArtwork($title: String!, $feature: String!) {
+  addArtwork(feature: $feature, title: $title) {
+    __typename
+    ... on MutationAddArtworkSuccess {
+      __typename
+    }
+    ... on ZodError {
+      __typename
+      message
+    }
+  }
+}
+    `;
+
+export function useAddArtworkMutation() {
+  return Urql.useMutation<AddArtworkMutation, AddArtworkMutationVariables>(AddArtworkDocument);
+};
+export const LoginDocument = gql`
+    mutation Login($email: String!, $password: String!) {
+  validateUser(email: $email, password: $password) {
+    ... on MutationValidateUserSuccess {
+      __typename
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors {
+        message
+      }
+    }
+  }
+}
+    `;
+
+export function useLoginMutation() {
+  return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
+};
+export const ArtworksDocument = gql`
+    query Artworks {
+  artworks {
+    title
+    slug_id
+    feature
+    created_at
+    user {
+      handle_name
+    }
+  }
+}
+    `;
+
+export function useArtworksQuery(options?: Omit<Urql.UseQueryArgs<ArtworksQueryVariables>, 'query'>) {
+  return Urql.useQuery<ArtworksQuery, ArtworksQueryVariables>({ query: ArtworksDocument, ...options });
+};
 export const ArtworkDocument = gql`
     query Artwork($slug_id: String!) {
   artwork(slug_id: $slug_id) {
@@ -157,46 +235,6 @@ export const ArtworkDocument = gql`
 
 export function useArtworkQuery(options: Omit<Urql.UseQueryArgs<ArtworkQueryVariables>, 'query'>) {
   return Urql.useQuery<ArtworkQuery, ArtworkQueryVariables>({ query: ArtworkDocument, ...options });
-};
-export const AddArtworkDocument = gql`
-    mutation addArtwork($title: String!, $feature: String!) {
-  addArtwork(title: $title, feature: $feature) {
-    __typename
-    ... on MutationAddArtworkSuccess {
-      data {
-        slug_id
-      }
-    }
-    ... on ZodError {
-      message
-      __typename
-      fieldErrors {
-        message
-      }
-    }
-  }
-}
-    `;
-
-export function useAddArtworkMutation() {
-  return Urql.useMutation<AddArtworkMutation, AddArtworkMutationVariables>(AddArtworkDocument);
-};
-export const ArtworksDocument = gql`
-    query Artworks {
-  artworks {
-    title
-    slug_id
-    feature
-    created_at
-    user {
-      handle_name
-    }
-  }
-}
-    `;
-
-export function useArtworksQuery(options?: Omit<Urql.UseQueryArgs<ArtworksQueryVariables>, 'query'>) {
-  return Urql.useQuery<ArtworksQuery, ArtworksQueryVariables>({ query: ArtworksDocument, ...options });
 };
 export const UserDocument = gql`
     query User($handle_name: String!) {

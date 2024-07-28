@@ -6,15 +6,12 @@ const config: CodegenConfig = {
   schema: printSchema(schema),
   overwrite: true,
   documents: [
-    'src/graphql/mutations/*.graphql',
-    'src/pages/**/graphql/queries/*.graphql',
-    'src/pages/**/**/graphql/queries/*.graphql',
-    'src/pages/**/graphql/mutations/*.graphql',
-    'src/pages/**/**/graphql/mutations/*.graphql',
+    'src/pages/api/graphql/mutations/*.graphql',
+    'src/pages/api/graphql/queries/*.graphql',
   ],
   emitLegacyCommonJSImports: false,
   generates: {
-    'src/generated/graphql.ts': {
+    'src/pages/generated-graphql.ts': {
       plugins: ['typescript', 'typescript-operations', 'typescript-urql'],
       config: {
         scalars: {
