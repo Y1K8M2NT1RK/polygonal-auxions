@@ -7,7 +7,7 @@ import {
     Typography
 } from '@mui/material';
 import Link from 'next/link';
-import { User, Comment } from '@/generated/graphql';
+import type { User, Comment } from '@/pages/generated-graphql';
 
 type Props = {
     user: User

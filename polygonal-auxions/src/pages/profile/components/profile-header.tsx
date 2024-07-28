@@ -11,8 +11,8 @@ import {
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import FlagIcon from '@mui/icons-material/Flag';
 import EditIcon from '@mui/icons-material/Edit';
-import { User } from '@/generated/graphql';
-import stringAvatar from '@/utils/default-avator-icon';
+import type { User } from '@/pages/generated-graphql';
+import stringAvatar from '@/pages/utils/default-avator-icon';
 import { useSession } from 'next-auth/react';
 
 type Props = {
@@ -21,7 +21,7 @@ type Props = {
 
 export default function ProfileHeader({user}: Props){
 
-    const {data: session, status:status} = useSession();
+    const {data: session} = useSession();
     const auth = session?.user;
 
     return (

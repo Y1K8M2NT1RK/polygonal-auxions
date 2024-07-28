@@ -7,7 +7,7 @@ import {
     Typography
 } from '@mui/material';
 import Link from 'next/link';
-import { User, Artwork } from '@/generated/graphql';
+import type { User, Artwork } from '@/pages/generated-graphql';
 import { DateTime } from 'luxon';
 
 type Props = {

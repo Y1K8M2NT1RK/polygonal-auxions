@@ -1,13 +1,11 @@
 import {
     CircularProgress,
     Container,
-    IconButton,
 } from '@mui/material';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useQuery } from 'urql';
-import { UserDocument, User } from '@/generated/graphql';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import type { User } from '@/pages/generated-graphql';
+import { UserDocument } from '@/pages/generated-graphql';
 import ProfileHeader from '@/pages/profile/components/profile-header';
 import ProfileArtworks from '@/pages/profile/components/profile-artworks';
 import ProfileComments from '@/pages/profile/components/profile-comments';
