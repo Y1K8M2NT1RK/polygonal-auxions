@@ -9,7 +9,7 @@ import {
     MenuItem,
 } from '@mui/material';
 import { MouseEvent, useState } from 'react';
-import stringAvatar from '@/utils/default-avator-icon';
+import stringAvatar from '@/pages/utils/default-avator-icon';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -18,7 +18,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { toast } from 'react-toastify';
-import { User } from '@/generated/graphql';
+import type { User } from '@/pages/generated-graphql';
 
 type Props = {
     auth: User;
@@ -61,7 +61,7 @@ export default function AvatorPopover({auth}: Props){
                             </Typography>
                         </MenuItem>
                         <MenuItem><Typography variant="button"><SettingsIcon /> 設定</Typography></MenuItem>
-                        <MenuItem onClick={() => signOut({redirect:false}).then(() => toast.success('ログアウトできたよ。'))}>
+                        <MenuItem onClick={() => signOut({redirect:false}).then(() => toast.success('ログアウトできました。'))}>
                             <Typography variant="button"><LogoutIcon /> ログアウト</Typography>
                         </MenuItem>
                     </MenuList>

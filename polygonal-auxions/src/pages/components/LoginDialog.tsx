@@ -5,7 +5,6 @@ import {
     CardContent,
     Dialog,
     Fab,
-    Hidden,
     IconButton,
     TextField,
     Typography,
@@ -19,25 +18,44 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { signIn } from "next-auth/react";
 import { toast } from 'react-toastify';
+import { LoginDocument } from "@/pages/generated-graphql";
+import { useMutation } from "urql";
 
+type FormData = {
+    email: string;
+    password: string;
+};
 
 export default function LoginDialog(){
 
     {/* フォームの管理 */}
-    const {register, handleSubmit} = useForm();
-    const onSubmit = handleSubmit((data) => signIn("credentials", {...data, redirect:false})
-        .then((res) => {
-            if(res?.ok) toast.success('ログインできたよ。');
-            if(res?.error) toast.error('ログインできないよ。');
-        })
-    );
+    const {register, handleSubmit, setError, clearErrors, formState: {errors} } = useForm<FormData>({
+        defaultValues: {email: '', password: ''},
+        mode: 'onSubmit',
+    });
+
+    {/* フォームの送信処理 */}
+    const [loginDocumentResult, loginDocument] = useMutation(LoginDocument);
+    const onSubmit = handleSubmit((data:FormData) => loginDocument(data).then(result => {
+        if(result.error){
+            const gqlErrors:string[] = result.error?.graphQLErrors[0].extensions.messages as string[];
+            for( const [key, val] of Object.entries(gqlErrors) ) setError(`root.${key}`, {type: 'server', message: val[0]});
+            toast.error('ログインできません。入力内容をお確かめください。');
+            return;
+        }
+        signIn("credentials", {...data, redirect:false}).then((res) => {
+            if(res?.error) toast.error('エラーが発生しました。'); return;
+        });
+        toast.success('ログインできました。');
+        return;
+    }));
 
     {/* ダイアログの開閉 */}
     const [open, setOpen] = useState(false);
     const handleClickOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+    const handleClose = () => {clearErrors(); setOpen(false);};
 
-    {/* ダイアログの開閉 */}
+    {/* ダイアログの開閉（スマホサイズ） */}
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -69,7 +87,6 @@ export default function LoginDialog(){
                                 position: 'absolute',
                                 right: 10,
                                 top: 10,
-                                color: (theme) => theme.palette.grey[500],
                             }}
                         >
                             <CloseIcon />
@@ -80,6 +97,8 @@ export default function LoginDialog(){
                                 size="small"
                                 label="メールアドレス/ハンドルネーム"
                                 {...register("email")}
+                                error={!!errors?.root?.email?.message}
+                                helperText={errors?.root?.email?.message ? errors?.root?.email?.message : null}
                                 sx={{mt: 2}}
                             />
                             <TextField
@@ -89,6 +108,8 @@ export default function LoginDialog(){
                                 label="パスワード"
                                 autoComplete="on"
                                 {...register("password")}
+                                error={!!errors?.root?.password?.message}
+                                helperText={errors?.root?.password?.message ? errors?.root?.password?.message : null}
                                 sx={{mt: 2}}
                             />
                             <Box display='flex' flexDirection='column'>
@@ -97,14 +118,14 @@ export default function LoginDialog(){
                                     type="submit"
                                     color="inherit"
                                     variant="extended"
-                                    sx={{mt: 2, backgroundColor: '#444444'}}
+                                    sx={{mt: 2, backgroundColor: theme.palette.mode=='dark'?'#444444':'#CCCCCC'}}
                                 >ログイン <LoginIcon /></Fab>
                                 <Fab
                                     component={Link}
                                     href="#"
                                     color="inherit"
                                     variant="extended"
-                                    sx={{ mt: 2, backgroundColor: '#444444'}}
+                                    sx={{ mt: 2, backgroundColor: theme.palette.mode=='dark'?'#444444':'#CCCCCC'}}
                                 >アカウント作成</Fab>
                                 <Fab
                                     component={Link}
@@ -112,7 +133,7 @@ export default function LoginDialog(){
                                     size="small"
                                     color="inherit"
                                     variant="extended"
-                                    sx={{ mt: 2, backgroundColor: '#444444'}}
+                                    sx={{ mt: 2, backgroundColor: theme.palette.mode=='dark'?'#444444':'#CCCCCC'}}
                                 >パスワードを忘れたときは</Fab>
                             </Box>
                         </Box>

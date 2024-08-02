@@ -1,0 +1,14 @@
+mutation Login($email: String!, $password: String!) {
+  validateUser(email: $email, password: $password) {
+    ... on MutationValidateUserSuccess {
+      __typename
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors {
+        message
+      }
+    }
+  }
+}

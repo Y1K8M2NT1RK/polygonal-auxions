@@ -1,5 +1,7 @@
 import { 
     AppBar, 
+    Box, 
+    Skeleton, 
     Toolbar,
     Typography,
 } from "@mui/material";
@@ -28,13 +30,25 @@ export default function Header (){
             />
             <AppBar color='transparent' sx={{backdropFilter: 'blur(5px)'}}>
                 <Toolbar sx={{justifyContent: "space-between",}}>
-                    <Typography variant="h6" component={Link} href='/artworks' sx={{ flexGrow: 1, display: 'contents'}}>
+                    <Typography
+                        variant="h6"
+                        component={Link}
+                        href='/artworks'
+                        sx={{
+                            flexGrow: 1,
+                            display: 'contents',
+                        }}
+                    >
                         Polygonal Auxions
                     </Typography>
                     {
-                        // <LoginDialog />
                         status == 'loading'
-                        ?   null
+                        ?   (
+                            <Box sx={{display:'flex'}}>
+                                <Skeleton animation="wave" variant="circular" width={56} height={56} />
+                                <Skeleton animation="wave" variant="circular" width={56} height={56} />
+                            </Box>
+                        )
                         :   (
                             !auth
                             ?   <LoginDialog />

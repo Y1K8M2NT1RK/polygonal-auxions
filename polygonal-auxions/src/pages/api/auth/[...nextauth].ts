@@ -1,11 +1,10 @@
-import type { NextAuthOptions, Session, User } from 'next-auth';
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import { prisma } from '@/pages/api/db';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import { compareSync, genSaltSync, hashSync } from 'bcrypt';
-
+import type { Account, NextAuthOptions, Session, User } from 'next-auth';
 import NextAuth from 'next-auth/next';
-import { JWT } from 'next-auth/jwt';
+import type { JWT } from 'next-auth/jwt';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import CredentialsProvider from 'next-auth/providers/credentials';
+
+import { prisma } from '@/pages/api/db';
 
 export const authOptions: NextAuthOptions = {
     session: { strategy: 'jwt' },
@@ -20,32 +19,16 @@ export const authOptions: NextAuthOptions = {
                 email: { label: 'Email', type: 'email', placeholder: 'example@example.com',},
                 password: { label: 'Password', type: 'password' },
             },
-            async authorize(credentials): Promise<any>{
-                if (!credentials?.email || !credentials?.password) return null;
-
-                const user = await prisma.user.findUnique({
-                    where: {email: credentials?.email},
-                });
-                if( !user ) return null;
-
-                const saltRounds = 10;
-                const salt = genSaltSync(saltRounds);
-                const hashedPassword = hashSync(user.password, salt);
-
-                const isValidPassword = compareSync(credentials?.password, hashedPassword);
-                if( !isValidPassword ) return null;
-
-                return user;
-            },
+            async authorize(credentials): Promise<any>{ return await prisma.user.findUnique({where: {email: credentials?.email},}); }
         }),
     ],
     callbacks: {
-        jwt: async ({token, user}: { token: JWT, user: User}) => {
-            if( user != undefined ) token.user = user; token.id = user?.id;
+        jwt: async ({token, user}: { token: JWT, user: User & Account}) => {
+            if( user != undefined ) token = {handle_name: user.handle_name, name: user.name, id: user.id, slug_id: user.slug_id};
             return token;
         },
         session: async ({session, token}: { session: Session, token: JWT }) => {
-            if (session?.user) session.user = token.user;
+            if (session?.user) session.user = {name: token.name, handle_name: token.handle_name, slug_id: token.slug_id};
             return session;
         },
     },
