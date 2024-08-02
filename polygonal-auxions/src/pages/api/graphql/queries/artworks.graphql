@@ -1,3 +1,15 @@
+query Artworks {
+	artworks {
+        title,
+        slug_id,
+        feature,
+        created_at,
+        user {
+            handle_name
+        }
+    }
+}
+
 query Artwork($slug_id: String!) {
     artwork(slug_id: $slug_id) {
         slug_id

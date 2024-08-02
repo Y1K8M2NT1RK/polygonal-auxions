@@ -17,13 +17,8 @@ export default function ArtworkPopover(){
 
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
-    const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-  
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
+    const handleClick = (event: MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget);
+    const handleClose = () => setAnchorEl(null);
   
     const open = Boolean(anchorEl);
 

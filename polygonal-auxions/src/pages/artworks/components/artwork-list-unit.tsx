@@ -9,9 +9,9 @@ import {
     Box,
 } from '@mui/material';
 import Link from 'next/link';
-import { Artwork } from '@/generated/graphql';
+import type { Artwork } from '@/pages/generated-graphql';
 import { DateTime } from 'luxon';
-import stringAvatar from '@/utils/default-avator-icon';
+import stringAvatar from '@/pages/utils/default-avator-icon';
 import ArtworkPopover from './artwork-popover';
 
 type Props = {
@@ -31,7 +31,7 @@ export default function ArtworkListUnit({artwork}: Props){
                 </Box>
                 <Card sx={{display: 'flex', flexDirection: 'column',}}>
                     <Link href={`/artworks/${artwork.slug_id}`} passHref>
-                        <CardActionArea sx={{color: '#FFFFFF', aspectRatio: '5 / 3'}}>
+                        <CardActionArea sx={{aspectRatio: '5 / 3'}}>
                             <CardContent>
                                 <Typography>{artwork.title}</Typography>
                             </CardContent>

@@ -5,8 +5,8 @@ import {
     Typography
 } from '@mui/material';
 import Link from 'next/link';
-import { Comment, Artwork } from '@/generated/graphql';
-import stringAvatar from '@/utils/default-avator-icon';
+import type { Comment, Artwork } from '@/pages/generated-graphql';
+import stringAvatar from '@/pages/utils/default-avator-icon';
 
 type Props = {
     artwork: Artwork

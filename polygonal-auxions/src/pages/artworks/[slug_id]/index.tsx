@@ -1,9 +1,8 @@
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useQuery } from 'urql';
-import { Artwork, ArtworkDocument } from '@/generated/graphql';
-import { CircularProgress, Container, IconButton, Typography } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import type { Artwork } from '@/pages/generated-graphql';
+import { ArtworkDocument } from '@/pages/generated-graphql';
+import { CircularProgress, Container, Typography } from '@mui/material';
 import ArtworkComments from './components/artwork-comments';
 import ArtworkDetail from './components/artwork-detail';
 

@@ -17,12 +17,11 @@ import {
 } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useFieldArray, useForm } from "react-hook-form";
-import stringAvatar from '@/utils/default-avator-icon';
+import { useForm } from "react-hook-form";
+import stringAvatar from '@/pages/utils/default-avator-icon';
 import { useMutation } from "urql";
-import { AddArtworkDocument } from "@/generated/graphql";
+import { AddArtworkDocument } from "@/pages/generated-graphql";
 import { toast } from "react-toastify";
-import { useState } from "react";
 
 type FormData = {
     title: string;
@@ -31,6 +30,7 @@ type FormData = {
 
 export default function AddArtwork(){
 
+    {/* フォームの管理 */}
     const {register, handleSubmit, setError, formState: {errors} } = useForm<FormData>({
         defaultValues: {title: '', feature: ''},
         mode: 'onSubmit',
@@ -38,18 +38,16 @@ export default function AddArtwork(){
 
     const router = useRouter();
 
-    {/** 作品の新規追加 */}
+    {/** 作品の新規追加処理 */}
     const [addArtworkResult, addArtwork] = useMutation(AddArtworkDocument);
     const onSubmit = handleSubmit((data:FormData) => addArtwork(data).then(result => {
         if(result.error){
             const gqlErrors:string[] = result.error?.graphQLErrors[0].extensions.messages as string[];
-            for( const [key, val] of Object.entries(gqlErrors) ){
-                setError(`root.${key}`, {type: 'server', message: val[0]});
-            }
-            toast.error('追加できないよ。');
+            for( const [key, val] of Object.entries(gqlErrors) ) setError(`root.${key}`, {type: 'server', message: val[0]});
+            toast.error('追加できません。入力内容をお確かめください。');
             return;
         }
-        toast.success('追加できたよ。');
+        toast.success('追加できました。');
         return router.replace('/artworks');
     }));
 

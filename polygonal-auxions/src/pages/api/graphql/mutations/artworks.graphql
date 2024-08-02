@@ -1,0 +1,12 @@
+mutation AddArtwork($title: String!, $feature: String!) {
+  addArtwork(feature: $feature, title: $title) {
+    __typename
+    ... on MutationAddArtworkSuccess {
+      __typename
+    }
+    ... on ZodError {
+      __typename
+      message
+    }
+  }
+}
