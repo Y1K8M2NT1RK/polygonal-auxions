@@ -1,5 +1,5 @@
 import { schema } from '@/pages/api/schema';
-import { createYoga, } from 'graphql-yoga';
+import { createYoga } from 'graphql-yoga';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from './auth/[...nextauth]';
@@ -18,6 +18,7 @@ export default createYoga<
   },
   Context
 >({
+  graphiql: process.env.NODE_ENV === "development",
   graphqlEndpoint: '/api/graphql',
   schema,
   context: async ({ req, res }) => {

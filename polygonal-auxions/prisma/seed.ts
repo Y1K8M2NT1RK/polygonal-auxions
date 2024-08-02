@@ -1,6 +1,10 @@
 import { prisma } from '../src/pages/api/db'
 
 const main = async () => {
+    // 途中で止まった場合に備えて、その時点まで作成したデータを全て削除
+    await prisma.user.deleteMany();
+    await prisma.artwork.deleteMany();
+    await prisma.comment.deleteMany();
     // 初期データ群
     await prisma.user.createMany({
         data: [

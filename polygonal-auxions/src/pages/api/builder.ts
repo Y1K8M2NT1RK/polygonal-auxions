@@ -1,6 +1,6 @@
 import SchemaBuilder from '@pothos/core';
 import { DateTimeResolver } from "graphql-scalars";
-import type PrismaTypes from '@/generated/pothos-types';
+import type PrismaTypes from '@/pages/api/types/pothos';
 import { prisma } from './db';
 import { Context } from '@/pages/api/context';
 
@@ -34,7 +34,7 @@ export const builder = new SchemaBuilder<{
     client: prisma,
   },
   validationOptions: {
-    validationError: (zodError, args, context, info) => zodError,
+    validationError: (zodError, _args, _context, _info) => zodError,
   },
   errorOptions: {
     defaultTypes: [],
