@@ -19,7 +19,7 @@ export const authOptions: NextAuthOptions = {
                 email: { label: 'Email', type: 'email', placeholder: 'example@example.com',},
                 password: { label: 'Password', type: 'password' },
             },
-            async authorize(credentials): Promise<any>{ return await prisma.user.findUnique({where: {email: credentials?.email},}); }
+            async authorize(credentials): Promise<User>{ return await prisma.user.findUnique({where: {email: credentials?.email},}); }
         }),
     ],
     callbacks: {
@@ -28,7 +28,7 @@ export const authOptions: NextAuthOptions = {
             return token;
         },
         session: async ({session, token}: { session: Session, token: JWT }) => {
-            if (session?.user) session.user = {name: token.name, handle_name: token.handle_name, slug_id: token.slug_id};
+            if (session?.user) session.user = {name: token.name, handle_name: token.handle_name, id: token.id, slug_id: token.slug_id};
             return session;
         },
     },

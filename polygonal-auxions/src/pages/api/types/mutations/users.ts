@@ -2,6 +2,7 @@ import { builder } from '../../builder';
 import { prisma } from '../../db';
 import { ZodError } from 'zod';
 import { compareSync, genSaltSync, hashSync } from 'bcrypt';
+import { Follows } from '../queries/users';
 
 builder.mutationField("validateUser", (t) => 
     t.boolean({
@@ -42,5 +43,31 @@ builder.mutationField("validateUser", (t) =>
             {message: 'パスワードが違います。', path: ['password']},
         ],
         resolve: () => true,
+    })
+);
+
+// フォロー・フォロー解除
+builder.mutationField('followOrUnfollow', (t) => 
+    t.prismaField({
+        type: Follows,
+        args: { following_id: t.arg.string({required: true,}), mode: t.arg.string({required: true,}) },
+        resolve: async (query, _parent, args, ctx, _info) => {
+            if(args.mode == 'follow'){ return prisma.follow.create({
+                ...query,
+                data: {
+                    following: { connect: { id: parseInt(args.following_id) } },
+                    followedBy: { connect: { id: ctx.auth.user.id } }
+                },
+            })}else if(args.mode == 'unfollow'){ return prisma.follow.delete({
+                where: {
+                    following_id_followed_by_id: {
+                        following_id: parseInt(args.following_id),
+                        followed_by_id: ctx.auth.user.id,
+                    }
+                },
+            })}else{
+                throw new Error('follow error');
+            }
+        }
     })
 );

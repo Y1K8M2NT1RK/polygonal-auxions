@@ -4,6 +4,7 @@ import { prisma } from '../../db';
 // メインのテーブル
 export const User = builder.prismaObject('User', {
   fields: (t) => ({
+    id: t.exposeID('id'),
     name: t.exposeString('name'),
     slug_id: t.exposeString('slug_id'),
     name_kana: t.exposeString('name_kana', {nullable: true}),
@@ -14,7 +15,17 @@ export const User = builder.prismaObject('User', {
     created_at: t.expose('created_at', {type: 'Date'}),
     artworks: t.relation('artworks'),
     comments: t.relation('comments'),
+    following: t.relation('following'),
   }),
+});
+
+export const Follows = builder.prismaObject('Follow', {
+  fields: (t) => ({
+    following: t.relation('following'),
+    following_id: t.exposeID('following_id'),
+    followed_by: t.relation('followedBy'),
+    followed_by_id: t.exposeID('followed_by_id'),
+  })
 });
 
 // ユーザープロフィール

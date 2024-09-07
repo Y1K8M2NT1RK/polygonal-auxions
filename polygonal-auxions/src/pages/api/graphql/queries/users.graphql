@@ -1,5 +1,6 @@
 query User($handle_name: String!) {
     user(handle_name: $handle_name) {
+        id
         name
         name_kana
         handle_name
@@ -21,6 +22,9 @@ query User($handle_name: String!) {
                 slug_id
                 title
             }
+        }
+        following {
+            followed_by_id
         }
     }
 }

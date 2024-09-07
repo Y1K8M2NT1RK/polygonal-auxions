@@ -44,9 +44,18 @@ export type Error = {
   message: Scalars['String']['output'];
 };
 
+export type Follow = {
+  __typename?: 'Follow';
+  followed_by: User;
+  followed_by_id: Scalars['ID']['output'];
+  following: User;
+  following_id: Scalars['ID']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addArtwork: MutationAddArtworkResult;
+  followOrUnfollow: Follow;
   validateUser: MutationValidateUserResult;
 };
 
@@ -54,6 +63,12 @@ export type Mutation = {
 export type MutationAddArtworkArgs = {
   feature: Scalars['String']['input'];
   title: Scalars['String']['input'];
+};
+
+
+export type MutationFollowOrUnfollowArgs = {
+  following_id: Scalars['String']['input'];
+  mode: Scalars['String']['input'];
 };
 
 
@@ -100,7 +115,9 @@ export type User = {
   comments: Array<Comment>;
   created_at: Scalars['Date']['output'];
   email: Scalars['String']['output'];
+  following: Array<Follow>;
   handle_name: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
   introduction: Scalars['String']['output'];
   name: Scalars['String']['output'];
   name_kana?: Maybe<Scalars['String']['output']>;
@@ -135,6 +152,14 @@ export type LoginMutationVariables = Exact<{
 
 export type LoginMutation = { __typename?: 'Mutation', validateUser: { __typename: 'MutationValidateUserSuccess' } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
 
+export type FollowOrUnfollowMutationVariables = Exact<{
+  following_id: Scalars['String']['input'];
+  mode: Scalars['String']['input'];
+}>;
+
+
+export type FollowOrUnfollowMutation = { __typename?: 'Mutation', followOrUnfollow: { __typename: 'Follow' } };
+
 export type ArtworksQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -152,7 +177,7 @@ export type UserQueryVariables = Exact<{
 }>;
 
 
-export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', name: string, name_kana?: string | null, handle_name: string, introduction: string, address: string, email: string, created_at: any, artworks: Array<{ __typename?: 'Artwork', slug_id: string, title: string, likes: number, bads: number, created_at: any }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, artwork: { __typename?: 'Artwork', slug_id: string, title: string } }> } };
+export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', id: string, name: string, name_kana?: string | null, handle_name: string, introduction: string, address: string, email: string, created_at: any, artworks: Array<{ __typename?: 'Artwork', slug_id: string, title: string, likes: number, bads: number, created_at: any }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, artwork: { __typename?: 'Artwork', slug_id: string, title: string } }>, following: Array<{ __typename?: 'Follow', followed_by_id: string }> } };
 
 
 export const AddArtworkDocument = gql`
@@ -192,6 +217,17 @@ export const LoginDocument = gql`
 
 export function useLoginMutation() {
   return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
+};
+export const FollowOrUnfollowDocument = gql`
+    mutation followOrUnfollow($following_id: String!, $mode: String!) {
+  followOrUnfollow(following_id: $following_id, mode: $mode) {
+    __typename
+  }
+}
+    `;
+
+export function useFollowOrUnfollowMutation() {
+  return Urql.useMutation<FollowOrUnfollowMutation, FollowOrUnfollowMutationVariables>(FollowOrUnfollowDocument);
 };
 export const ArtworksDocument = gql`
     query Artworks {
@@ -239,6 +275,7 @@ export function useArtworkQuery(options: Omit<Urql.UseQueryArgs<ArtworkQueryVari
 export const UserDocument = gql`
     query User($handle_name: String!) {
   user(handle_name: $handle_name) {
+    id
     name
     name_kana
     handle_name
@@ -260,6 +297,9 @@ export const UserDocument = gql`
         slug_id
         title
       }
+    }
+    following {
+      followed_by_id
     }
   }
 }

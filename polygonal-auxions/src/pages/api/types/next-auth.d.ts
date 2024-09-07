@@ -3,6 +3,7 @@ import type { DefaultUser } from "next-auth";
 type AuthUser = {
   handle_name: string;
   slug_id: string;
+  id: ID;
 }
 
 declare module "next-auth" {

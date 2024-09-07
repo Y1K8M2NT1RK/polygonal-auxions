@@ -12,3 +12,9 @@ mutation Login($email: String!, $password: String!) {
     }
   }
 }
+
+mutation followOrUnfollow($following_id: String!, $mode: String!){
+  followOrUnfollow(following_id: $following_id, mode: $mode){
+     __typename
+  }
+}
