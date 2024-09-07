@@ -1,5 +1,5 @@
 /* eslint-disable */
-import type { Prisma, User, Artwork, ArtworkFile, ArtworkGizmo, Comment } from ".prisma/client";
+import type { Prisma, User, Follow, Artwork, ArtworkFile, ArtworkGizmo, Comment, ArtworkRanks, Ranks, RankTypes } from ".prisma/client";
 export default interface PrismaTypes {
     User: {
         Name: "User";
@@ -11,17 +11,57 @@ export default interface PrismaTypes {
         Where: Prisma.UserWhereInput;
         Create: {};
         Update: {};
-        RelationName: "artworks" | "comments";
-        ListRelations: "artworks" | "comments";
+        RelationName: "artworks" | "artwork_ranks" | "comments" | "followed_by" | "following";
+        ListRelations: "artworks" | "artwork_ranks" | "comments" | "followed_by" | "following";
         Relations: {
             artworks: {
                 Shape: Artwork[];
                 Name: "Artwork";
                 Nullable: false;
             };
+            artwork_ranks: {
+                Shape: ArtworkRanks[];
+                Name: "ArtworkRanks";
+                Nullable: false;
+            };
             comments: {
                 Shape: Comment[];
                 Name: "Comment";
+                Nullable: false;
+            };
+            followed_by: {
+                Shape: Follow[];
+                Name: "Follow";
+                Nullable: false;
+            };
+            following: {
+                Shape: Follow[];
+                Name: "Follow";
+                Nullable: false;
+            };
+        };
+    };
+    Follow: {
+        Name: "Follow";
+        Shape: Follow;
+        Include: Prisma.FollowInclude;
+        Select: Prisma.FollowSelect;
+        OrderBy: Prisma.FollowOrderByWithRelationInput;
+        WhereUnique: Prisma.FollowWhereUniqueInput;
+        Where: Prisma.FollowWhereInput;
+        Create: {};
+        Update: {};
+        RelationName: "followedBy" | "following";
+        ListRelations: never;
+        Relations: {
+            followedBy: {
+                Shape: User;
+                Name: "User";
+                Nullable: false;
+            };
+            following: {
+                Shape: User;
+                Name: "User";
                 Nullable: false;
             };
         };
@@ -36,8 +76,8 @@ export default interface PrismaTypes {
         Where: Prisma.ArtworkWhereInput;
         Create: {};
         Update: {};
-        RelationName: "user" | "artwork_file" | "comments";
-        ListRelations: "artwork_file" | "comments";
+        RelationName: "user" | "artwork_file" | "artwork_ranks" | "comments";
+        ListRelations: "artwork_file" | "artwork_ranks" | "comments";
         Relations: {
             user: {
                 Shape: User;
@@ -47,6 +87,11 @@ export default interface PrismaTypes {
             artwork_file: {
                 Shape: ArtworkFile[];
                 Name: "ArtworkFile";
+                Nullable: false;
+            };
+            artwork_ranks: {
+                Shape: ArtworkRanks[];
+                Name: "ArtworkRanks";
                 Nullable: false;
             };
             comments: {
@@ -122,6 +167,81 @@ export default interface PrismaTypes {
             artwork: {
                 Shape: Artwork;
                 Name: "Artwork";
+                Nullable: false;
+            };
+        };
+    };
+    ArtworkRanks: {
+        Name: "ArtworkRanks";
+        Shape: ArtworkRanks;
+        Include: Prisma.ArtworkRanksInclude;
+        Select: Prisma.ArtworkRanksSelect;
+        OrderBy: Prisma.ArtworkRanksOrderByWithRelationInput;
+        WhereUnique: Prisma.ArtworkRanksWhereUniqueInput;
+        Where: Prisma.ArtworkRanksWhereInput;
+        Create: {};
+        Update: {};
+        RelationName: "user" | "artwork" | "ranks";
+        ListRelations: never;
+        Relations: {
+            user: {
+                Shape: User;
+                Name: "User";
+                Nullable: false;
+            };
+            artwork: {
+                Shape: Artwork;
+                Name: "Artwork";
+                Nullable: false;
+            };
+            ranks: {
+                Shape: Ranks;
+                Name: "Ranks";
+                Nullable: false;
+            };
+        };
+    };
+    Ranks: {
+        Name: "Ranks";
+        Shape: Ranks;
+        Include: Prisma.RanksInclude;
+        Select: Prisma.RanksSelect;
+        OrderBy: Prisma.RanksOrderByWithRelationInput;
+        WhereUnique: Prisma.RanksWhereUniqueInput;
+        Where: Prisma.RanksWhereInput;
+        Create: {};
+        Update: {};
+        RelationName: "artwork_ranks" | "rank_type";
+        ListRelations: "artwork_ranks";
+        Relations: {
+            artwork_ranks: {
+                Shape: ArtworkRanks[];
+                Name: "ArtworkRanks";
+                Nullable: false;
+            };
+            rank_type: {
+                Shape: RankTypes;
+                Name: "RankTypes";
+                Nullable: false;
+            };
+        };
+    };
+    RankTypes: {
+        Name: "RankTypes";
+        Shape: RankTypes;
+        Include: Prisma.RankTypesInclude;
+        Select: Prisma.RankTypesSelect;
+        OrderBy: Prisma.RankTypesOrderByWithRelationInput;
+        WhereUnique: Prisma.RankTypesWhereUniqueInput;
+        Where: Prisma.RankTypesWhereInput;
+        Create: {};
+        Update: {};
+        RelationName: "ranks";
+        ListRelations: "ranks";
+        Relations: {
+            ranks: {
+                Shape: Ranks[];
+                Name: "Ranks";
                 Nullable: false;
             };
         };

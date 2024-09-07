@@ -2,9 +2,12 @@ import { prisma } from '../src/pages/api/db'
 
 const main = async () => {
     // 途中で止まった場合に備えて、その時点まで作成したデータを全て削除
+    await prisma.artworkRanks.deleteMany();
     await prisma.user.deleteMany();
     await prisma.artwork.deleteMany();
     await prisma.comment.deleteMany();
+    await prisma.ranks.deleteMany();
+    await prisma.rankTypes.deleteMany();
     // 初期データ群
     await prisma.user.createMany({
         data: [
@@ -50,6 +53,16 @@ const main = async () => {
             },
         ]
     });
+    await prisma.follow.createMany({
+        data: [
+            { following_id: 1, followed_by_id: 2, }, { following_id: 1, followed_by_id: 5, }, { following_id: 1, followed_by_id: 8, },
+            { following_id: 2, followed_by_id: 1, }, { following_id: 2, followed_by_id: 7, },
+            { following_id: 3, followed_by_id: 5, },
+            { following_id: 5, followed_by_id: 2, }, { following_id: 5, followed_by_id: 3, }, { following_id: 5, followed_by_id: 7, }, { following_id: 5, followed_by_id: 8, },
+            { following_id: 7, followed_by_id: 2, }, { following_id: 7, followed_by_id: 5, },
+            { following_id: 8, followed_by_id: 2, }, { following_id: 8, followed_by_id: 7, },
+        ]
+    });
     await prisma.artwork.createMany({
         data: [
             { title: '作品A作品A', likes: 30, bads: 5, feature: '作品Aの特徴', user_id: 2, created_at: new Date(2024, 1, 3).toISOString()},
@@ -83,6 +96,41 @@ const main = async () => {
             { user_id: 8, artwork_id: 3, body: '👍👍👍👍', created_at: new Date(2024, 4, 16).toISOString()},
             { user_id: 7, artwork_id: 3, body: 'どうしたらこんなクオリティまで仕上がるんだ…。', created_at: new Date(2024, 4, 17).toISOString()},
             { user_id: 7, artwork_id: 3, body: '信じられん…。', created_at: new Date(2024, 4, 17).toISOString()},
+        ]
+    });
+    await prisma.rankTypes.createMany({
+        data: [{name: '評価'}, {name: '保存'}, {name: '報告'}]
+    });
+    await prisma.ranks.createMany({
+        data: [
+            { name: '高評価' , rank_type_id: 1 },
+            { name: '低評価' , rank_type_id: 1 },
+            { name: 'お気に入り' , rank_type_id: 2 },
+            { name: 'ブックマーク' , rank_type_id: 2 },
+            { name: '不適切な表現（過激もしくは卑猥な表現など）' , rank_type_id: 3 },
+            { name: '犯罪・テロリズムの誘発' , rank_type_id: 3 },
+            { name: '虚偽のもしくは矛盾しているタイトル・サムネイル・表示内容' , rank_type_id: 3 },
+            { name: 'その他' , rank_type_id: 3 },
+        ]
+    });
+    await prisma.artworkRanks.createMany({
+        data: [
+            { artwork_id: 10, rank_id: 1, user_id: 5 },
+            { artwork_id: 10, rank_id: 1, user_id: 4 },
+            { artwork_id: 10, rank_id: 1, user_id: 7 },
+            { artwork_id: 9, rank_id: 1, user_id: 5 },
+            { artwork_id: 9, rank_id: 1, user_id: 7 },
+            { artwork_id: 5, rank_id: 1, user_id: 5 },
+            { artwork_id: 1, rank_id: 1, user_id: 5 },
+            { artwork_id: 4, rank_id: 2, user_id: 5 },
+            { artwork_id: 8, rank_id: 3, user_id: 5 },
+            { artwork_id: 5, rank_id: 3, user_id: 5 },
+            { artwork_id: 3, rank_id: 5, user_id: 5 },
+            { artwork_id: 2, rank_id: 7, user_id: 5 },
+            { artwork_id: 8, rank_id: 1, user_id: 7 },
+            { artwork_id: 7, rank_id: 1, user_id: 7 },
+            { artwork_id: 3, rank_id: 1, user_id: 7 },
+            { artwork_id: 4, rank_id: 3, user_id: 7 },
         ]
     });
 };

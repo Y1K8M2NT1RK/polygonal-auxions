@@ -11,7 +11,7 @@ generator client {
 generator pothos {
   provider = "prisma-pothos-types"
   clientOutput = ".prisma/client"
-  output = "../src/generated/pothos-types.ts"
+  output = "../src/pages/api/types/pothos.ts"
 }
 
 datasource db {
@@ -34,13 +34,23 @@ model User {
   created_at        DateTime   @default(now()) @db.Timestamp()
   updated_at        DateTime   @default(now()) @db.Timestamp() @updatedAt
 
-  artworks          Artwork[]  @relation("artworks_fk")
-  comments          Comment[]  @relation("comments_fk")
-
-  // following_user    User[] @relation("user_follows")
-  // followed_by_user  User[] @relation("user_follows")
+  artworks          Artwork[]       @relation("artworks_fk")
+  artwork_ranks     ArtworkRanks[]  @relation("artwork_ranks_fk")
+  comments          Comment[]       @relation("comments_fk")
+  followed_by       Follow[]       @relation("followedBy")
+  following         Follow[]       @relation("following")
 
   @@map(name: "users")
+}
+
+model Follow {
+  followedBy        User @relation("followedBy", fields: [followed_by_id], references: [id])
+  followed_by_id    Int
+  following         User @relation("following", fields: [following_id], references: [id])
+  following_id      Int
+
+  @@id([following_id, followed_by_id])
+  @@map(name: "follows")
 }
 
 model Artwork {
@@ -54,8 +64,9 @@ model Artwork {
   created_at    DateTime        @default(now()) @db.Timestamp()
   updated_at    DateTime        @default(now()) @db.Timestamp() @updatedAt
 
-  user          User           @relation("artworks_fk", fields: [user_id], references: [id])
+  user          User           @relation("artworks_fk", fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   artwork_file  ArtworkFile[]  @relation("artworks_fk_from_artwork_files")
+  artwork_ranks ArtworkRanks[] @relation("artworks_fk_from_artwork_ranks")
   comments      Comment[]      @relation("artworks_fk_from_comments")
 
   @@map(name: "artworks")
@@ -69,7 +80,7 @@ model ArtworkFile {
   created_at     DateTime           @default(now()) @db.Timestamp()
   updated_at     DateTime           @default(now()) @db.Timestamp() @updatedAt
 
-  artwork        Artwork            @relation("artworks_fk_from_artwork_files", fields: [artwork_id], references: [id])
+  artwork        Artwork            @relation("artworks_fk_from_artwork_files", fields: [artwork_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   artwork_gizmo  ArtworkGizmo[]     @relation("artwork_gizmos_fk")
 
   @@map(name: "artwork_files")
@@ -88,7 +99,7 @@ model ArtworkGizmo { // このテーブルは、モデルが含まれるファ�
   scaleY           Int
   scaleZ           Int
 
-  artwork_file     ArtworkFile    @relation("artwork_gizmos_fk", fields: [artwork_file_id], references: [id])
+  artwork_file     ArtworkFile    @relation("artwork_gizmos_fk", fields: [artwork_file_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@map(name: "artwork_gizmos")
 }
@@ -102,17 +113,49 @@ model Comment {
   created_at    DateTime        @default(now()) @db.Timestamp()
   updated_at    DateTime        @default(now()) @db.Timestamp() @updatedAt
 
-  user          User?           @relation("comments_fk", fields: [user_id], references: [id])
-  artwork       Artwork         @relation("artworks_fk_from_comments", fields: [artwork_id], references: [id])
+  user          User?           @relation("comments_fk", fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  artwork       Artwork         @relation("artworks_fk_from_comments", fields: [artwork_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@map(name: "comments")
 }
 
-// model Reports {}
+model ArtworkRanks { // このテーブルは、評価機能のみならず報告/お気に入り/ブックマーク関連機能でも使用
+  id            Int             @id @default(autoincrement())
+  artwork_id    Int             // 評価/報告/お気に入り/ブックマーク対象の作品
+  rank_id       Int             // 評価/報告/お気に入り/ブックマーク
+  user_id       Int             // 評価/報告/お気に入り/ブックマークしたユーザ
+  created_at    DateTime        @default(now()) @db.Timestamp()
+  updated_at    DateTime        @default(now()) @db.Timestamp() @updatedAt
+
+  user          User            @relation("artwork_ranks_fk", fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  artwork       Artwork         @relation("artworks_fk_from_artwork_ranks", fields: [artwork_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  ranks         Ranks           @relation("artwork_ranks_fk_from_ranks", fields: [rank_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@map(name: "artwork_ranks")
+}
+
+model Ranks { // このテーブルは、評価機能のみならず報告/お気に入り/ブックマーク関連機能でも使用
+  id            Int             @id @default(autoincrement())
+  name          String
+  rank_type_id  Int
+
+  artwork_ranks ArtworkRanks[]  @relation("artwork_ranks_fk_from_ranks")
+  rank_type     RankTypes       @relation("ranks_fk", fields: [rank_type_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@map(name: "ranks")
+}
+
+model RankTypes { // このテーブルは、評価機能のみならず報告/お気に入り/ブックマーク関連機能でも使用
+  id            Int       @id @default(autoincrement())
+  name          String
+
+  ranks         Ranks[]   @relation("ranks_fk")
+
+  @@map(name: "rank_types")
+}
+
 // model ArtworksInCart {}
-// model UserFiles {}
-// model UserFavorites {}
-// model UserBookmarks {}
+// model UserFiles {} // アイコンの他背景画像にも使用
 // model Histories {
 //  user_id
 //  type_id
