@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 import { builder } from '../../builder';
 import { prisma } from '../../db';
 import { ZodError } from 'zod';
-import { Artwork } from '../queries/artworks';
+import { Artwork, ArtworkRanks } from '../queries/artworks';
 
 builder.mutationField("addArtwork", (t) => 
     t.prismaField({
@@ -46,5 +46,40 @@ builder.mutationField("addArtwork", (t) =>
                     comments: {},
                 },
             }),
+    })
+);
+
+builder.mutationField("addArtworkRank", (t) => 
+    t.prismaField({
+        type: ArtworkRanks,
+        args: {
+            artwork_id: t.arg.string({required: true}),
+            rank_id: t.arg.string({required: true})
+        },
+        resolve: async (query, _parent, args, ctx, _info) =>
+            prisma.artworkRanks.create({ ...query, data: { 
+                artwork_id: parseInt(args.artwork_id),
+                rank_id: parseInt(args.rank_id),
+                user_id: ctx.auth.user.id
+            }})
+    })
+);
+
+builder.mutationField("removeArtworkRank", (t) => 
+    t.prismaField({
+        type: ArtworkRanks,
+        args: {
+            artwork_id: t.arg.string({required: true}),
+            rank_id: t.arg.string({required: true})
+        },
+        resolve: async (_query, _parent, args, ctx, _info) => {
+            const targetArtworkRank = await prisma.artworkRanks.findFirst({where: { 
+                artwork_id: parseInt(args.artwork_id),
+                rank_id: parseInt(args.rank_id),
+                user_id: ctx.auth.user.id
+            }});
+            if( !targetArtworkRank ) throw new Error('artwork-rank error');
+            return prisma.artworkRanks.delete({where: {id: targetArtworkRank.id}})
+        }
     })
 );

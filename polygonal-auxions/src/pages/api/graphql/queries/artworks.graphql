@@ -1,5 +1,6 @@
 query Artworks {
 	artworks {
+        id,
         title,
         slug_id,
         feature,
@@ -7,6 +8,15 @@ query Artworks {
         user {
             handle_name
         }
+    }
+}
+
+query getAuthArtworkRanks{
+    getAuthArtworkRanks {
+        id
+        artwork_id
+        user_id
+        rank_id
     }
 }
 

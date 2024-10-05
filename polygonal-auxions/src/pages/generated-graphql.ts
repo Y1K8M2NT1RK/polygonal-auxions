@@ -21,14 +21,24 @@ export type Scalars = {
 
 export type Artwork = {
   __typename?: 'Artwork';
+  artwork_ranks: Array<ArtworkRanks>;
   bads: Scalars['Int']['output'];
   comments: Array<Comment>;
   created_at: Scalars['Date']['output'];
   feature: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
   likes: Scalars['Int']['output'];
   slug_id: Scalars['ID']['output'];
   title: Scalars['String']['output'];
   user: User;
+  user_id: Scalars['ID']['output'];
+};
+
+export type ArtworkRanks = {
+  __typename?: 'ArtworkRanks';
+  artwork_id: Scalars['ID']['output'];
+  id: Scalars['ID']['output'];
+  rank_id: Scalars['ID']['output'];
   user_id: Scalars['ID']['output'];
 };
 
@@ -55,7 +65,9 @@ export type Follow = {
 export type Mutation = {
   __typename?: 'Mutation';
   addArtwork: MutationAddArtworkResult;
+  addArtworkRank: ArtworkRanks;
   followOrUnfollow: Follow;
+  removeArtworkRank: ArtworkRanks;
   validateUser: MutationValidateUserResult;
 };
 
@@ -66,9 +78,21 @@ export type MutationAddArtworkArgs = {
 };
 
 
+export type MutationAddArtworkRankArgs = {
+  artwork_id: Scalars['String']['input'];
+  rank_id: Scalars['String']['input'];
+};
+
+
 export type MutationFollowOrUnfollowArgs = {
   following_id: Scalars['String']['input'];
   mode: Scalars['String']['input'];
+};
+
+
+export type MutationRemoveArtworkRankArgs = {
+  artwork_id: Scalars['String']['input'];
+  rank_id: Scalars['String']['input'];
 };
 
 
@@ -95,6 +119,7 @@ export type Query = {
   __typename?: 'Query';
   artwork: Artwork;
   artworks: Array<Artwork>;
+  getAuthArtworkRanks: Array<ArtworkRanks>;
   user: User;
 };
 
@@ -144,6 +169,22 @@ export type AddArtworkMutationVariables = Exact<{
 
 export type AddArtworkMutation = { __typename?: 'Mutation', addArtwork: { __typename: 'MutationAddArtworkSuccess' } | { __typename: 'ZodError', message: string } };
 
+export type AddArtworkRankMutationVariables = Exact<{
+  artwork_id: Scalars['String']['input'];
+  rank_id: Scalars['String']['input'];
+}>;
+
+
+export type AddArtworkRankMutation = { __typename?: 'Mutation', addArtworkRank: { __typename: 'ArtworkRanks' } };
+
+export type RemoveArtworkRankMutationVariables = Exact<{
+  artwork_id: Scalars['String']['input'];
+  rank_id: Scalars['String']['input'];
+}>;
+
+
+export type RemoveArtworkRankMutation = { __typename?: 'Mutation', removeArtworkRank: { __typename: 'ArtworkRanks' } };
+
 export type LoginMutationVariables = Exact<{
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -163,7 +204,12 @@ export type FollowOrUnfollowMutation = { __typename?: 'Mutation', followOrUnfoll
 export type ArtworksQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ArtworksQuery = { __typename?: 'Query', artworks: Array<{ __typename?: 'Artwork', title: string, slug_id: string, feature: string, created_at: any, user: { __typename?: 'User', handle_name: string } }> };
+export type ArtworksQuery = { __typename?: 'Query', artworks: Array<{ __typename?: 'Artwork', id: string, title: string, slug_id: string, feature: string, created_at: any, user: { __typename?: 'User', handle_name: string } }> };
+
+export type GetAuthArtworkRanksQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAuthArtworkRanksQuery = { __typename?: 'Query', getAuthArtworkRanks: Array<{ __typename?: 'ArtworkRanks', id: string, artwork_id: string, user_id: string, rank_id: string }> };
 
 export type ArtworkQueryVariables = Exact<{
   slug_id: Scalars['String']['input'];
@@ -197,6 +243,28 @@ export const AddArtworkDocument = gql`
 
 export function useAddArtworkMutation() {
   return Urql.useMutation<AddArtworkMutation, AddArtworkMutationVariables>(AddArtworkDocument);
+};
+export const AddArtworkRankDocument = gql`
+    mutation AddArtworkRank($artwork_id: String!, $rank_id: String!) {
+  addArtworkRank(artwork_id: $artwork_id, rank_id: $rank_id) {
+    __typename
+  }
+}
+    `;
+
+export function useAddArtworkRankMutation() {
+  return Urql.useMutation<AddArtworkRankMutation, AddArtworkRankMutationVariables>(AddArtworkRankDocument);
+};
+export const RemoveArtworkRankDocument = gql`
+    mutation RemoveArtworkRank($artwork_id: String!, $rank_id: String!) {
+  removeArtworkRank(artwork_id: $artwork_id, rank_id: $rank_id) {
+    __typename
+  }
+}
+    `;
+
+export function useRemoveArtworkRankMutation() {
+  return Urql.useMutation<RemoveArtworkRankMutation, RemoveArtworkRankMutationVariables>(RemoveArtworkRankDocument);
 };
 export const LoginDocument = gql`
     mutation Login($email: String!, $password: String!) {
@@ -232,6 +300,7 @@ export function useFollowOrUnfollowMutation() {
 export const ArtworksDocument = gql`
     query Artworks {
   artworks {
+    id
     title
     slug_id
     feature
@@ -245,6 +314,20 @@ export const ArtworksDocument = gql`
 
 export function useArtworksQuery(options?: Omit<Urql.UseQueryArgs<ArtworksQueryVariables>, 'query'>) {
   return Urql.useQuery<ArtworksQuery, ArtworksQueryVariables>({ query: ArtworksDocument, ...options });
+};
+export const GetAuthArtworkRanksDocument = gql`
+    query getAuthArtworkRanks {
+  getAuthArtworkRanks {
+    id
+    artwork_id
+    user_id
+    rank_id
+  }
+}
+    `;
+
+export function useGetAuthArtworkRanksQuery(options?: Omit<Urql.UseQueryArgs<GetAuthArtworkRanksQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetAuthArtworkRanksQuery, GetAuthArtworkRanksQueryVariables>({ query: GetAuthArtworkRanksDocument, ...options });
 };
 export const ArtworkDocument = gql`
     query Artwork($slug_id: String!) {
