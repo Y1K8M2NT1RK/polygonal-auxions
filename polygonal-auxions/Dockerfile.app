@@ -3,17 +3,21 @@ FROM node:21-slim
 WORKDIR /app
 
 COPY package*.json ./
+
+# 依存関係をインストール
 RUN npm install \
 && apt-get update -y && apt-get install -y openssl
 
 COPY . .
 
-## npm install :  node_moduleが出ちゃう
-## opensslのインストール、prismaでのセキュリティ対策に必要
-RUN npm install \
-&& apt-get update -y && apt-get install -y openssl
-# RUN npm install
+# Prismaのセットアップスクリプトをコピー
+COPY /polygonal-auxions/entrypoint.sh /usr/local/bin/
 
-## npx prisma db seed：初期データ投入
-# RUN npx prisma generate \ 
-# && npx prisma db seed
+# スクリプトを実行可能にする
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# エントリーポイントを設定
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+# デフォルトのコマンド
+CMD ["npm", "run", "dev"]
