@@ -35,19 +35,34 @@ model User {
   created_at        DateTime   @default(now()) @db.Timestamp()
   updated_at        DateTime   @default(now()) @db.Timestamp() @updatedAt
 
+  auth_payload      AuthPayload?
+
   artworks          Artwork[]       @relation("artworks_fk")
   artwork_ranks     ArtworkRanks[]  @relation("artwork_ranks_fk")
   comments          Comment[]       @relation("comments_fk")
-  followed_by       Follow[]       @relation("followedBy")
-  following         Follow[]       @relation("following")
+  followed_by       Follow[]        @relation("followedBy")
+  following         Follow[]        @relation("following")
 
   @@map(name: "users")
 }
 
+model AuthPayload {
+  id                 String     @id @default(uuid())
+  access_token       String
+  refresh_token      String
+  user_id            Int        @unique
+  created_at         DateTime   @default(now())
+  expires_at         DateTime
+
+  user               User       @relation(fields: [user_id], references: [id])
+
+  @@map(name: "auth_payload")
+}
+
 model Follow {
-  followedBy        User @relation("followedBy", fields: [followed_by_id], references: [id])
+  followedBy        User @relation("followedBy", fields: [followed_by_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   followed_by_id    Int
-  following         User @relation("following", fields: [following_id], references: [id])
+  following         User @relation("following", fields: [following_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   following_id      Int
 
   @@id([following_id, followed_by_id])

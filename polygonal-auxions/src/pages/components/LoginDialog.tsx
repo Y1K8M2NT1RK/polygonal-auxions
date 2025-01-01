@@ -16,10 +16,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { signIn } from "next-auth/react";
-import { toast } from 'react-toastify';
-import { LoginDocument } from "@/pages/generated-graphql";
-import { useMutation } from "urql";
+import { useAuth } from '../contexts/AuthContexts';
 
 type FormData = {
     email: string;
@@ -35,20 +32,10 @@ export default function LoginDialog(){
     });
 
     {/* フォームの送信処理 */}
-    const [loginDocumentResult, loginDocument] = useMutation(LoginDocument);
-    const onSubmit = handleSubmit((data:FormData) => loginDocument(data).then(result => {
-        if(result.error){
-            const gqlErrors:string[] = result.error?.graphQLErrors[0].extensions.messages as string[];
-            for( const [key, val] of Object.entries(gqlErrors) ) setError(`root.${key}`, {type: 'server', message: val[0]});
-            toast.error('ログインできません。入力内容をお確かめください。');
-            return;
-        }
-        signIn("credentials", {...data, redirect:false}).then((res) => {
-            if(res?.error) toast.error('エラーが発生しました。'); return;
-        });
-        toast.success('ログインできました。');
-        return;
-    }));
+    const { handleLogin } = useAuth();
+    const onSubmit = handleSubmit(async (data: FormData) => {
+        await handleLogin(data.email, data.password);
+    });
 
     {/* ダイアログの開閉 */}
     const [open, setOpen] = useState(false);

@@ -2,18 +2,19 @@ import SchemaBuilder from '@pothos/core';
 import { DateTimeResolver } from "graphql-scalars";
 import type PrismaTypes from '@/pages/api/types/pothos';
 import { prisma } from './db';
-import { Context } from '@/pages/api/context';
+import { Context } from './graphql';
 
 import PrismaPlugin from '@pothos/plugin-prisma';
 import PrismaUtilsPlugin from "@pothos/plugin-prisma-utils";
 import SimpleObjectsPlugin from '@pothos/plugin-simple-objects';
 
+import ScopeAuthPlugin from '@pothos/plugin-scope-auth';
+
 import ValidationPlugin from '@pothos/plugin-validation';
 import ErrorsPlugin from '@pothos/plugin-errors';
 
-// ScopeAuthPluginは不要？->まだアンインストールしてない
-
 export const builder = new SchemaBuilder<{
+  AuthScopes: { isAuthenticated: boolean };
   Context: Context;
   PrismaTypes: PrismaTypes;
   Scalars: {
@@ -29,7 +30,13 @@ export const builder = new SchemaBuilder<{
     SimpleObjectsPlugin,
     ValidationPlugin,
     ErrorsPlugin,
+    ScopeAuthPlugin,
   ],
+  scopeAuth: {
+    authScopes: async (context) => ({ 
+      isAuthenticated: !!context.auth,
+    }),
+  },
   prisma: {
     client: prisma,
   },

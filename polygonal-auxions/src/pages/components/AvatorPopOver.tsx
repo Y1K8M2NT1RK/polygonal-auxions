@@ -15,16 +15,17 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AddIcon from '@mui/icons-material/Add';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import { signOut } from 'next-auth/react';
 import Link from 'next/link';
-import { toast } from 'react-toastify';
-import type { User } from '@/pages/generated-graphql';
+import { type User } from '@/pages/generated-graphql';
+import { useAuth } from '../contexts/AuthContexts';
 
 type Props = {
     auth: User;
 }
 
 export default function AvatorPopover({auth}: Props){
+
+    const { handleLogout } = useAuth();
 
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
@@ -61,7 +62,7 @@ export default function AvatorPopover({auth}: Props){
                             </Typography>
                         </MenuItem>
                         <MenuItem><Typography variant="button"><SettingsIcon /> 設定</Typography></MenuItem>
-                        <MenuItem onClick={() => signOut({redirect:false}).then(() => toast.success('ログアウトできました。'))}>
+                        <MenuItem onClick={handleLogout}>
                             <Typography variant="button"><LogoutIcon /> ログアウト</Typography>
                         </MenuItem>
                     </MenuList>

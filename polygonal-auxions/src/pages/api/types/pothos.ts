@@ -1,5 +1,5 @@
 /* eslint-disable */
-import type { Prisma, User, Follow, Artwork, ArtworkFile, ArtworkGizmo, Comment, ArtworkRanks, Ranks, RankTypes } from ".prisma/client";
+import type { Prisma, User, AuthPayload, Follow, Artwork, ArtworkFile, ArtworkGizmo, Comment, ArtworkRanks, Ranks, RankTypes } from ".prisma/client";
 export default interface PrismaTypes {
     User: {
         Name: "User";
@@ -11,9 +11,14 @@ export default interface PrismaTypes {
         Where: Prisma.UserWhereInput;
         Create: {};
         Update: {};
-        RelationName: "artworks" | "artwork_ranks" | "comments" | "followed_by" | "following";
+        RelationName: "auth_payload" | "artworks" | "artwork_ranks" | "comments" | "followed_by" | "following";
         ListRelations: "artworks" | "artwork_ranks" | "comments" | "followed_by" | "following";
         Relations: {
+            auth_payload: {
+                Shape: AuthPayload | null;
+                Name: "AuthPayload";
+                Nullable: true;
+            };
             artworks: {
                 Shape: Artwork[];
                 Name: "Artwork";
@@ -37,6 +42,26 @@ export default interface PrismaTypes {
             following: {
                 Shape: Follow[];
                 Name: "Follow";
+                Nullable: false;
+            };
+        };
+    };
+    AuthPayload: {
+        Name: "AuthPayload";
+        Shape: AuthPayload;
+        Include: Prisma.AuthPayloadInclude;
+        Select: Prisma.AuthPayloadSelect;
+        OrderBy: Prisma.AuthPayloadOrderByWithRelationInput;
+        WhereUnique: Prisma.AuthPayloadWhereUniqueInput;
+        Where: Prisma.AuthPayloadWhereInput;
+        Create: {};
+        Update: {};
+        RelationName: "user";
+        ListRelations: never;
+        Relations: {
+            user: {
+                Shape: User;
+                Name: "User";
                 Nullable: false;
             };
         };

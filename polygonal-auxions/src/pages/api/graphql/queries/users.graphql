@@ -28,3 +28,10 @@ query User($handle_name: String!) {
         }
     }
 }
+
+query me{
+    me {
+        id
+        handle_name
+    }
+}

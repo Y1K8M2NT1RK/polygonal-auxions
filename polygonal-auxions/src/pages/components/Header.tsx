@@ -8,15 +8,14 @@ import {
 import { Fragment } from "react";
 import LoginDialog from "./LoginDialog";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 import AvatorPopover from "./AvatorPopOver";
 import { ToastContainer, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useAuth } from '../contexts/AuthContexts';
 
 export default function Header (){
 
-    const {data: session, status:status} = useSession();
-    const auth = session?.user;
+    const { user, fetching, isLoggedIn } = useAuth();
 
     return (
         <Fragment>
@@ -42,17 +41,16 @@ export default function Header (){
                         Polygonal Auxions
                     </Typography>
                     {
-                        status == 'loading'
+                        fetching
                         ?   (
                             <Box sx={{display:'flex'}}>
                                 <Skeleton animation="wave" variant="circular" width={56} height={56} />
                                 <Skeleton animation="wave" variant="circular" width={56} height={56} />
                             </Box>
-                        )
-                        :   (
-                            !auth
-                            ?   <LoginDialog />
-                            :   <AvatorPopover auth={auth} />
+                        ) : isLoggedIn && user ? (
+                            <AvatorPopover auth={user} />
+                        ) : (
+                            <LoginDialog />
                         )
                     }
                 </Toolbar>

@@ -19,6 +19,16 @@ export const User = builder.prismaObject('User', {
   }),
 });
 
+export const AuthPayload = builder.prismaObject('AuthPayload', {
+  fields: (t) => ({
+    id: t.exposeID('id'),
+    accessToken: t.exposeString('access_token'),
+    refreshToken: t.exposeString('refresh_token'),
+    expires_at: t.expose('expires_at', { type: 'Date' }),
+    user: t.relation('user'),
+  }),
+});
+
 export const Follows = builder.prismaObject('Follow', {
   fields: (t) => ({
     following: t.relation('following'),
@@ -33,7 +43,7 @@ builder.queryField("user", (t) =>
   t.prismaField({
     type: User,
     args: { handle_name: t.arg.string({ required: true }), },
-    resolve: (query, _parent, args, _ctx, _info) =>
+    resolve: (query, _parent, args, _ctx, _info) => 
       prisma.user.findUniqueOrThrow({
         ...query,
         where: { handle_name: args.handle_name },
@@ -42,5 +52,18 @@ builder.queryField("user", (t) =>
           comments: { orderBy: { created_at : 'desc' }}
         }
       }),
+  })
+);
+
+// ログイン中のユーザー情報
+builder.queryField("me", (t) =>
+  t.prismaField({
+    type: User,
+    authScopes: { isAuthenticated: true, },
+    resolve: (query, _parent, _args, ctx, _info) => {
+      return prisma.user.findUniqueOrThrow({
+        ...query,
+        where: {id: ctx.auth?.id},
+      })},
   })
 );

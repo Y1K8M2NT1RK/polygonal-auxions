@@ -1,7 +1,11 @@
 mutation Login($email: String!, $password: String!) {
-  validateUser(email: $email, password: $password) {
-    ... on MutationValidateUserSuccess {
+  login(email: $email, password: $password) {
+    ... on MutationLoginSuccess {
       __typename
+      data {
+        accessToken
+        refreshToken
+      }
     }
     ... on ZodError {
       __typename
@@ -11,6 +15,30 @@ mutation Login($email: String!, $password: String!) {
       }
     }
   }
+}
+
+# todo: refreshをちゃんと動かせるようにする
+mutation Refresh {
+  refresh {
+    ... on MutationRefreshSuccess {
+      __typename
+      data {
+        accessToken
+        refreshToken
+      }
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors {
+        message
+      }
+    }
+  }
+}
+
+mutation Logout {
+  logout
 }
 
 mutation followOrUnfollow($following_id: String!, $mode: String!){

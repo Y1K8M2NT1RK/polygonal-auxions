@@ -42,6 +42,15 @@ export type ArtworkRanks = {
   user_id: Scalars['ID']['output'];
 };
 
+export type AuthPayload = {
+  __typename?: 'AuthPayload';
+  accessToken: Scalars['String']['output'];
+  expires_at: Scalars['Date']['output'];
+  id: Scalars['ID']['output'];
+  refreshToken: Scalars['String']['output'];
+  user: User;
+};
+
 export type Comment = {
   __typename?: 'Comment';
   artwork: Artwork;
@@ -67,8 +76,10 @@ export type Mutation = {
   addArtwork: MutationAddArtworkResult;
   addArtworkRank: ArtworkRanks;
   followOrUnfollow: Follow;
+  login: MutationLoginResult;
+  logout: Scalars['Boolean']['output'];
+  refresh: MutationRefreshResult;
   removeArtworkRank: ArtworkRanks;
-  validateUser: MutationValidateUserResult;
 };
 
 
@@ -90,15 +101,15 @@ export type MutationFollowOrUnfollowArgs = {
 };
 
 
-export type MutationRemoveArtworkRankArgs = {
-  artwork_id: Scalars['String']['input'];
-  rank_id: Scalars['String']['input'];
+export type MutationLoginArgs = {
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
 };
 
 
-export type MutationValidateUserArgs = {
-  email: Scalars['String']['input'];
-  password: Scalars['String']['input'];
+export type MutationRemoveArtworkRankArgs = {
+  artwork_id: Scalars['String']['input'];
+  rank_id: Scalars['String']['input'];
 };
 
 export type MutationAddArtworkResult = MutationAddArtworkSuccess | ZodError;
@@ -108,11 +119,18 @@ export type MutationAddArtworkSuccess = {
   data: Artwork;
 };
 
-export type MutationValidateUserResult = MutationValidateUserSuccess | ZodError;
+export type MutationLoginResult = MutationLoginSuccess | ZodError;
 
-export type MutationValidateUserSuccess = {
-  __typename?: 'MutationValidateUserSuccess';
-  data: Scalars['Boolean']['output'];
+export type MutationLoginSuccess = {
+  __typename?: 'MutationLoginSuccess';
+  data: AuthPayload;
+};
+
+export type MutationRefreshResult = MutationRefreshSuccess | ZodError;
+
+export type MutationRefreshSuccess = {
+  __typename?: 'MutationRefreshSuccess';
+  data: AuthPayload;
 };
 
 export type Query = {
@@ -120,6 +138,7 @@ export type Query = {
   artwork: Artwork;
   artworks: Array<Artwork>;
   getAuthArtworkRanks: Array<ArtworkRanks>;
+  me: User;
   user: User;
 };
 
@@ -191,7 +210,17 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', validateUser: { __typename: 'MutationValidateUserSuccess' } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
+export type LoginMutation = { __typename?: 'Mutation', login: { __typename: 'MutationLoginSuccess', data: { __typename?: 'AuthPayload', accessToken: string, refreshToken: string } } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
+
+export type RefreshMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RefreshMutation = { __typename?: 'Mutation', refresh: { __typename: 'MutationRefreshSuccess', data: { __typename?: 'AuthPayload', accessToken: string, refreshToken: string } } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
+
+export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogoutMutation = { __typename?: 'Mutation', logout: boolean };
 
 export type FollowOrUnfollowMutationVariables = Exact<{
   following_id: Scalars['String']['input'];
@@ -224,6 +253,11 @@ export type UserQueryVariables = Exact<{
 
 
 export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', id: string, name: string, name_kana?: string | null, handle_name: string, introduction: string, address: string, email: string, created_at: any, artworks: Array<{ __typename?: 'Artwork', slug_id: string, title: string, likes: number, bads: number, created_at: any }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, artwork: { __typename?: 'Artwork', slug_id: string, title: string } }>, following: Array<{ __typename?: 'Follow', followed_by_id: string }> } };
+
+export type MeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, handle_name: string } };
 
 
 export const AddArtworkDocument = gql`
@@ -268,9 +302,13 @@ export function useRemoveArtworkRankMutation() {
 };
 export const LoginDocument = gql`
     mutation Login($email: String!, $password: String!) {
-  validateUser(email: $email, password: $password) {
-    ... on MutationValidateUserSuccess {
+  login(email: $email, password: $password) {
+    ... on MutationLoginSuccess {
       __typename
+      data {
+        accessToken
+        refreshToken
+      }
     }
     ... on ZodError {
       __typename
@@ -285,6 +323,39 @@ export const LoginDocument = gql`
 
 export function useLoginMutation() {
   return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
+};
+export const RefreshDocument = gql`
+    mutation Refresh {
+  refresh {
+    ... on MutationRefreshSuccess {
+      __typename
+      data {
+        accessToken
+        refreshToken
+      }
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors {
+        message
+      }
+    }
+  }
+}
+    `;
+
+export function useRefreshMutation() {
+  return Urql.useMutation<RefreshMutation, RefreshMutationVariables>(RefreshDocument);
+};
+export const LogoutDocument = gql`
+    mutation Logout {
+  logout
+}
+    `;
+
+export function useLogoutMutation() {
+  return Urql.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument);
 };
 export const FollowOrUnfollowDocument = gql`
     mutation followOrUnfollow($following_id: String!, $mode: String!) {
@@ -390,4 +461,16 @@ export const UserDocument = gql`
 
 export function useUserQuery(options: Omit<Urql.UseQueryArgs<UserQueryVariables>, 'query'>) {
   return Urql.useQuery<UserQuery, UserQueryVariables>({ query: UserDocument, ...options });
+};
+export const MeDocument = gql`
+    query me {
+  me {
+    id
+    handle_name
+  }
+}
+    `;
+
+export function useMeQuery(options?: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'>) {
+  return Urql.useQuery<MeQuery, MeQueryVariables>({ query: MeDocument, ...options });
 };
