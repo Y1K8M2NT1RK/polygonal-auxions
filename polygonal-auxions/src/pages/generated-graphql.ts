@@ -137,6 +137,7 @@ export type Query = {
   __typename?: 'Query';
   artwork: Artwork;
   artworks: Array<Artwork>;
+  getArtworkRanks: Array<ArtworkRanks>;
   getAuthArtworkRanks: Array<ArtworkRanks>;
   me: User;
   user: User;
@@ -145,6 +146,11 @@ export type Query = {
 
 export type QueryArtworkArgs = {
   slug_id: Scalars['String']['input'];
+};
+
+
+export type QueryGetArtworkRanksArgs = {
+  artwork_id: Scalars['String']['input'];
 };
 
 
@@ -245,7 +251,14 @@ export type ArtworkQueryVariables = Exact<{
 }>;
 
 
-export type ArtworkQuery = { __typename?: 'Query', artwork: { __typename?: 'Artwork', slug_id: string, title: string, likes: number, bads: number, feature: string, created_at: any, user: { __typename?: 'User', handle_name: string }, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, user: { __typename?: 'User', handle_name: string } }> } };
+export type ArtworkQuery = { __typename?: 'Query', artwork: { __typename?: 'Artwork', id: string, slug_id: string, title: string, likes: number, bads: number, feature: string, created_at: any, user: { __typename?: 'User', handle_name: string }, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, user: { __typename?: 'User', handle_name: string } }> } };
+
+export type GetArtworkRanksQueryVariables = Exact<{
+  artwork_id: Scalars['String']['input'];
+}>;
+
+
+export type GetArtworkRanksQuery = { __typename?: 'Query', getArtworkRanks: Array<{ __typename?: 'ArtworkRanks', id: string, rank_id: string }> };
 
 export type UserQueryVariables = Exact<{
   handle_name: Scalars['String']['input'];
@@ -403,6 +416,7 @@ export function useGetAuthArtworkRanksQuery(options?: Omit<Urql.UseQueryArgs<Get
 export const ArtworkDocument = gql`
     query Artwork($slug_id: String!) {
   artwork(slug_id: $slug_id) {
+    id
     slug_id
     title
     likes
@@ -425,6 +439,18 @@ export const ArtworkDocument = gql`
 
 export function useArtworkQuery(options: Omit<Urql.UseQueryArgs<ArtworkQueryVariables>, 'query'>) {
   return Urql.useQuery<ArtworkQuery, ArtworkQueryVariables>({ query: ArtworkDocument, ...options });
+};
+export const GetArtworkRanksDocument = gql`
+    query getArtworkRanks($artwork_id: String!) {
+  getArtworkRanks(artwork_id: $artwork_id) {
+    id
+    rank_id
+  }
+}
+    `;
+
+export function useGetArtworkRanksQuery(options: Omit<Urql.UseQueryArgs<GetArtworkRanksQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetArtworkRanksQuery, GetArtworkRanksQueryVariables>({ query: GetArtworkRanksDocument, ...options });
 };
 export const UserDocument = gql`
     query User($handle_name: String!) {

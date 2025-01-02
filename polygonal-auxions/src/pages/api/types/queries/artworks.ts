@@ -58,3 +58,13 @@ builder.queryField("artwork", (t) =>
       }),
   })
 );
+
+// 一つの作品におけるお気に入り/ブックマークの数を取得
+builder.queryField("getArtworkRanks", (t) =>
+  t.prismaField({
+    type: [ArtworkRanks], // 複数のデータを求める場合は[]で囲う
+    args: { artwork_id: t.arg.string({ required: true }),},
+    resolve: (query, _parent, args, _ctx, _info) =>
+      prisma.artworkRanks.findMany({ ...query, where: { artwork_id: parseInt(args.artwork_id), rank_id: {in: [3, 4]} }})
+  })
+);

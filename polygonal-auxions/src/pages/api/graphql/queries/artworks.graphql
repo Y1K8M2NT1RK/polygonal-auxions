@@ -22,6 +22,7 @@ query getAuthArtworkRanks{
 
 query Artwork($slug_id: String!) {
     artwork(slug_id: $slug_id) {
+        id
         slug_id
         title
         likes
@@ -38,5 +39,12 @@ query Artwork($slug_id: String!) {
                 handle_name
             }
         }
+    }
+}
+
+query getArtworkRanks($artwork_id: String!) {
+    getArtworkRanks(artwork_id: $artwork_id) {
+        id
+        rank_id
     }
 }

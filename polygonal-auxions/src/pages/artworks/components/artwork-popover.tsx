@@ -37,8 +37,8 @@ export default function ArtworkPopover(props: {isBookmarked: boolean, isFavorite
 
     return (
         <Box>
-            {props.isFavorited ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
-            {props.isBookmarked ? <BookmarkIcon color="primary" /> : <BookmarkBorderIcon />}
+            {props.isFavorited ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon color="error" />}
+            {props.isBookmarked ? <BookmarkIcon color="primary" /> : <BookmarkBorderIcon color="primary" />}
             <IconButton sx={{height:'fit-content'}} onClick={handleClick}>
                 <MoreHorizIcon />
             </IconButton>
