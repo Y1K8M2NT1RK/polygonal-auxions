@@ -15,13 +15,13 @@ import {
     CardHeader,
     CircularProgress,
 } from "@mui/material";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import stringAvatar from '@/pages/utils/default-avator-icon';
 import { useMutation } from "urql";
 import { AddArtworkDocument } from "@/pages/generated-graphql";
 import { toast } from "react-toastify";
+import { useAuth } from "@/pages/contexts/AuthContexts";
 
 type FormData = {
     title: string;
@@ -39,7 +39,7 @@ export default function AddArtwork(){
     const router = useRouter();
 
     {/** 作品の新規追加処理 */}
-    const [addArtworkResult, addArtwork] = useMutation(AddArtworkDocument);
+    const [, addArtwork] = useMutation(AddArtworkDocument);
     const onSubmit = handleSubmit((data:FormData) => addArtwork(data).then(result => {
         if(result.error){
             const gqlErrors:string[] = result.error?.graphQLErrors[0].extensions.messages as string[];
@@ -51,15 +51,14 @@ export default function AddArtwork(){
         return router.replace('/artworks');
     }));
 
-    const {data: session, status: status} = useSession();
-    const auth = session?.user;
+    const {user, fetching} = useAuth();
 
     {/** ログインしていないならリダイレクト(CSR) */}
-    if(status == 'unauthenticated') router.replace('/artworks');
-    if(status == 'loading') return (<CircularProgress key={0} color="inherit" />);
+    if(!user) router.replace('/artworks');
+    if(fetching) return (<CircularProgress key={0} color="inherit" />);
 
     return (
-        status == 'unauthenticated'
+        !user
         ? null
         : <Container sx={{ mt: 2, mb: 2 }}>
             <Card
@@ -74,8 +73,8 @@ export default function AddArtwork(){
                     <Typography variant="h5">作品の追加</Typography>
                     <Box component="form" method="POST" onSubmit={onSubmit}>
                         <CardHeader
-                            avatar={<Avatar {...stringAvatar(auth.handle_name, {width: 40, height: 40, fontSize: 20,})} />}
-                            title={<Typography variant="subtitle1">{auth.handle_name}</Typography>}
+                            avatar={<Avatar {...stringAvatar(user.handle_name, {width: 40, height: 40, fontSize: 20,})} />}
+                            title={<Typography variant="subtitle1">{user.handle_name}</Typography>}
                         />
                         <FormControl fullWidth sx={{mt: 2}}>
                             <TextField 

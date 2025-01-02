@@ -5,7 +5,6 @@ import { compareSync, genSaltSync, hashSync } from 'bcrypt';
 import { AuthPayload, Follows } from '../queries/users';
 import jwt from 'jsonwebtoken';
 import { serialize } from 'cookie';
-import { Context } from '../../graphql';
 
 builder.mutationField("login", (t) => 
     t.prismaField({
@@ -87,9 +86,10 @@ builder.mutationField("refresh", (t) =>
         errors: { types: [ZodError], },
         authScopes: { isAuthenticated: true, },
         resolve: async (_query, _parent, _args, ctx) => {
+            const { res } = ctx;
             const user_id = ctx.auth?.id as number;
-            const access_token = jwt.sign({ user_id }, process.env.JWT_SECRET??'', { expiresIn: '15m' });
-            const refresh_token = jwt.sign({ user_id }, process.env.JWT_REFRESH_SECRET??'', { expiresIn: '7d' });
+            const access_token = jwt.sign({ id: user_id }, process.env.JWT_SECRET??'', { expiresIn: '15m' });
+            const refresh_token = jwt.sign({ id: user_id }, process.env.JWT_REFRESH_SECRET??'', { expiresIn: '7d' });
             const authPayload = await prisma.authPayload.upsert({
                 where: { user_id: user_id },
                 update: {access_token, refresh_token, expires_at: new Date(Date.now() + 15 * 60 * 1000),},
@@ -97,6 +97,25 @@ builder.mutationField("refresh", (t) =>
             });
             const user = await prisma.user.findUnique({ where: { id: user_id }});
             if (!user) throw new Error('User not found');
+
+            // クッキーに新しいトークンを保存
+            res.setHeader('Set-Cookie', [
+                serialize('token', access_token, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 3600, // 1 hour
+                    path: '/',
+                    sameSite: 'strict',
+                }),
+                serialize('refreshToken', refresh_token, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 604800, // 7 days
+                    path: '/',
+                    sameSite: 'strict',
+                }),
+            ]);
+
             return authPayload;
         },
     })
@@ -138,6 +157,7 @@ builder.mutationField("logout", (t) =>
 builder.mutationField('followOrUnfollow', (t) => 
     t.prismaField({
         type: Follows,
+        authScopes: { isAuthenticated: true, },
         args: { following_id: t.arg.string({required: true,}), mode: t.arg.string({required: true,}) },
         resolve: async (query, _parent, args, ctx, _info) => {
             if(args.mode == 'follow'){ return prisma.follow.create({

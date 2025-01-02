@@ -13,17 +13,16 @@ import { type ArtworkRanks, type Artwork } from '@/pages/generated-graphql';
 import { DateTime } from 'luxon';
 import stringAvatar from '@/pages/utils/default-avator-icon';
 import ArtworkPopover from './artwork-popover';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/pages/contexts/AuthContexts';
 
 export default function ArtworkListUnit(props: {artwork: Artwork, artworkRanks: ArtworkRanks[]|null}){
 
-    const {data: session, status:status} = useSession();
-    const auth = session?.user;
+    const { user } = useAuth();
 
     let isFavorited: boolean = false; let isBookmarked: boolean = false;
-    if(!!auth && !!props.artworkRanks){
-        isFavorited = props.artworkRanks?.filter((val: ArtworkRanks) => val.rank_id == '3' && val.artwork_id == props.artwork.id && val.user_id == auth.id).length > 0;
-        isBookmarked = props.artworkRanks?.filter((val: ArtworkRanks) => val.rank_id == '4' && val.artwork_id == props.artwork.id && val.user_id == auth.id).length > 0;
+    if(!!user && !!props.artworkRanks){
+        isFavorited = props.artworkRanks?.filter((val: ArtworkRanks) => val.rank_id == '3' && val.artwork_id == props.artwork.id && val.user_id == user.id).length > 0;
+        isBookmarked = props.artworkRanks?.filter((val: ArtworkRanks) => val.rank_id == '4' && val.artwork_id == props.artwork.id && val.user_id == user.id).length > 0;
     }
 
     return (

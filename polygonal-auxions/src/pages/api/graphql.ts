@@ -26,7 +26,9 @@ export const createContext = async (
   let auth: User | null = null;
   if (token) {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET ?? '') as { id: number };
+      let decoded: { id: number };
+      if( refreshToken ) decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET ?? '') as { id: number };
+      else decoded = jwt.verify(token, process.env.JWT_SECRET ?? '') as { id: number };
       auth = await prisma.user.findUnique({ where: { id: decoded.id },});
     } catch (error) {
       console.error('トークンの特定がエラーにより不可:', error);

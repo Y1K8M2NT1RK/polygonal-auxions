@@ -27,16 +27,7 @@ const createAuthExchange = () => authExchange(async (utils) => {
             );
         },
         async refreshAuth() {
-            // トークンのリフレッシュ処理をサーバーサイドで行う必要があるので、必要に応じてリフレッシュAPIを呼び出す
-            const response = await fetch('/api/refresh-token', { method: 'POST' });
-            if (!response.ok) {
-                throw new Error('Failed to refresh token');
-            }
-            // 新しいトークンがクッキーに設定されていることを前提に、トークンを取得
-            const newToken = getTokenFromCookies();
-            if (!newToken) {
-                throw new Error('No new token available');
-            }
+            return;
         },
     };
 });

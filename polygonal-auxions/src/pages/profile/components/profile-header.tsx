@@ -14,40 +14,39 @@ import FlagIcon from '@mui/icons-material/Flag';
 import EditIcon from '@mui/icons-material/Edit';
 import { FollowOrUnfollowDocument, type User } from '@/pages/generated-graphql';
 import stringAvatar from '@/pages/utils/default-avator-icon';
-import { useSession } from 'next-auth/react';
 import { useMutation } from 'urql';
 import { toast } from 'react-toastify';
+import { useAuth } from '@/pages/contexts/AuthContexts';
 
 type Props = {
-    user: User
+    viewing_user: User
 }
 
-export default function ProfileHeader({user}: Props){
+export default function ProfileHeader({viewing_user}: Props){
 
-    const {data: session} = useSession();
-    const auth = session?.user;
+    const { user: auth } = useAuth();
 
-    const isAuthFollowed = user.following.filter((val) => val.followed_by_id == auth.id)[0] ? true : false;
+    const isAuthFollowed = viewing_user.following.filter((val) => val.followed_by_id == auth?.id)[0] ? true : false;
 
-    const [FollowOrUnfollowResult, FollowOrUnfollow] = useMutation(FollowOrUnfollowDocument);
+    const [, FollowOrUnfollow] = useMutation(FollowOrUnfollowDocument);
 
     return (
         <Card>
             <CardMedia component="img" style={{height:"200px"}} />
             <CardHeader
-                avatar={<Avatar {...stringAvatar(user.handle_name, { width: 60, height: 60, fontSize: 30 })} />}
-                title={<Typography variant="h5">{user.handle_name}</Typography>}
-                subheader={<Typography>{user.introduction}</Typography>}
+                avatar={<Avatar {...stringAvatar(viewing_user.handle_name, { width: 60, height: 60, fontSize: 30 })} />}
+                title={<Typography variant="h5">{viewing_user.handle_name}</Typography>}
+                subheader={<Typography>{viewing_user.introduction}</Typography>}
             />
             <CardContent>
                 <Grid container sx={{ flexGrow: 1, }} spacing={2}>
                     {
-                        auth?.handle_name == user.handle_name 
+                        auth?.handle_name == viewing_user.handle_name 
                         ?   (
                             <>
-                                <Grid item><Fab color="inherit" variant="extended"><EditIcon />編集</Fab></Grid>
-                                <Grid item><Fab color="inherit" variant="extended">フォロー中</Fab></Grid>
-                                <Grid item><Fab color="inherit" variant="extended">フォロワー</Fab></Grid>
+                                <Grid item><Fab variant="extended"><EditIcon />編集</Fab></Grid>
+                                <Grid item><Fab variant="extended">フォロー中</Fab></Grid>
+                                <Grid item><Fab variant="extended">フォロワー</Fab></Grid>
                             </>
                         )
                         :   (
@@ -57,26 +56,28 @@ export default function ProfileHeader({user}: Props){
                                         isAuthFollowed
                                         ?   (
                                             <Fab
-                                                color="inherit" variant="extended" component="button"
-                                                onClick={() => 
-                                                    FollowOrUnfollow({following_id: user.id, mode: 'unfollow'})
-                                                        .then(() => toast.success(user.handle_name+'をフォローを解除しました。'))
+                                                variant="extended" component="button"
+                                                onClick={() => {
+                                                    if(!auth) return toast.error('ログインが必要です。');
+                                                    FollowOrUnfollow({following_id: viewing_user.id, mode: 'unfollow'})
+                                                        .then(() => toast.success(viewing_user.handle_name+'をフォローを解除しました。'))
                                                         .catch(() => toast.error('エラーが発生しました。'))
-                                                }
+                                                }}
                                             ><PersonAddDisabledIcon />フォローを解除</Fab>
                                         )
                                         :   (<Fab
-                                                color="inherit" variant="extended" component="button"
-                                                onClick={() => 
-                                                    FollowOrUnfollow({following_id: user.id, mode: 'follow'})   
-                                                        .then(() => toast.success(user.handle_name+'をフォローしました。'))
+                                                variant="extended" component="button"
+                                                onClick={() => {
+                                                    if(!auth) return toast.error('ログインが必要です。');
+                                                    FollowOrUnfollow({following_id: viewing_user.id, mode: 'follow'})   
+                                                        .then(() => toast.success(viewing_user.handle_name+'をフォローしました。'))
                                                         .catch(() => toast.error('エラーが発生しました。'))
-                                                }
+                                                }}
                                             ><PersonAddAltIcon />フォローする</Fab>
                                         )
                                     }
                                 </Grid>
-                                <Grid item><Fab color="inherit" variant="extended"><FlagIcon />報告</Fab></Grid>
+                                <Grid item><Fab variant="extended"><FlagIcon />報告</Fab></Grid>
                             </>
                         )
                     }

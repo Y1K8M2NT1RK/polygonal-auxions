@@ -8,6 +8,7 @@ builder.mutationField("addArtwork", (t) =>
     t.prismaField({
         type: Artwork,
         errors: { types: [ZodError], },
+        authScopes: { isAuthenticated: true, },
         args: {
             title: t.arg.string({
                 required: true,
@@ -38,7 +39,7 @@ builder.mutationField("addArtwork", (t) =>
                     bads: 0,
                     user: {
                         connect: await prisma.user.findUniqueOrThrow({
-                            where: { slug_id: ctx.auth.user.slug_id },
+                            where: { slug_id: ctx.auth?.slug_id },
                             include: {}
                         })
                     },
@@ -52,6 +53,7 @@ builder.mutationField("addArtwork", (t) =>
 builder.mutationField("addArtworkRank", (t) => 
     t.prismaField({
         type: ArtworkRanks,
+        authScopes: { isAuthenticated: true, },
         args: {
             artwork_id: t.arg.string({required: true}),
             rank_id: t.arg.string({required: true})
@@ -60,7 +62,7 @@ builder.mutationField("addArtworkRank", (t) =>
             prisma.artworkRanks.create({ ...query, data: { 
                 artwork_id: parseInt(args.artwork_id),
                 rank_id: parseInt(args.rank_id),
-                user_id: ctx.auth.user.id
+                user_id: ctx.auth?.id as number,
             }})
     })
 );
@@ -68,6 +70,7 @@ builder.mutationField("addArtworkRank", (t) =>
 builder.mutationField("removeArtworkRank", (t) => 
     t.prismaField({
         type: ArtworkRanks,
+        authScopes: { isAuthenticated: true, },
         args: {
             artwork_id: t.arg.string({required: true}),
             rank_id: t.arg.string({required: true})
@@ -76,7 +79,7 @@ builder.mutationField("removeArtworkRank", (t) =>
             const targetArtworkRank = await prisma.artworkRanks.findFirst({where: { 
                 artwork_id: parseInt(args.artwork_id),
                 rank_id: parseInt(args.rank_id),
-                user_id: ctx.auth.user.id
+                user_id: ctx.auth?.id,
             }});
             if( !targetArtworkRank ) throw new Error('artwork-rank error');
             return prisma.artworkRanks.delete({where: {id: targetArtworkRank.id}})

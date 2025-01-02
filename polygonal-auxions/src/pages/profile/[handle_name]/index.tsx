@@ -23,7 +23,7 @@ export default function Profile(){
 
     return (
         <Container sx={{my:2}}>
-            <ProfileHeader user={user}/>
+            <ProfileHeader viewing_user={user}/>
             <ProfileArtworks user={user}/>
             <ProfileComments user={user}/>
         </Container>

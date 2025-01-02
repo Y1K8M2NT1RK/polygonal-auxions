@@ -19,12 +19,11 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { AnyVariables, useMutation } from 'urql';
 import { AddArtworkRankDocument, RemoveArtworkRankDocument } from '@/pages/generated-graphql';
 import { toast } from 'react-toastify';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/pages/contexts/AuthContexts';
 
 export default function ArtworkPopover(props: {isBookmarked: boolean, isFavorited: boolean, artworkId: Number}){
 
-    const {data: session, status:status} = useSession();
-    const auth = session?.user;
+    const { user } = useAuth();
 
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
@@ -33,8 +32,8 @@ export default function ArtworkPopover(props: {isBookmarked: boolean, isFavorite
   
     const open = Boolean(anchorEl);
 
-    const [AddArtworkRankDocumentResult, AddArtworkRank] = useMutation<AnyVariables>(AddArtworkRankDocument);
-    const [RemoveArtworkRankDocumentResult, RemoveArtworkRank] = useMutation<AnyVariables>(RemoveArtworkRankDocument);
+    const [, AddArtworkRank] = useMutation<AnyVariables>(AddArtworkRankDocument);
+    const [, RemoveArtworkRank] = useMutation<AnyVariables>(RemoveArtworkRankDocument);
 
     return (
         <Box>
@@ -54,7 +53,7 @@ export default function ArtworkPopover(props: {isBookmarked: boolean, isFavorite
                     <MenuList sx={{display: 'flex', flexDirection: 'column', width: 'max-content'}} dense>
                         <MenuItem>
                             <Typography variant="button" onClick={() => {
-                                if(!auth) return toast.error('ログインが必要です。');
+                                if(!user) return toast.error('ログインが必要です。');
                                 handleClose();
                                 props.isFavorited
                                 ?   RemoveArtworkRank({artwork_id: String(props.artworkId), rank_id: '3'}).catch(() => toast.error('エラーが発生しました。'))
@@ -66,7 +65,7 @@ export default function ArtworkPopover(props: {isBookmarked: boolean, isFavorite
                         </MenuItem>
                         <MenuItem>
                             <Typography variant="button" onClick={() => {
-                                if(!auth) return toast.error('ログインが必要です。');
+                                if(!user) return toast.error('ログインが必要です。');
                                 handleClose();
                                 props.isBookmarked
                                 ?   RemoveArtworkRank({artwork_id: String(props.artworkId), rank_id: '4'}).catch(() => toast.error('エラーが発生しました。'))

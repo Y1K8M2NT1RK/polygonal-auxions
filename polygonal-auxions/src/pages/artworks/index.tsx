@@ -7,8 +7,8 @@ import { useQuery } from 'urql';
 import { type Artwork, type ArtworkRanks } from '@/pages/generated-graphql';
 import { ArtworksDocument, GetAuthArtworkRanksDocument } from '@/pages/generated-graphql';
 import ArtworkListUnit from './components/artwork-list-unit';
-import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContexts';
 
 export default function Artworks() {
     const [resultArtworks] = useQuery({query: ArtworksDocument,});
@@ -18,14 +18,13 @@ export default function Artworks() {
 
     const artworks: Artwork[] = dataArtworks?.artworks;
 
-    const {data: session, status:status} = useSession();
-    const auth = session?.user;
+    const { user } = useAuth();
 
     let artworkRanks: ArtworkRanks[]|null = null;
 
     const [resultArtworkRanks, reExecuteArtworkRanksQuery] = useQuery({query: GetAuthArtworkRanksDocument, pause: true,});
 
-    useEffect(() => { reExecuteArtworkRanksQuery({ requestPolicy: 'network-only' }); }, [auth]);
+    useEffect(() => { reExecuteArtworkRanksQuery({ requestPolicy: 'network-only' }); }, [user]);
 
     const { data: dataArtworkRanks } = resultArtworkRanks;
     artworkRanks = dataArtworkRanks?.getAuthArtworkRanks as ArtworkRanks[];
