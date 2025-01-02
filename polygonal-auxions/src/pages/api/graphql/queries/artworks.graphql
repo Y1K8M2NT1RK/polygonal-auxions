@@ -11,8 +11,8 @@ query Artworks {
     }
 }
 
-query getAuthArtworkRanks{
-    getAuthArtworkRanks {
+query getAuthArtworkRanks($artwork_id: String) {
+    getAuthArtworkRanks (artwork_id: $artwork_id) {
         id
         artwork_id
         user_id

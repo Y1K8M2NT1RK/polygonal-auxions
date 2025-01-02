@@ -154,6 +154,11 @@ export type QueryGetArtworkRanksArgs = {
 };
 
 
+export type QueryGetAuthArtworkRanksArgs = {
+  artwork_id?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryUserArgs = {
   handle_name: Scalars['String']['input'];
 };
@@ -241,7 +246,9 @@ export type ArtworksQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ArtworksQuery = { __typename?: 'Query', artworks: Array<{ __typename?: 'Artwork', id: string, title: string, slug_id: string, feature: string, created_at: any, user: { __typename?: 'User', handle_name: string } }> };
 
-export type GetAuthArtworkRanksQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetAuthArtworkRanksQueryVariables = Exact<{
+  artwork_id?: InputMaybe<Scalars['String']['input']>;
+}>;
 
 
 export type GetAuthArtworkRanksQuery = { __typename?: 'Query', getAuthArtworkRanks: Array<{ __typename?: 'ArtworkRanks', id: string, artwork_id: string, user_id: string, rank_id: string }> };
@@ -400,8 +407,8 @@ export function useArtworksQuery(options?: Omit<Urql.UseQueryArgs<ArtworksQueryV
   return Urql.useQuery<ArtworksQuery, ArtworksQueryVariables>({ query: ArtworksDocument, ...options });
 };
 export const GetAuthArtworkRanksDocument = gql`
-    query getAuthArtworkRanks {
-  getAuthArtworkRanks {
+    query getAuthArtworkRanks($artwork_id: String) {
+  getAuthArtworkRanks(artwork_id: $artwork_id) {
     id
     artwork_id
     user_id

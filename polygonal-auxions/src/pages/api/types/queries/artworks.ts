@@ -40,8 +40,13 @@ builder.queryField("getAuthArtworkRanks", (t) =>
   t.prismaField({
     type: [ArtworkRanks], // 複数のデータを求める場合は[]で囲う
     authScopes: { isAuthenticated: true, },
-    resolve: (query, _parent, _args, ctx, _info) =>
-      prisma.artworkRanks.findMany({ ...query, where: { user_id: ctx.auth?.id, rank_id: {in: [3, 4]} }})
+    args: { artwork_id: t.arg.string({ required: false }),},
+    resolve: (query, _parent, args, ctx, _info) =>
+      prisma.artworkRanks.findMany({ ...query, where: { 
+        ...(args.artwork_id ? { artwork_id: parseInt(args.artwork_id) } : {}),
+        user_id: ctx.auth?.id,
+        rank_id: {in: [3, 4]}
+      }})
   })
 );
 
