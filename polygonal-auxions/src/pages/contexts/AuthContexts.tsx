@@ -9,6 +9,7 @@ type AuthContextType = {
   fetching: boolean;
   handleLogin: (email: string, password: string) => Promise<void>;
   handleLogout: () => Promise<void>;
+  formErrors: string[];
 };
 
 type AuthProviderProps = { children: ReactNode; };
@@ -18,7 +19,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<AuthProviderProps> = ( {children} ) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [auth, setAuth] = useState<User | null>(null);
-  const [formErrors, setFormErrors] = useState<{ type: string | null, message: string | null }[]>([]);
+  const [formErrors, setFormErrors] = useState<string[]>([]);
   const [{ data, fetching, error }, reexecuteQuery] = useQuery({ query: MeDocument });
 
   useEffect(() => {
@@ -40,10 +41,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ( {children} ) => {
       toast.success('ログインできました。');
     } else {
       const gqlErrors: string[] = result.error?.graphQLErrors[0].extensions.messages as string[];
-      // todo: rhfのエラーとして格納できるようにする
-      for (const [key, val] of Object.entries(gqlErrors)) {
-        toast.error(val[0]);
-      }
+      setFormErrors(gqlErrors);
       toast.error('ログインできません。入力内容をお確かめください。');
     }
   }, [login, reexecuteQuery]);
@@ -76,7 +74,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ( {children} ) => {
   }, [refreshToken, reexecuteQuery]);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user: auth, fetching, handleLogin, handleLogout }}>
+    <AuthContext.Provider value={{ isLoggedIn, user: auth, fetching, handleLogin, handleLogout, formErrors }}>
       {children}
     </AuthContext.Provider>
   );

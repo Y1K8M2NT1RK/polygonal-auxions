@@ -14,7 +14,7 @@ import {
 import LoginIcon from '@mui/icons-material/Login';
 import CloseIcon from '@mui/icons-material/Close';
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from '../contexts/AuthContexts';
 
@@ -32,10 +32,8 @@ export default function LoginDialog(){
     });
 
     {/* フォームの送信処理 */}
-    const { handleLogin } = useAuth();
-    const onSubmit = handleSubmit(async (data: FormData) => {
-        await handleLogin(data.email, data.password);
-    });
+    const { handleLogin, formErrors } = useAuth();
+    const onSubmit = handleSubmit(async (data: FormData) => await handleLogin(data.email, data.password));
 
     {/* ダイアログの開閉 */}
     const [open, setOpen] = useState(false);
@@ -45,6 +43,13 @@ export default function LoginDialog(){
     {/* ダイアログの開閉（スマホサイズ） */}
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
+    {/* formErrorsの変更を監視し、setErrorを呼び出す */}
+    useEffect(() => {
+        for (const [key, val] of Object.entries(formErrors)) {
+            setError(`root.${key}`, {type: 'server', message: val[0]});
+        }
+    }, [formErrors, setError]);
 
     return (
         <Box>
