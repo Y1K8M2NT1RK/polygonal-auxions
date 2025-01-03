@@ -147,6 +147,7 @@ model ArtworkRanks { // このテーブルは、評価機能のみならず報�
   artwork       Artwork         @relation("artworks_fk_from_artwork_ranks", fields: [artwork_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   ranks         Ranks           @relation("artwork_ranks_fk_from_ranks", fields: [rank_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
+  @@unique([artwork_id, rank_id, user_id]) // 複合一意キーの設定
   @@map(name: "artwork_ranks")
 }
 

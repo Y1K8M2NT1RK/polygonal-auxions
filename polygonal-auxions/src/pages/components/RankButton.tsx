@@ -25,21 +25,17 @@ const RankButton: React.FC<RankButtonProps> = ({
     user,
     style
 }) => {
-    const [isLoading, setIsLoading] = useState(false);
-
     const handleClick = async () => {
         if (!user) { return toast.error('ログインが必要です。'); }
         try {
             isRanked ? await onRemoveRank() : await onAddRank();
         } catch {
             toast.error('エラーが発生しました。');
-        } finally {
-            setIsLoading(false);
         }
     };
 
     return (
-        <IconButton sx={style} onClick={handleClick} disabled={isLoading}>
+        <IconButton sx={style} onClick={handleClick}>
             {isRanked ? <ActiveIcon color={color} /> : <Icon color={color} />}
         </IconButton>
     );
