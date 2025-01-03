@@ -1,5 +1,4 @@
 import {
-    IconButton,
     Card,
     Typography,
     CardActionArea,
@@ -34,8 +33,8 @@ export default function ArtworkDetail({artwork}: Props){
     const theme = useTheme();
     const { user } = useAuth();
 
-    const [resultArtworkRanks,] = useQuery({query: GetArtworkRanksDocument, variables:{ artwork_id: artwork.id }});
-    const [resultAuthArtworkRanks] = useQuery({query: GetAuthArtworkRanksDocument, variables:{ artwork_id: artwork.id }});
+    const [resultArtworkRanks, reExecuteArtworkRanksQuery] = useQuery({query: GetArtworkRanksDocument, variables:{ artwork_id: artwork.id }});
+    const [resultAuthArtworkRanks, reExecuteAuthArtworkRanksQuery] = useQuery({query: GetAuthArtworkRanksDocument, variables:{ artwork_id: artwork.id}});
 
     const [, AddArtworkRank] = useMutation<AnyVariables>(AddArtworkRankDocument);
     const [, RemoveArtworkRank] = useMutation<AnyVariables>(RemoveArtworkRankDocument);
@@ -52,13 +51,24 @@ export default function ArtworkDetail({artwork}: Props){
         isBookmarked = artworkRanks?.filter((val: ArtworkRanks) => val.rank_id == '4' && val.artwork_id == artwork.id && val.user_id == user.id).length > 0;
     }
 
+    const handleRankChange = async (artwork_id: string, rank_id: string, action: 'add' | 'remove') => {
+        let result;
+        result = action === 'add'
+            ?   await AddArtworkRank({ artwork_id, rank_id })
+            :   await RemoveArtworkRank({ artwork_id, rank_id })
+        ;
+        reExecuteArtworkRanksQuery({ requestPolicy: 'network-only' });
+        reExecuteAuthArtworkRanksQuery({ requestPolicy: 'network-only' });
+        return result;
+    };
+
     return (
         <Card key={artwork.slug_id} sx={{p: '10px', my: 1}}>
             <Typography>{artwork.feature}</Typography>
             <RankButton
                 isRanked={isFavorited}
-                onAddRank={() => AddArtworkRank({ artwork_id: String(artwork.id), rank_id: '3' })}
-                onRemoveRank={() => RemoveArtworkRank({ artwork_id: String(artwork.id), rank_id: '3' })}
+                onAddRank={() => handleRankChange(String(artwork.id), '3', 'add')}
+                onRemoveRank={() => handleRankChange(String(artwork.id), '3', 'remove')}
                 Icon={FavoriteBorderIcon}
                 ActiveIcon={FavoriteIcon}
                 color="error"
@@ -67,8 +77,8 @@ export default function ArtworkDetail({artwork}: Props){
             />{numOfFavorites}
             <RankButton
                 isRanked={isBookmarked}
-                onAddRank={() => AddArtworkRank({ artwork_id: String(artwork.id), rank_id: '4' })}
-                onRemoveRank={() => RemoveArtworkRank({ artwork_id: String(artwork.id), rank_id: '4' })}
+                onAddRank={() => handleRankChange(String(artwork.id), '4', 'add')}
+                onRemoveRank={() => handleRankChange(String(artwork.id), '4', 'remove')}
                 Icon={BookmarkBorderIcon}
                 ActiveIcon={BookmarkIcon}
                 color="primary"

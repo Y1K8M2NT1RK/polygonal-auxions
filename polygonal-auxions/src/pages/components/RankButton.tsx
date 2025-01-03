@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { IconButton, SxProps, Theme } from '@mui/material';
 import { toast } from 'react-toastify';
 import { AnyVariables, OperationResult } from 'urql';
@@ -25,17 +25,21 @@ const RankButton: React.FC<RankButtonProps> = ({
     user,
     style
 }) => {
+    const [isLoading, setIsLoading] = useState(false);
+
     const handleClick = async () => {
         if (!user) { return toast.error('ログインが必要です。'); }
         try {
-            await isRanked ? onRemoveRank() : onAddRank();
+            isRanked ? await onRemoveRank() : await onAddRank();
         } catch {
             toast.error('エラーが発生しました。');
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <IconButton sx={style} onClick={handleClick}>
+        <IconButton sx={style} onClick={handleClick} disabled={isLoading}>
             {isRanked ? <ActiveIcon color={color} /> : <Icon color={color} />}
         </IconButton>
     );
