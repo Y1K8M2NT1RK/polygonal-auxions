@@ -9,6 +9,8 @@ import { UserDocument } from '@/pages/generated-graphql';
 import ProfileHeader from '@/pages/profile/components/profile-header';
 import ProfileArtworks from '@/pages/profile/components/profile-artworks';
 import ProfileComments from '@/pages/profile/components/profile-comments';
+import Head from 'next/head';
+import { useAuth } from '@/pages/contexts/AuthContexts';
 
 export default function Profile(){
 
@@ -20,9 +22,17 @@ export default function Profile(){
     if (error) return `Error! ${error.message}`;
 
     const user: User = data.user;
+    const { user: viewing_user } = useAuth();
 
     return (
         <Container sx={{my:2}}>
+            <Head>
+                <title>{
+                    `${user.handle_name}さん`
+                    +`${user.handle_name===viewing_user?.handle_name?'（あなた）':''}`
+                    +`のプロフィール`
+                }</title>
+            </Head>
             <ProfileHeader viewing_user={user}/>
             <ProfileArtworks user={user}/>
             <ProfileComments user={user}/>

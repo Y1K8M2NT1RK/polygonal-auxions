@@ -5,6 +5,7 @@ import { ArtworkDocument } from '@/pages/generated-graphql';
 import { CircularProgress, Container, Typography } from '@mui/material';
 import ArtworkComments from './components/artwork-comments';
 import ArtworkDetail from './components/artwork-detail';
+import Head from 'next/head';
 
 export default function Artwork(){
     const slug_id = useRouter().query.slug_id!;
@@ -18,6 +19,7 @@ export default function Artwork(){
 
     return (
         <Container sx={{ mt: 2, mb: 2 }}>
+            <Head><title>{`作品「${artwork.title}」の詳細`}</title></Head>
             <Typography variant="h4">{artwork.title}</Typography>
             <ArtworkDetail artwork={artwork}/>
             <ArtworkComments artwork={artwork}/>

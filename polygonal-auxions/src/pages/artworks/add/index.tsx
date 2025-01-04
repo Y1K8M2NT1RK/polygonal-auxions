@@ -22,6 +22,7 @@ import { useMutation } from "urql";
 import { AddArtworkDocument } from "@/pages/generated-graphql";
 import { toast } from "react-toastify";
 import { useAuth } from "@/pages/contexts/AuthContexts";
+import Head from "next/head";
 
 type FormData = {
     title: string;
@@ -61,6 +62,7 @@ export default function AddArtwork(){
         !user
         ? null
         : <Container sx={{ mt: 2, mb: 2 }}>
+            <Head><title>作品追加</title></Head>
             <Card
                 variant="outlined"
                 sx={{

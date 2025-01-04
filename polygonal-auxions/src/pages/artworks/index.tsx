@@ -9,6 +9,7 @@ import { ArtworksDocument, GetAuthArtworkRanksDocument } from '@/pages/generated
 import ArtworkListUnit from './components/artwork-list-unit';
 import { useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContexts';
+import Head from 'next/head';
 
 export default function Artworks() {
     const [resultArtworks] = useQuery({query: ArtworksDocument,});
@@ -31,6 +32,7 @@ export default function Artworks() {
 
     return (
       <Container fixed sx={{my:2}}>
+        <Head><title>作品一覧</title></Head>
         {
           fetching
           ? <CircularProgress key={0} color="inherit" />
