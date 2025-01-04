@@ -13,6 +13,7 @@ import Head from 'next/head';
 import { useAuth } from '@/pages/contexts/AuthContexts';
 
 export default function Profile(){
+    const { user: viewing_user } = useAuth();
 
     const handle_name = useRouter().query.handle_name!;
     const [result] = useQuery({query: UserDocument, variables: {handle_name}});
@@ -22,7 +23,6 @@ export default function Profile(){
     if (error) return `Error! ${error.message}`;
 
     const user: User = data.user;
-    const { user: viewing_user } = useAuth();
 
     return (
         <Container sx={{my:2}}>
