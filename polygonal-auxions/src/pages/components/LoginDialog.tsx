@@ -6,7 +6,9 @@ import {
     Dialog,
     Fab,
     IconButton,
+    SxProps,
     TextField,
+    Theme,
     Typography,
     useMediaQuery,
     useTheme,
@@ -17,34 +19,37 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from '../contexts/AuthContexts';
+import useResponsive from "../hooks/useResponsive";
+import useDarkMode from "../hooks/useDarkMode";
+
+type LoginDialogProps = {
+    sxProps?: {
+        [key: string]: SxProps<Theme>;
+    };
+};
 
 type FormData = {
     email: string;
     password: string;
 };
 
-export default function LoginDialog(){
-
-    {/* フォームの管理 */}
+export default function LoginDialog({ sxProps }: LoginDialogProps) {
     const {register, handleSubmit, setError, clearErrors, formState: {errors} } = useForm<FormData>({
         defaultValues: {email: '', password: ''},
         mode: 'onSubmit',
     });
 
-    {/* フォームの送信処理 */}
     const { handleLogin, formErrors } = useAuth();
     const onSubmit = handleSubmit(async (data: FormData) => await handleLogin(data.email, data.password));
 
-    {/* ダイアログの開閉 */}
     const [open, setOpen] = useState(false);
     const handleClickOpen = () => setOpen(true);
     const handleClose = () => {clearErrors(); setOpen(false);};
 
-    {/* ダイアログの開閉（スマホサイズ） */}
-    const theme = useTheme();
-    const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+    const isDarkMode = useDarkMode();
+    const { isSmallScreen, isMediumScreen } = useResponsive();
+    const fullScreen = isSmallScreen || isMediumScreen;
 
-    {/* formErrorsの変更を監視し、setErrorを呼び出す */}
     useEffect(() => {
         for (const [key, val] of Object.entries(formErrors)) {
             setError(`root.${key}`, {type: 'server', message: val[0]});
@@ -52,8 +57,8 @@ export default function LoginDialog(){
     }, [formErrors, setError]);
 
     return (
-        <Box>
-            <Button onClick={handleClickOpen} color="inherit">
+        <Box sx={sxProps?.Box}>
+            <Button onClick={handleClickOpen} color="inherit" sx={sxProps?.Button}>
                 ログイン
             </Button>
             <Dialog
@@ -110,14 +115,14 @@ export default function LoginDialog(){
                                     type="submit"
                                     color="inherit"
                                     variant="extended"
-                                    sx={{mt: 2, backgroundColor: theme.palette.mode=='dark'?'#444444':'#CCCCCC'}}
+                                    sx={{mt: 2, backgroundColor: isDarkMode?'#444444':'#CCCCCC'}}
                                 >ログイン <LoginIcon /></Fab>
                                 <Fab
                                     component={Link}
                                     href="#"
                                     color="inherit"
                                     variant="extended"
-                                    sx={{ mt: 2, backgroundColor: theme.palette.mode=='dark'?'#444444':'#CCCCCC'}}
+                                    sx={{ mt: 2, backgroundColor: isDarkMode?'#444444':'#CCCCCC'}}
                                 >アカウント作成</Fab>
                                 <Fab
                                     component={Link}
@@ -125,7 +130,7 @@ export default function LoginDialog(){
                                     size="small"
                                     color="inherit"
                                     variant="extended"
-                                    sx={{ mt: 2, backgroundColor: theme.palette.mode=='dark'?'#444444':'#CCCCCC'}}
+                                    sx={{ mt: 2, backgroundColor: isDarkMode?'#444444':'#CCCCCC'}}
                                 >パスワードを忘れたときは</Fab>
                             </Box>
                         </Box>

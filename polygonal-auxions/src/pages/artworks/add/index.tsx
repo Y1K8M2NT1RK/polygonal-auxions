@@ -30,8 +30,6 @@ type FormData = {
 };
 
 export default function AddArtwork(){
-
-    {/* フォームの管理 */}
     const {register, handleSubmit, setError, formState: {errors} } = useForm<FormData>({
         defaultValues: {title: '', feature: ''},
         mode: 'onSubmit',
@@ -39,7 +37,6 @@ export default function AddArtwork(){
 
     const router = useRouter();
 
-    {/** 作品の新規追加処理 */}
     const [, addArtwork] = useMutation(AddArtworkDocument);
     const onSubmit = handleSubmit((data:FormData) => addArtwork(data).then(result => {
         if(result.error){
@@ -54,7 +51,6 @@ export default function AddArtwork(){
 
     const {user, fetching} = useAuth();
 
-    {/** ログインしていないならリダイレクト(CSR) */}
     if(!user) router.replace('/artworks');
     if(fetching) return (<CircularProgress key={0} color="inherit" />);
 

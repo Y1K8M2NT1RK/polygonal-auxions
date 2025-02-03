@@ -32,7 +32,7 @@ export default function Header (){
                     <Typography
                         variant="h6"
                         component={Link}
-                        href='/artworks'
+                        href='/'
                         sx={{
                             flexGrow: 1,
                             display: 'contents',

@@ -23,6 +23,7 @@ import stringAvatar from '@/pages/utils/default-avator-icon';
 import { AnyVariables, useQuery, useMutation } from 'urql';
 import RankButton from '@/pages/components/RankButton';
 import { useAuth } from '@/pages/contexts/AuthContexts';
+import useDarkMode from '@/pages/hooks/useDarkMode';
 
 type Props = {
     artwork: Artwork
@@ -30,11 +31,17 @@ type Props = {
 
 export default function ArtworkDetail({artwork}: Props){
 
-    const theme = useTheme();
+    const isDarkMode = useDarkMode();
     const { user } = useAuth();
 
-    const [resultArtworkRanks, reExecuteArtworkRanksQuery] = useQuery({query: GetArtworkRanksDocument, variables:{ artwork_id: artwork.id }});
-    const [resultAuthArtworkRanks, reExecuteAuthArtworkRanksQuery] = useQuery({query: GetAuthArtworkRanksDocument, variables:{ artwork_id: artwork.id}});
+    const [resultArtworkRanks, reExecuteArtworkRanksQuery] = useQuery({
+        query: GetArtworkRanksDocument,
+        variables:{ artwork_id: artwork.id },
+    });
+    const [resultAuthArtworkRanks, reExecuteAuthArtworkRanksQuery] = useQuery({
+        query: GetAuthArtworkRanksDocument,
+        variables:{ artwork_id: artwork.id },
+    });
 
     const [, AddArtworkRank] = useMutation<AnyVariables>(AddArtworkRankDocument);
     const [, RemoveArtworkRank] = useMutation<AnyVariables>(RemoveArtworkRankDocument);
@@ -89,7 +96,7 @@ export default function ArtworkDetail({artwork}: Props){
                 <Card>
                     <Link href={`/profile/${artwork.user.handle_name}`} passHref>
                         <CardHeader
-                            sx={{bgcolor: theme.palette.mode=="dark"?'#333333':'#DDDDDD'}}
+                            sx={{bgcolor: isDarkMode?'#333333':'#DDDDDD'}}
                             avatar={
                                 <Avatar {...stringAvatar(artwork.user.handle_name, { width: 40, height: 40, fontSize: 20,})} />
                             }
