@@ -19,6 +19,26 @@ const config: CodegenConfig = {
         },
       },
     },
+    'src/pages/api/persisted-operations.json': {
+      plugins: [
+        {
+          'graphql-codegen-persisted-query-ids': {
+            output: 'server',
+            algorithm: 'sha256',
+          }
+        },
+      ],
+    },
+    'src/pages/persisted-operations.json': {
+      plugins: [
+        {
+          'graphql-codegen-persisted-query-ids': {
+            output: 'client',
+            algorithm: 'sha256',
+          }
+        },
+      ],
+    },
   },
 };
 

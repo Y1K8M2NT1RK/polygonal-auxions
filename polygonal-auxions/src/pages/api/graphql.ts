@@ -7,6 +7,13 @@ import jwt from 'jsonwebtoken';
 import { prisma } from './db';
 import { parse } from 'cookie';
 import { User } from '@prisma/client';
+import { readFileSync } from 'fs';
+import { usePersistedOperations } from '@graphql-yoga/plugin-persisted-operations'
+import { join } from 'path';
+
+// ビルド後のファイルパスを指定
+const persistedOperationsPath = join(process.cwd(), 'src/pages/api/persisted-operations.json');
+const persistedOperations = JSON.parse(readFileSync(persistedOperationsPath, 'utf-8'));
 
 export type Context = {
   res: NextApiResponse;
@@ -48,6 +55,13 @@ export default createYoga<
   graphiql: process.env.NODE_ENV === "development",
   graphqlEndpoint: '/api/graphql',
   schema,
+  plugins: [
+    usePersistedOperations({
+      getPersistedOperation(key: string) {
+        return persistedOperations[key];
+      }
+    }),
+  ],
   context: async ({ req, res }) => createContext(req, res),
   maskedErrors: {
     maskError(error, message) {

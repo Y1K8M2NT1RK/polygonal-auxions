@@ -11,6 +11,7 @@ import { CssBaseline, ThemeProvider, createTheme, useMediaQuery } from '@mui/mat
 import Header from '@/pages/components/Header';
 import NextTopLoader from 'nextjs-toploader';
 import createAuthExchange from './utils/auth-exchanges';
+import { persistedExchange } from '@urql/exchange-persisted';
 import { AuthProvider, useAuth } from '@/pages/contexts/AuthContexts';
 import { useRouter } from 'next/router';
 import type { NextRouter } from 'next/router';
@@ -29,6 +30,10 @@ export default function App(
   const urqlClient = createClient({
     exchanges: [
       cacheExchange,
+      persistedExchange({
+        preferGetForPersistedQueries: true,
+        enableForMutation: true,
+      }),
       createAuthExchange(),
       fetchExchange,
     ],

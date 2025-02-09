@@ -1,0 +1,15 @@
+{
+   "AddArtwork": "4583f8638e5fe775b37348ddcbf8b008fe00734fc24fdc1ed236e6322c444eef",
+   "AddArtworkRank": "74b68287fb7f44ee0145b0306ef41f279c945ccfc6bf2ea2c3766179bc35ad8b",
+   "RemoveArtworkRank": "bf1df66da53213c7ce5fe8d0a907b8f36250f4db1049905981a9ae33e5b4d7af",
+   "Login": "604a3a5f81aea2c7187cdb9b328f2ae87caef48c88129fb56192255ebdfe9338",
+   "Refresh": "79dff1b9eb5896840382077d9d86131571d69e38bde0e2582f4285dd376cf417",
+   "Logout": "d33294c28ffdaff741dcadc2dba75b4013cdc29cd5f9e8f61d3ac85d57868a04",
+   "followOrUnfollow": "d0315ca0769be8e73ff9858e0b3ab82625280e37c4d7e909b9d87b8490cb9391",
+   "Artworks": "ed5f958f35deb2c33e3fb0cd0097651e6cc02e255484538aa4e2226a10a35e7f",
+   "getAuthArtworkRanks": "a5831550f26dbdcbcb9d561fc2fb17e320c2fbcc0885f50200e91e5cf966bd00",
+   "Artwork": "7ef3982413ed865f68a4b85781dc9b80be57cd7d94d6949ab07cc84bdf39fef2",
+   "getArtworkRanks": "758def72e4cea5f9348dc8997f4fbf66cf31ed25a6b9536836d04ccbaf8b224a",
+   "User": "3fe064b5c53fe778a8b25d22b1f4f9dd6db2d370ae8f2030394a0ec121d8f745",
+   "me": "9aad1f6c21b353b7eee40946f2962ca90fcd9ed488b03f83aba38e5345492ab7"
+}
