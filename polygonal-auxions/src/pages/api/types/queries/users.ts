@@ -1,42 +1,6 @@
 import { builder } from '../../builder';
 import { prisma } from '../../db';
-
-// メインのテーブル
-export const User = builder.prismaObject('User', {
-  fields: (t) => ({
-    id: t.exposeID('id'),
-    name: t.exposeString('name'),
-    slug_id: t.exposeString('slug_id'),
-    name_kana: t.exposeString('name_kana', {nullable: true}),
-    handle_name: t.exposeString('handle_name'),
-    email: t.exposeString('email'),
-    introduction: t.exposeString('introduction'),
-    address: t.exposeString('address'),
-    created_at: t.expose('created_at', {type: 'Date'}),
-    artworks: t.relation('artworks'),
-    comments: t.relation('comments'),
-    following: t.relation('following'),
-  }),
-});
-
-export const AuthPayload = builder.prismaObject('AuthPayload', {
-  fields: (t) => ({
-    id: t.exposeID('id'),
-    accessToken: t.exposeString('access_token'),
-    refreshToken: t.exposeString('refresh_token'),
-    expires_at: t.expose('expires_at', { type: 'Date' }),
-    user: t.relation('user'),
-  }),
-});
-
-export const Follows = builder.prismaObject('Follow', {
-  fields: (t) => ({
-    following: t.relation('following'),
-    following_id: t.exposeID('following_id'),
-    followed_by: t.relation('followedBy'),
-    followed_by_id: t.exposeID('followed_by_id'),
-  })
-});
+import { User } from '../../types/consts';
 
 // ユーザープロフィール
 builder.queryField("user", (t) =>

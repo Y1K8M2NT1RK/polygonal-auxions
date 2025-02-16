@@ -1,31 +1,6 @@
 import { builder } from '../../builder';
 import { prisma } from '../../db';
-
-// メインのテーブル
-export const Artwork = builder.prismaObject('Artwork', {
-  fields: (t) => ({
-    id: t.exposeID('id'),
-    slug_id: t.exposeID('slug_id'),
-    title: t.exposeString('title'),
-    feature: t.exposeString('feature'),
-    likes: t.exposeInt('likes'),
-    bads: t.exposeInt('bads'),
-    created_at: t.expose('created_at', {type: 'Date'}),
-    user: t.relation('user'),
-    user_id: t.exposeID('user_id'),
-    comments: t.relation('comments'),
-    artwork_ranks: t.relation('artwork_ranks'),
-  }),
-});
-
-export const ArtworkRanks = builder.prismaObject('ArtworkRanks', {
-  fields: (t) => ({
-    id: t.exposeID('id'),
-    artwork_id: t.exposeID('artwork_id'),
-    rank_id: t.exposeID('rank_id'),
-    user_id: t.exposeID('user_id'),
-  }),
-});
+import { Artwork, ArtworkRanks } from '../../types/consts';
 
 // 作品一覧
 builder.queryField("artworks", (t) =>

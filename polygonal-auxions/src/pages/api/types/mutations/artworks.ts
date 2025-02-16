@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 import { builder } from '../../builder';
 import { prisma } from '../../db';
 import { ZodError } from 'zod';
-import { Artwork, ArtworkRanks } from '../queries/artworks';
+import { Artwork, ArtworkRanks } from '../../types/consts';
 
 builder.mutationField("addArtwork", (t) => 
     t.prismaField({

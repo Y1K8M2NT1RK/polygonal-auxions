@@ -2,7 +2,7 @@ import { builder } from '../../builder';
 import { prisma } from '../../db';
 import { ZodError } from 'zod';
 import { compareSync, genSaltSync, hashSync } from 'bcrypt';
-import { AuthPayload, Follows } from '../queries/users';
+import { AuthPayload, Follows } from '../consts';
 import jwt from 'jsonwebtoken';
 import { serialize } from 'cookie';
 
