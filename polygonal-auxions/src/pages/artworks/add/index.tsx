@@ -6,10 +6,7 @@ import {
     Container,
     Fab,
     FormControl,
-    InputAdornment,
-    InputLabel,
     Avatar,
-    OutlinedInput,
     TextField,
     Typography,
     CardHeader,
@@ -23,6 +20,7 @@ import { AddArtworkDocument } from "@/pages/generated-graphql";
 import { toast } from "react-toastify";
 import { useAuth } from "@/pages/contexts/AuthContexts";
 import Head from "next/head";
+import { useEffect } from "react";
 
 type FormData = {
     title: string;
@@ -51,7 +49,7 @@ export default function AddArtwork(){
 
     const {user, fetching} = useAuth();
 
-    if(!user) router.replace('/artworks');
+    useEffect(() => { if(!fetching && !user) router.replace('/artworks'); }, [fetching, user]);
     if(fetching) return (<CircularProgress key={0} color="inherit" />);
 
     return (
@@ -94,15 +92,6 @@ export default function AddArtwork(){
                                 {...register("feature")}
                             />
                          </FormControl>
-                        <FormControl fullWidth sx={{mt: 2}}>
-                            <InputLabel htmlFor="outlined-adornment-amount">価格</InputLabel>
-                            <OutlinedInput
-                                id="outlined-adornment-amount"
-                                startAdornment={<InputAdornment position="start">¥</InputAdornment>}
-                                // {...register("price")}
-                                label="価格"
-                            />
-                        </FormControl>
                         <Box display='flex' flexDirection='column'>
                             <Fab
                                 component={Button}
