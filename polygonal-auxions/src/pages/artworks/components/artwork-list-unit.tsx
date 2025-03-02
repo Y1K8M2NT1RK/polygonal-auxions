@@ -19,10 +19,14 @@ export default function ArtworkListUnit(props: {artwork: Artwork, artworkRanks: 
 
     const { user } = useAuth();
 
-    let isFavorited: boolean = false; let isBookmarked: boolean = false;
+    let isFavorited: boolean = false;
+    let isBookmarked: boolean = false;
+    let isOwner: boolean = false;
+
     if(!!user && !!props.artworkRanks){
         isFavorited = props.artworkRanks?.filter((val: ArtworkRanks) => val.rank_id == '3' && val.artwork_id == props.artwork.id && val.user_id == user.id).length > 0;
         isBookmarked = props.artworkRanks?.filter((val: ArtworkRanks) => val.rank_id == '4' && val.artwork_id == props.artwork.id && val.user_id == user.id).length > 0;
+        isOwner = props.artwork.user.handle_name == user.handle_name;
     }
 
     return (
@@ -33,7 +37,7 @@ export default function ArtworkListUnit(props: {artwork: Artwork, artworkRanks: 
                         <Avatar {...stringAvatar(props.artwork.user.handle_name, {mr: '10px', mt: '10px', mb: '10px'})} />
                         <Typography>{props.artwork.user.handle_name}</Typography>
                     </Link>
-                    <ArtworkPopover isFavorited={isFavorited} isBookmarked={isBookmarked} artworkId={parseInt(props.artwork.id)} />
+                    <ArtworkPopover isFavorited={isFavorited} isBookmarked={isBookmarked} isOwner={isOwner} artworkId={parseInt(props.artwork.id)} />
                 </Box>
                 <Card sx={{display: 'flex', flexDirection: 'column',}}>
                     <Link href={`/artworks/${props.artwork.slug_id}`} passHref>

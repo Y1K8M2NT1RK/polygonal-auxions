@@ -18,8 +18,16 @@ import { AnyVariables, useMutation } from 'urql';
 import { AddArtworkRankDocument, RemoveArtworkRankDocument } from '@/pages/generated-graphql';
 import { useAuth } from '@/pages/contexts/AuthContexts';
 import RankButton from '@/pages/components/RankButton';
+import AlertDialog from '@/pages/components/DeleteAlertDialog';
 
-export default function ArtworkPopover(props: {isBookmarked: boolean, isFavorited: boolean, artworkId: Number}){
+type ArtworkPopoverProps = {
+    isBookmarked: boolean;
+    isFavorited: boolean;
+    isOwner: boolean;
+    artworkId: Number;
+};
+
+export default function ArtworkPopover({isBookmarked, isFavorited, isOwner, artworkId}: ArtworkPopoverProps){
 
     const { user } = useAuth();
 
@@ -36,9 +44,9 @@ export default function ArtworkPopover(props: {isBookmarked: boolean, isFavorite
     return (
         <Box>
             <RankButton
-                isRanked={props.isFavorited}
-                onAddRank={() => AddArtworkRank({ artwork_id: String(props.artworkId), rank_id: '3' })}
-                onRemoveRank={() => RemoveArtworkRank({ artwork_id: String(props.artworkId), rank_id: '3' })}
+                isRanked={isFavorited}
+                onAddRank={() => AddArtworkRank({ artwork_id: String(artworkId), rank_id: '3' })}
+                onRemoveRank={() => RemoveArtworkRank({ artwork_id: String(artworkId), rank_id: '3' })}
                 Icon={FavoriteBorderIcon}
                 ActiveIcon={FavoriteIcon}
                 color="error"
@@ -46,9 +54,9 @@ export default function ArtworkPopover(props: {isBookmarked: boolean, isFavorite
                 style={{ height: 'fit-content' }}
             />
             <RankButton
-                isRanked={props.isBookmarked}
-                onAddRank={() => AddArtworkRank({ artwork_id: String(props.artworkId), rank_id: '4' })}
-                onRemoveRank={() => RemoveArtworkRank({ artwork_id: String(props.artworkId), rank_id: '4' })}
+                isRanked={isBookmarked}
+                onAddRank={() => AddArtworkRank({ artwork_id: String(artworkId), rank_id: '4' })}
+                onRemoveRank={() => RemoveArtworkRank({ artwork_id: String(artworkId), rank_id: '4' })}
                 Icon={BookmarkBorderIcon}
                 ActiveIcon={BookmarkIcon}
                 color="primary"
@@ -68,6 +76,21 @@ export default function ArtworkPopover(props: {isBookmarked: boolean, isFavorite
                 <Card>
                     <MenuList sx={{display: 'flex', flexDirection: 'column', width: 'max-content'}} dense>
                         <MenuItem><Typography variant="button"><FlagIcon /> 報告</Typography></MenuItem>
+                        {
+                            isOwner
+                            ? <MenuItem>
+                                <AlertDialog
+                                    content={
+                                        <Box>
+                                            <Typography>以下の作品を削除してもよろしいですか？</Typography>
+                                            <Typography>作品名</Typography>
+                                        </Box>
+                                    }
+                                    onConfirm={() => {console.log('削除が確認されました'); handleClose();}}
+                                />
+                            </MenuItem>
+                            : null
+                        }
                     </MenuList>
                 </Card>
             </Popover>
