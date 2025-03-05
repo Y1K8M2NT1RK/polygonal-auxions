@@ -92,7 +92,7 @@ docker compose up -d
 # 全体
 docker stop $(docker ps -q)
 
-# qppコンテナ
+# appコンテナ
 docker stop $(docker ps -f "name=app" -q)
 
 # dbコンテナ
@@ -103,7 +103,7 @@ docker stop $(docker ps -f "name=db" -q)
 # 全体
 docker restart $(docker ps -q)
 
-# qppコンテナ
+# appコンテナ
 docker restart $(docker ps -f "name=app" -q)
 
 # dbコンテナ
