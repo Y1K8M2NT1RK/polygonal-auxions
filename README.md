@@ -1,8 +1,12 @@
 # Polygonal Auxions
 ## 注意
-* **Windows PowerShellでのコマンド操作を想定しております。**
+1. **Windows PowerShellでのコマンド操作を想定しております。**
+2. **制作途中の段階のため、操作手順が少し複雑です。お手数おかけしますがご了承ください。**
 ## アプリケーションの起動方法
 ```
+# デスクトップのディレクトリまで移動
+cd Desktop\
+
 # プロジェクトのディレクトリを作成し、そのディレクトリへ移動
 mkdir Y1K8M2NT1RK_projects
 cd .\Y1K8M2NT1RK_projects\
@@ -16,7 +20,8 @@ cd .\polygonal-auxions\
 # dockerコンテナのビルド/起動
 docker compose up -d --build
 
-# ※appコンテナのログで下記のエラーが出力された場合は、次のコマンドを実行してください。
+# ※Dockerのappコンテナのログに、下記のエラーが出力された場合は、お手数ですが次のコマンド（「COMMAND」と書かれている箇所）を実行してください。
+appコンテナのログの確認コマンド：docker logs -f $(docker ps -f "name=app" -q)
 ERROR: exec /entrypoint.sh no such file or directory
 COMMAND: git config --global core.autocrlf input
 
@@ -27,10 +32,18 @@ docker compose exec app npm install
 # appコンテナの再起動
 docker restart $(docker ps -f "name=app" -q)
 
-# appコンテナをもう一度起動（もし止まった場合は、お手数ですがもう一度お願いいたします）
+# appコンテナをもう一度起動
+# ※もし止まった場合は、お手数ですが起動できるまで下記コマンドの実行をお願いいたします
 docker compose up -d
 ```
-ここまで操作したら、[http://localhost:3001/](http://localhost:3001/)をブラウザのURLに入力します。
+ここまで操作したら、[http://localhost:3001/](http://localhost:3001/)をブラウザのURLに入力してEnterキーを押してください。
+
+なお、下の画像の画面が開いた場合は、お手数ですが読込が開始されるまで下記のいずれかの方法で対処をお願いします。
+1. ブラウザリロード（再読み込み）
+2. URL入力個所をクリックしてもう一度Enterキーを押す
+
+![スクリーンショット 2025-03-05 154740](https://github.com/user-attachments/assets/3d34dffc-1d86-4d57-ab9f-faf021ba5c86)
+
 下の画像の画面が開いたら、起動完了です。
 ![スクリーンショット 2025-02-18 151619](https://github.com/user-attachments/assets/56733872-b8b7-4b89-9c48-841a03547464)
 
