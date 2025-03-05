@@ -20,10 +20,19 @@ cd .\polygonal-auxions\
 # dockerコンテナのビルド/起動
 docker compose up -d --build
 
-# ※Dockerのappコンテナのログに、下記のエラーが出力された場合は、お手数ですが次のコマンド（「COMMAND」と書かれている箇所）を実行してください。
-appコンテナのログの確認コマンド：docker logs -f $(docker ps -f "name=app" -q)
-ERROR: exec /entrypoint.sh no such file or directory
-COMMAND: git config --global core.autocrlf input
+# 起動中のコンテナを確認
+docker ps
+
+# ※この時点でコンテナpolygonal-auxions-app-1（以下appコンテナとする）が起動できない場合は、1のコマンドを実行してください
+# 1. appコンテナのログの確認コマンド
+   docker logs -f $(docker ps -f "name=app" -q)
+# ※1のコマンドを実行した結果、2のエラーが出力された場合は、お手数ですがCtrl + Cキーを押したのち、3→4の順にのコマンドを実行してください。
+# 2. エラー
+   exec /entrypoint.sh no such file or directory
+# 3. 上のエラーに対する実行コマンド
+   git config --global core.autocrlf input
+# 4. appコンテナをもう一度起動
+   docker compose up -d
 
 # polygonal-auxions/package.json（Dockerfile.appと同じディレクトリ）で用意されたライブラリをインストール
 # インストールに数分時間を要するためしばらく待機
@@ -40,7 +49,7 @@ docker compose up -d
 
 なお、下の画像の画面が開いた場合は、お手数ですが読込が開始されるまで下記のいずれかの方法で対処をお願いします。
 1. ブラウザリロード（再読み込み）
-2. URL入力個所をクリックしてもう一度Enterキーを押す
+2. URL入力部分をクリックしてもう一度Enterキーを押す
 
 ![スクリーンショット 2025-03-05 154740](https://github.com/user-attachments/assets/3d34dffc-1d86-4d57-ab9f-faf021ba5c86)
 
