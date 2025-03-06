@@ -1,11 +1,11 @@
 # Polygonal Auxions
 ## 0. 目次
-1. 概要
-2. 実装済の機能/画面（全14点）
-3. 使用技術
-4. アプリケーションの起動方法
-5. 各種操作方法（全7点）
-6. その他のコマンド
+1. [概要](https://github.com/Y1K8M2NT1RK/polygonal-auxions/blob/main/README.md#1-%E6%A6%82%E8%A6%81)
+2. [実装済の機能/画面（全14点）](https://github.com/Y1K8M2NT1RK/polygonal-auxions/blob/main/README.md#2-%E5%AE%9F%E8%A3%85%E6%B8%88%E3%81%AE%E6%A9%9F%E8%83%BD%E7%94%BB%E9%9D%A2%E5%85%A814%E7%82%B9)
+3. [使用技術](https://github.com/Y1K8M2NT1RK/polygonal-auxions/blob/main/README.md#3-%E4%BD%BF%E7%94%A8%E6%8A%80%E8%A1%93)
+4. [アプリケーションの起動方法（全12点）](https://github.com/Y1K8M2NT1RK/polygonal-auxions/blob/main/README.md#4-%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%81%AE%E8%B5%B7%E5%8B%95%E6%96%B9%E6%B3%95)
+5. [各種操作方法（全7点）](https://github.com/Y1K8M2NT1RK/polygonal-auxions/blob/main/README.md#5-%E5%90%84%E7%A8%AE%E6%93%8D%E4%BD%9C%E6%96%B9%E6%B3%95%E5%85%A87%E7%82%B9)
+6. [その他のコマンド](https://github.com/Y1K8M2NT1RK/polygonal-auxions/blob/main/README.md#6-%E3%81%9D%E3%81%AE%E4%BB%96%E3%81%AE%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89)
 
 ## 1. 概要
 現時点ではまだ途中段階ですが、3Dコンテンツを作品として共有するプラットフォームです。
@@ -49,11 +49,11 @@
 * 言語：TypeScript
 * その他：Docker
 
-## 4. アプリケーションの起動方法
+## 4. アプリケーションの起動方法（全12点）
 ### 1. 注意
 1. **Windows PowerShellでのコマンド操作を想定しております。**
 2. **制作途中の段階のため、操作手順が少し複雑です。お手数おかけしますがご了承ください。**
-### 2. 操作手順（全12点）
+### 2. 操作手順
 ```
 # 1. デスクトップのディレクトリまで移動
 cd Desktop\
