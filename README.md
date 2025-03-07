@@ -1,7 +1,7 @@
 # Polygonal Auxions
 ## 0. 目次
 1. [概要](https://github.com/Y1K8M2NT1RK/polygonal-auxions/blob/main/README.md#1-%E6%A6%82%E8%A6%81)
-2. [実装済の機能/画面（全14点）](https://github.com/Y1K8M2NT1RK/polygonal-auxions/blob/main/README.md#2-%E5%AE%9F%E8%A3%85%E6%B8%88%E3%81%AE%E6%A9%9F%E8%83%BD%E7%94%BB%E9%9D%A2%E5%85%A814%E7%82%B9)
+2. [実装済の機能/画面（全16点）](https://github.com/Y1K8M2NT1RK/polygonal-auxions/edit/main/README.md#2-%E5%AE%9F%E8%A3%85%E6%B8%88%E3%81%AE%E6%A9%9F%E8%83%BD%E7%94%BB%E9%9D%A2%E5%85%A816%E7%82%B9)
 3. [使用技術](https://github.com/Y1K8M2NT1RK/polygonal-auxions/blob/main/README.md#3-%E4%BD%BF%E7%94%A8%E6%8A%80%E8%A1%93)
 4. [アプリケーションの起動方法（全12点）](https://github.com/Y1K8M2NT1RK/polygonal-auxions/blob/main/README.md#4-%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%81%AE%E8%B5%B7%E5%8B%95%E6%96%B9%E6%B3%95%E5%85%A812%E7%82%B9)
 5. [各種操作方法（全7点）](https://github.com/Y1K8M2NT1RK/polygonal-auxions/blob/main/README.md#5-%E5%90%84%E7%A8%AE%E6%93%8D%E4%BD%9C%E6%96%B9%E6%B3%95%E5%85%A87%E7%82%B9)
@@ -14,16 +14,18 @@
 1. WebGLの導入
 2. 管理画面の導入
 
-## 2. 実装済の機能/画面（全14点）
-1. 機能（全8点）
+## 2. 実装済の機能/画面（全16点）
+1. 機能（全10点）
     1. ログイン機能
     2. ログアウト機能
     3. 作品追加機能
     4. 作品のお気に入り追加機能
-    5. 作品のブックマーク機能
-    6. コメント一覧機能
-    7. フォロー機能
-    8. フォロー解除機能
+    5. 作品のお気に入り追加解除機能
+    6. 作品のブックマーク機能
+    7. 作品のブックマーク解除機能
+    8. コメント一覧機能
+    9. フォロー機能
+    10. フォロー解除機能
 2. 画面とその主な特徴（全6点）
     1. ホーム画面
           1. ログインの有無で画面の内容が変わります。
@@ -53,6 +55,7 @@
 ### 1. 注意
 1. **Windows PowerShellでのコマンド操作を想定しております。**
 2. **制作途中の段階のため、操作手順が少し複雑です。お手数おかけしますがご了承ください。**
+3. **Dockerがインストールされていない場合は、お手数ですがインストールをお願いいたします。**
 ### 2. 操作手順
 ```
 # 1. デスクトップのディレクトリまで移動
