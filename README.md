@@ -14,6 +14,8 @@
 1. WebGLの導入
 2. 管理画面の導入
 
+[目次へ戻る](https://github.com/Y1K8M2NT1RK/polygonal-auxions?tab=readme-ov-file#0-%E7%9B%AE%E6%AC%A1)
+
 ## 2. 実装済の機能/画面（全16点）
 1. 機能（全10点）
     1. ログイン機能
@@ -43,6 +45,8 @@
           1. ログインしているユーザ以外に対し、フォロー/フォロー解除機能が使用できます。
 3. 各機能の操作方法については、「4. アプリケーションの起動方法」の「3. 各種操作方法」を参照
 
+[目次へ戻る](https://github.com/Y1K8M2NT1RK/polygonal-auxions?tab=readme-ov-file#0-%E7%9B%AE%E6%AC%A1)
+
 ## 3. 使用技術
 * フロントエンド：Next.js、URQL
 * サーバーサイド：GraphQL Yoga
@@ -51,11 +55,13 @@
 * 言語：TypeScript
 * その他：Docker
 
+[目次へ戻る](https://github.com/Y1K8M2NT1RK/polygonal-auxions?tab=readme-ov-file#0-%E7%9B%AE%E6%AC%A1)
+
 ## 4. アプリケーションの起動方法（全12点）
 ### 1. 注意
 1. **Windows PowerShellでのコマンド操作を想定しております。**
 2. **制作途中の段階のため、操作手順が少し複雑です。お手数おかけしますがご了承ください。**
-3. **Dockerがインストールされていない場合は、お手数ですがインストールをお願いいたします。**
+3. **DockerとNode/npmがインストールされていない場合は、お手数ですがインストールしていただきますようお願いいたします。**
 ### 2. 操作手順
 ```
 # 1. デスクトップのディレクトリまで移動
@@ -113,6 +119,8 @@ docker compose up -d
 12. 下の画像の画面が開いたら軌道に成功
 
 ![スクリーンショット 2025-02-18 151619](https://github.com/user-attachments/assets/56733872-b8b7-4b89-9c48-841a03547464)
+
+[目次へ戻る](https://github.com/Y1K8M2NT1RK/polygonal-auxions?tab=readme-ov-file#0-%E7%9B%AE%E6%AC%A1)
 
 ## 5. 各種操作方法（全7点）
 ### 1. 注意
@@ -191,6 +199,8 @@ docker compose up -d
     4. 画面左側のフォロー解除ボタンをクリック
     5. フォローボタンが表示出来たら成功
 
+[目次へ戻る](https://github.com/Y1K8M2NT1RK/polygonal-auxions?tab=readme-ov-file#0-%E7%9B%AE%E6%AC%A1)
+
 ## 6. その他のコマンド
 #### 1. 停止したコンテナをもう一度起動
 ```
@@ -231,3 +241,5 @@ docker system prune -af
 rm -rf .\polygonal-auxions\
 ```
 ※上記コマンドで削除できない場合は、お手数ですがマウス操作で削除をお願いいたします。
+
+[目次へ戻る](https://github.com/Y1K8M2NT1RK/polygonal-auxions?tab=readme-ov-file#0-%E7%9B%AE%E6%AC%A1)
