@@ -54,11 +54,11 @@ builder.mutationField("removeArtwork", (t) =>
     t.prismaField({
         type: Artwork,
         authScopes: { isAuthenticated: true, },
-        args: { slug_id: t.arg.string({required: true}), },
+        args: { artwork_id: t.arg.string({required: true}), },
         resolve: async (_query, _parent, args, _ctx, _info) => {
-            const targetArtwork = await prisma.artwork.findFirst({where: {slug_id: args.slug_id}});
+            const targetArtwork = await prisma.artwork.findFirst({where: {id: parseInt(args.artwork_id)}});
             if( !targetArtwork ) throw new Error('artwork error');
-            return prisma.artwork.update({where: {slug_id: args.slug_id}, data: {deleted: true}});
+            return prisma.artwork.update({where: {id: parseInt(args.artwork_id)}, data: {deleted: true}});
         }
     })
 );

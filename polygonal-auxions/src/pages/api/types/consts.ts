@@ -44,6 +44,7 @@ export const Artwork = builder.prismaObject('Artwork', {
         feature: t.exposeString('feature'),
         likes: t.exposeInt('likes'),
         bads: t.exposeInt('bads'),
+        deleted: t.exposeBoolean('deleted'),
         created_at: t.expose('created_at', {type: 'Date'}),
         user: t.relation('user'),
         user_id: t.exposeID('user_id'),

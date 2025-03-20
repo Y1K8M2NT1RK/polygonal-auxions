@@ -25,6 +25,7 @@ export type Artwork = {
   bads: Scalars['Int']['output'];
   comments: Array<Comment>;
   created_at: Scalars['Date']['output'];
+  deleted: Scalars['Boolean']['output'];
   feature: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   likes: Scalars['Int']['output'];
@@ -79,6 +80,7 @@ export type Mutation = {
   login: MutationLoginResult;
   logout: Scalars['Boolean']['output'];
   refresh: MutationRefreshResult;
+  removeArtwork: Artwork;
   removeArtworkRank: ArtworkRanks;
 };
 
@@ -104,6 +106,11 @@ export type MutationFollowOrUnfollowArgs = {
 export type MutationLoginArgs = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+
+export type MutationRemoveArtworkArgs = {
+  artwork_id: Scalars['String']['input'];
 };
 
 
@@ -198,6 +205,13 @@ export type AddArtworkMutationVariables = Exact<{
 
 
 export type AddArtworkMutation = { __typename?: 'Mutation', addArtwork: { __typename: 'MutationAddArtworkSuccess' } | { __typename: 'ZodError', message: string } };
+
+export type RemoveArtworkMutationVariables = Exact<{
+  artwork_id: Scalars['String']['input'];
+}>;
+
+
+export type RemoveArtworkMutation = { __typename?: 'Mutation', removeArtwork: { __typename: 'Artwork' } };
 
 export type AddArtworkRankMutationVariables = Exact<{
   artwork_id: Scalars['String']['input'];
@@ -297,6 +311,17 @@ export const AddArtworkDocument = gql`
 
 export function useAddArtworkMutation() {
   return Urql.useMutation<AddArtworkMutation, AddArtworkMutationVariables>(AddArtworkDocument);
+};
+export const RemoveArtworkDocument = gql`
+    mutation RemoveArtwork($artwork_id: String!) {
+  removeArtwork(artwork_id: $artwork_id) {
+    __typename
+  }
+}
+    `;
+
+export function useRemoveArtworkMutation() {
+  return Urql.useMutation<RemoveArtworkMutation, RemoveArtworkMutationVariables>(RemoveArtworkDocument);
 };
 export const AddArtworkRankDocument = gql`
     mutation AddArtworkRank($artwork_id: String!, $rank_id: String!) {

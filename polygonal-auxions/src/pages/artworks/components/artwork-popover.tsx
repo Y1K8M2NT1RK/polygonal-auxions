@@ -14,20 +14,22 @@ import BookmarkIcon from '@mui/icons-material/Bookmark';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import WarningIcon from '@mui/icons-material/Warning';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { AnyVariables, useMutation } from 'urql';
-import { AddArtworkRankDocument, RemoveArtworkRankDocument } from '@/pages/generated-graphql';
+import { AddArtworkRankDocument, RemoveArtworkRankDocument, RemoveArtworkDocument, Artwork } from '@/pages/generated-graphql';
 import { useAuth } from '@/pages/contexts/AuthContexts';
 import RankButton from '@/pages/components/RankButton';
-import AlertDialog from '@/pages/components/DeleteAlertDialog';
+import AlertDialog from '@/pages/components/AlertDialog';
 
 type ArtworkPopoverProps = {
     isBookmarked: boolean;
     isFavorited: boolean;
     isOwner: boolean;
-    artworkId: Number;
+    artwork: Artwork;
 };
 
-export default function ArtworkPopover({isBookmarked, isFavorited, isOwner, artworkId}: ArtworkPopoverProps){
+export default function ArtworkPopover({isBookmarked, isFavorited, isOwner, artwork}: ArtworkPopoverProps){
 
     const { user } = useAuth();
 
@@ -35,18 +37,24 @@ export default function ArtworkPopover({isBookmarked, isFavorited, isOwner, artw
 
     const handleClick = (event: MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget);
     const handleClose = () => setAnchorEl(null);
+
+    const [openDialog, setOpenDialog] = useState(false);
+    const handleDialogOpen = () => setOpenDialog(true);
+    const handleDialogClose = () => setOpenDialog(false);
   
     const open = Boolean(anchorEl);
 
     const [, AddArtworkRank] = useMutation<AnyVariables>(AddArtworkRankDocument);
     const [, RemoveArtworkRank] = useMutation<AnyVariables>(RemoveArtworkRankDocument);
 
+    const [, RemoveArtwork] = useMutation<AnyVariables>(RemoveArtworkDocument);
+
     return (
         <Box>
             <RankButton
                 isRanked={isFavorited}
-                onAddRank={() => AddArtworkRank({ artwork_id: String(artworkId), rank_id: '3' })}
-                onRemoveRank={() => RemoveArtworkRank({ artwork_id: String(artworkId), rank_id: '3' })}
+                onAddRank={() => AddArtworkRank({ artwork_id: String(artwork.id), rank_id: '3' })}
+                onRemoveRank={() => RemoveArtworkRank({ artwork_id: String(artwork.id), rank_id: '3' })}
                 Icon={FavoriteBorderIcon}
                 ActiveIcon={FavoriteIcon}
                 color="error"
@@ -55,8 +63,8 @@ export default function ArtworkPopover({isBookmarked, isFavorited, isOwner, artw
             />
             <RankButton
                 isRanked={isBookmarked}
-                onAddRank={() => AddArtworkRank({ artwork_id: String(artworkId), rank_id: '4' })}
-                onRemoveRank={() => RemoveArtworkRank({ artwork_id: String(artworkId), rank_id: '4' })}
+                onAddRank={() => AddArtworkRank({ artwork_id: String(artwork.id), rank_id: '4' })}
+                onRemoveRank={() => RemoveArtworkRank({ artwork_id: String(artwork.id), rank_id: '4' })}
                 Icon={BookmarkBorderIcon}
                 ActiveIcon={BookmarkIcon}
                 color="primary"
@@ -80,13 +88,19 @@ export default function ArtworkPopover({isBookmarked, isFavorited, isOwner, artw
                             isOwner
                             ? <MenuItem>
                                 <AlertDialog
+                                    button={
+                                        <Typography variant='button' color="error" onClick={handleDialogOpen}><DeleteForeverIcon /> 削除</Typography>
+                                    }
+                                    isDialogOpen={openDialog}
                                     content={
                                         <Box>
-                                            <Typography>以下の作品を削除してもよろしいですか？</Typography>
-                                            <Typography>作品名</Typography>
+                                            <Typography>以下の作品を削除してもよろしいですか？</Typography><br />
+                                            <Typography>{artwork.title}</Typography><br />
+                                            <Typography sx={{ fontWeight: 'bold'}} color="error"><WarningIcon />この操作は取り消せません</Typography>
                                         </Box>
                                     }
-                                    onConfirm={() => {console.log('削除が確認されました'); handleClose();}}
+                                    onConfirm={() => {RemoveArtwork({artwork_id: String(artwork.id)}); handleDialogClose();}}
+                                    onCancel={handleDialogClose}
                                 />
                             </MenuItem>
                             : null

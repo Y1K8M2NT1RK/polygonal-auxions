@@ -37,7 +37,7 @@ export default function ArtworkListUnit(props: {artwork: Artwork, artworkRanks: 
                         <Avatar {...stringAvatar(props.artwork.user.handle_name, {mr: '10px', mt: '10px', mb: '10px'})} />
                         <Typography>{props.artwork.user.handle_name}</Typography>
                     </Link>
-                    <ArtworkPopover isFavorited={isFavorited} isBookmarked={isBookmarked} isOwner={isOwner} artworkId={parseInt(props.artwork.id)} />
+                    <ArtworkPopover isFavorited={isFavorited} isBookmarked={isBookmarked} isOwner={isOwner} artwork={props.artwork} />
                 </Box>
                 <Card sx={{display: 'flex', flexDirection: 'column',}}>
                     <Link href={`/artworks/${props.artwork.slug_id}`} passHref>
