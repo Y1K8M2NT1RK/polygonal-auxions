@@ -23,9 +23,11 @@ interface AppContentProps extends Omit<AppProps, 'router'> {
 export default function App(
   { Component, pageProps: { session, ...pageProps },}: AppProps,
 ) {
-  // 端末のデザインモードに応じてサイトのデザインモードを設定
   const theme = createTheme({
+    // 端末のデザインモードに応じてサイトのデザインモードを設定
     palette: {mode: useMediaQuery('(prefers-color-scheme: dark)') ? 'dark' : 'light'},
+    // 改行を反映
+    components: {MuiCssBaseline: {styleOverrides: {body: {whiteSpace: 'pre-wrap'}}}},
   });
   const urqlClient = createClient({
     exchanges: [
