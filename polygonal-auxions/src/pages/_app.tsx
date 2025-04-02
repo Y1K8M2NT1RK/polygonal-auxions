@@ -13,6 +13,7 @@ import NextTopLoader from 'nextjs-toploader';
 import createAuthExchange from './utils/auth-exchanges';
 import { persistedExchange } from '@urql/exchange-persisted';
 import { AuthProvider, useAuth } from '@/pages/contexts/AuthContexts';
+import { PauseProvider } from '@/pages/contexts/PauseContexts';
 import { useRouter } from 'next/router';
 import type { NextRouter } from 'next/router';
 
@@ -47,14 +48,16 @@ export default function App(
         <CssBaseline />
         <UrqlProvider value={urqlClient}>
           <AuthProvider>
-          <NextTopLoader
-            color={theme.palette.mode=="dark"?"#AAAAAA":"666666"}
-            initialPosition={0.08}
-            crawlSpeed={200}
-            height={5}
-            showSpinner={false}
-          />
-            <AppContent Component={Component} pageProps={pageProps} router={useRouter()} />
+            <PauseProvider initialPaused={false}>
+              <NextTopLoader
+                color={theme.palette.mode=="dark"?"#AAAAAA":"666666"}
+                initialPosition={0.08}
+                crawlSpeed={200}
+                height={5}
+                showSpinner={false}
+              />
+              <AppContent Component={Component} pageProps={pageProps} router={useRouter()} />
+            </PauseProvider>
           </AuthProvider>
         </UrqlProvider>
       </ThemeProvider>

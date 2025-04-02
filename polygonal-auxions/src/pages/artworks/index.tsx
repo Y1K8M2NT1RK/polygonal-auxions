@@ -7,25 +7,31 @@ import { useQuery } from 'urql';
 import { type Artwork, type ArtworkRanks } from '@/pages/generated-graphql';
 import { ArtworksDocument, GetAuthArtworkRanksDocument } from '@/pages/generated-graphql';
 import ArtworkListUnit from './components/artwork-list-unit';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContexts';
+import { usePause } from '../contexts/PauseContexts';
 import Head from 'next/head';
+import ArtworkPopover from './components/artwork-popover';
 
 export default function Artworks() {
-    const [resultArtworks] = useQuery({query: ArtworksDocument,});
+    const { isPaused, setPaused } = usePause();
+
+    const [resultArtworks] = useQuery({query: ArtworksDocument, pause: isPaused, requestPolicy: 'cache-and-network'});
     const { fetching, error, data: dataArtworks } = resultArtworks;
 
     if (error) return `Error! ${error.message}`;
 
-    const artworks: Artwork[] = dataArtworks?.artworks;
+    const [deletedArtworksInFront, setDeletedArtworksInFront] = useState<{artwork_id: number, deleted: boolean}[]>([]);
+    const artworks: (Artwork & {deletedInFront: boolean;})[] = dataArtworks?.artworks;
 
     const { user } = useAuth();
 
     let artworkRanks: ArtworkRanks[]|null = null;
 
-    const [resultArtworkRanks, reExecuteArtworkRanksQuery] = useQuery({query: GetAuthArtworkRanksDocument, pause: true,});
+    const [resultArtworkRanks, reExecuteArtworkRanksQuery] = useQuery({query: GetAuthArtworkRanksDocument});
 
-    useEffect(() => { reExecuteArtworkRanksQuery({ requestPolicy: 'network-only' }); }, [user]);
+    useEffect(() => reExecuteArtworkRanksQuery({ requestPolicy: 'network-only' }), [user]);
+    useEffect(() => setPaused(true), [artworks]);
 
     const { data: dataArtworkRanks } = resultArtworkRanks;
     artworkRanks = dataArtworkRanks?.getAuthArtworkRanks as ArtworkRanks[];
@@ -37,8 +43,23 @@ export default function Artworks() {
           fetching
           ? <CircularProgress key={0} color="inherit" />
           : (
-            <Grid container key={1} sx={{ flexGrow: 1, }} spacing={2}>
-              { artworks.map((artwork) => <ArtworkListUnit artwork={artwork} artworkRanks={artworkRanks} key={artwork.slug_id}/> )}
+            <Grid container key={1} sx={{flexGrow: 1,}} spacing={2}>
+                { artworks?.map((artwork) => 
+                  (
+                    <ArtworkListUnit
+                      artwork={artwork}
+                      key={artwork.slug_id}
+                      deletedArtworksInFront={deletedArtworksInFront}
+                    >
+                      <ArtworkPopover
+                        key={artwork.slug_id}
+                        artwork={artwork}
+                        artworkRanks={artworkRanks}
+                        setDeletedArtworksInFront={setDeletedArtworksInFront}
+                      />
+                    </ArtworkListUnit>
+                  )
+                )}
             </Grid>
         )}
       </Container>
