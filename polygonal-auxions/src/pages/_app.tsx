@@ -40,7 +40,7 @@ export default function App(
       createAuthExchange(),
       fetchExchange,
     ],
-    url: 'http://localhost:3001/api/graphql',
+    url: '/api/graphql',
   });
   return (
     <MUIProvider>

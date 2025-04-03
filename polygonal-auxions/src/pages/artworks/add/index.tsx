@@ -21,6 +21,7 @@ import { toast } from "react-toastify";
 import { useAuth } from "@/pages/contexts/AuthContexts";
 import Head from "next/head";
 import { useEffect } from "react";
+import useResponsive from "@/pages/hooks/useResponsive";
 
 type FormData = {
     title: string;
@@ -34,6 +35,7 @@ export default function AddArtwork(){
     });
 
     const router = useRouter();
+    const { isSmallScreen } = useResponsive();
 
     const [, addArtwork] = useMutation(AddArtworkDocument);
     const onSubmit = handleSubmit((data:FormData) => addArtwork(data).then(result => {
@@ -47,9 +49,10 @@ export default function AddArtwork(){
         return router.replace('/artworks');
     }));
 
-    const {user, fetching} = useAuth();
+    const {user, fetching, isLoggedIn} = useAuth();
 
-    useEffect(() => { if(!fetching && !user) router.replace('/artworks'); }, [fetching, user]);
+
+    useEffect(() => { if(isLoggedIn==false && fetching==false) router.push('/artworks'); }, [isLoggedIn]);
     if(fetching) return (<CircularProgress key={0} color="inherit" />);
 
     return (
@@ -65,7 +68,7 @@ export default function AddArtwork(){
                     alignItems: "center",
                 }}
             >
-                <CardContent sx={{textAlign: 'center'}}>
+                <CardContent sx={{textAlign: 'center', width: isSmallScreen ? null : '70%'}}>
                     <Typography variant="h5">作品の追加</Typography>
                     <Box component="form" method="POST" onSubmit={onSubmit}>
                         <CardHeader
@@ -86,7 +89,7 @@ export default function AddArtwork(){
                                 multiline
                                 size="small"
                                 label="説明文"
-                                rows={4}
+                                rows={10}
                                 error={!!errors?.root?.feature?.message}
                                 helperText={errors?.root?.feature?.message ? errors?.root?.feature?.message : null}
                                 {...register("feature")}
