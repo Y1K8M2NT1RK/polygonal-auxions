@@ -2,27 +2,34 @@ import { TextField, InputAdornment, IconButton } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import useResponsive from "../hooks/useResponsive";
 
-export default function SearchInput() {
+interface SearchInputProps {
+  inputPaddingSize?: "small" | "medium";
+  labelFontSize: string;
+  inputFontSize: string;
+}
+
+export default function SearchInput({inputPaddingSize, labelFontSize, inputFontSize}: SearchInputProps) {
   const { isSmallScreen } = useResponsive();
   return (
     <>
       <TextField
         type="search"
-        label="作品を探すなら検索しよう！"
+        placeholder="作品を探すなら検索しよう！"
         sx={{
           width: isSmallScreen ? '85%' : '90%',
           maxWidth: '600px',
         }}
+        size={inputPaddingSize || 'medium'}
         InputLabelProps={{
           style: {
-            fontSize: isSmallScreen ? '1rem' : '1.25rem',
+            fontSize: labelFontSize,
             width: '100%',
           },
         }}
         InputProps={{
           style: {
             borderRadius: '100px',
-            fontSize: isSmallScreen ? '1rem' : '1.25rem',
+            fontSize: inputFontSize,
           },
           endAdornment: (
             <InputAdornment position="end">

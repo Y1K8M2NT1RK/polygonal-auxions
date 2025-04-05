@@ -49,7 +49,10 @@ export default function NotLoggedIn() {
                 justifyContent: 'space-evenly',
                 alignItems: 'center'
             }}>
-                <SearchInput />
+                <SearchInput
+                    labelFontSize={isSmallScreen ? '1rem' : '1.25rem'}
+                    inputFontSize={isSmallScreen ? '1rem' : '1.25rem'}
+                />
                 <LoginDialog sxProps={LoginButtonSx} />
             </Box>
         </Box>

@@ -16,6 +16,8 @@ import { AuthProvider, useAuth } from '@/pages/contexts/AuthContexts';
 import { PauseProvider } from '@/pages/contexts/PauseContexts';
 import { useRouter } from 'next/router';
 import type { NextRouter } from 'next/router';
+import useResponsive from './hooks/useResponsive';
+import Footer from './components/Footer';
 
 interface AppContentProps extends Omit<AppProps, 'router'> {
   router: NextRouter;
@@ -28,7 +30,10 @@ export default function App(
     // 端末のデザインモードに応じてサイトのデザインモードを設定
     palette: {mode: useMediaQuery('(prefers-color-scheme: dark)') ? 'dark' : 'light'},
     // 改行を反映
-    components: {MuiCssBaseline: {styleOverrides: {body: {whiteSpace: 'pre-wrap'}}}},
+    components: {
+      MuiCssBaseline: {styleOverrides: {body: {whiteSpace: 'pre-wrap'}}},
+      MuiButtonBase: {defaultProps: {disableRipple: true}},
+    },
   });
   const urqlClient = createClient({
     exchanges: [
@@ -68,11 +73,13 @@ export default function App(
 function AppContent({ Component, pageProps, router }: AppContentProps) {
   const { isLoggedIn } = useAuth();
   const isRootPath = router.pathname === '/';
+  const { isLargeScreen } = useResponsive();
 
   return (
     <>
-      {(!isRootPath || isLoggedIn) && <Header />}
-      <Component {...pageProps} />
+      {(!isRootPath || isLoggedIn) && isLargeScreen && <Header />}
+      <Component {...pageProps}/>
+      {!isLargeScreen && <Footer />}
     </>
   );
 }

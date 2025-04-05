@@ -12,6 +12,7 @@ import AvatorPopover from "./AvatorPopOver";
 import { ToastContainer, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from '../contexts/AuthContexts';
+import SearchInput from "./SearchInput";
 
 export default function Header (){
 
@@ -40,6 +41,7 @@ export default function Header (){
                     >
                         Polygonal Auxions
                     </Typography>
+                    <SearchInput inputPaddingSize={'small'} labelFontSize={'1rem'} inputFontSize={'1rem'}/>
                     {
                         fetching
                         ?   (
