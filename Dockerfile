@@ -17,7 +17,7 @@ RUN npm install && npm cache clean --force
 COPY . .
 
 # Prismaのセットアップスクリプトをコピー
-COPY /polygonal-auxions/entrypoint.sh /usr/local/bin/
+COPY entrypoint.sh /usr/local/bin/
 
 # スクリプトを実行可能にする
 RUN chmod +x /usr/local/bin/entrypoint.sh

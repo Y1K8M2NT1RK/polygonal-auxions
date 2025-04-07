@@ -1,6 +1,6 @@
 import { builder } from '../../builder';
 import { prisma } from '../../db';
-import { User } from '../../types/consts';
+import { User } from '../consts';
 
 // ユーザープロフィール
 builder.queryField("user", (t) =>

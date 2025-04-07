@@ -1,6 +1,6 @@
 import { builder } from '../../builder';
 import { prisma } from '../../db';
-import { Artwork, ArtworkRanks } from '../../types/consts';
+import { Artwork, ArtworkRanks } from '../consts';
 
 // 作品一覧
 builder.queryField("artworks", (t) =>

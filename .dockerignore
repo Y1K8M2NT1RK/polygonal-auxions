@@ -1,0 +1,17 @@
+# node_modulesを無視
+node_modules
+
+# ローカルの環境変数ファイルを無視
+.env
+
+# Git関連のファイルを無視
+.git
+.gitignore
+
+# ログファイルを無視
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Prismaの一時ファイルを無視
+prisma/migrations/
