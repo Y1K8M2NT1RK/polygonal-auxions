@@ -1,3 +1,12 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": "next/core-web-vitals",
+  "overrides": [
+    {
+      "files": ["src/pages/api/**/*.ts", "src/pages/api/**/*.tsx"], // apiディレクトリ内のすべてのTypeScript/TSXファイル
+      "rules": {
+        "react-hooks/rules-of-hooks": "off", // React Hooksのルールを無効化
+        "react-hooks/exhaustive-deps": "off" // 依存配列のルールも無効化（必要に応じて）
+      }
+    }
+  ]
 }
