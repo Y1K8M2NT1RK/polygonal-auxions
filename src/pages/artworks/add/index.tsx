@@ -52,7 +52,7 @@ export default function AddArtwork(){
     const {user, fetching, isLoggedIn} = useAuth();
 
 
-    useEffect(() => { if(isLoggedIn==false && fetching==false) router.push('/artworks'); }, [isLoggedIn]);
+    useEffect(() => { if(isLoggedIn==false && fetching==false) router.push('/artworks'); }, [isLoggedIn, fetching, router]);
     if(fetching) return (<CircularProgress key={0} color="inherit" />);
 
     return (

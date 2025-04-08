@@ -19,8 +19,6 @@ export default function Artworks() {
     const [resultArtworks] = useQuery({query: ArtworksDocument, pause: isPaused, requestPolicy: 'cache-and-network'});
     const { fetching, error, data: dataArtworks } = resultArtworks;
 
-    if (error) return `Error! ${error.message}`;
-
     const [deletedArtworksInFront, setDeletedArtworksInFront] = useState<{artwork_id: number, deleted: boolean}[]>([]);
     const artworks: (Artwork & {deletedInFront: boolean;})[] = dataArtworks?.artworks;
 
@@ -30,19 +28,23 @@ export default function Artworks() {
 
     const [resultArtworkRanks, reExecuteArtworkRanksQuery] = useQuery({query: GetAuthArtworkRanksDocument});
 
-    useEffect(() => reExecuteArtworkRanksQuery({ requestPolicy: 'network-only' }), [user]);
-    useEffect(() => setPaused(true), [artworks]);
+    useEffect(() => reExecuteArtworkRanksQuery({ requestPolicy: 'network-only' }), [user, reExecuteArtworkRanksQuery]);
+    useEffect(() => setPaused(true), [artworks, setPaused]);
 
     const { data: dataArtworkRanks } = resultArtworkRanks;
     artworkRanks = dataArtworkRanks?.getAuthArtworkRanks as ArtworkRanks[];
+
+    const hasError = !!error;
 
     return (
       <Container fixed sx={{my:2}}>
         <Head><title>作品一覧</title></Head>
         {
-          fetching
-          ? <CircularProgress key={0} color="inherit" />
-          : (
+          hasError ? (
+            <div>Error! {error.message}</div>
+          ) : fetching ? (
+            <CircularProgress key={0} color="inherit" />
+          ) : (
             <Grid container key={1} sx={{flexGrow: 1,}} spacing={2}>
                 { artworks?.map((artwork) => 
                   (

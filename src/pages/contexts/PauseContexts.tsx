@@ -24,7 +24,7 @@ export const PauseProvider: React.FC<PauseProviderProps> = ({ children, initialP
         };
         router.events.on('routeChangeComplete', handleRouteChange);
         return () => {router.events.off('routeChangeComplete', handleRouteChange);};
-    }, []);
+    }, [initialPaused, router.events]);
 
     return (
         <PauseContext.Provider value={{ isPaused, setPaused }}>
