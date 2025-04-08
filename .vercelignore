@@ -3,6 +3,7 @@ node_modules/
 .prisma/
 .vscode/
 .idea/
+.next
 .env
 .env.local
 .env.development
