@@ -11,7 +11,7 @@ import Link from "next/link";
 import AvatorPopover from "./AvatorPopOver";
 import { ToastContainer, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useAuth } from '../contexts/AuthContexts';
+import { useAuth } from '@/contexts/AuthContexts';
 import SearchInput from "./SearchInput";
 
 export default function Header (){

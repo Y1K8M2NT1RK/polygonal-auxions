@@ -16,9 +16,9 @@ import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import stringAvatar from '@/pages/utils/default-avator-icon';
 import { useMutation } from "urql";
-import { AddArtworkDocument } from "@/pages/generated-graphql";
+import { AddArtworkDocument } from "@/generated/generated-graphql";
 import { toast } from "react-toastify";
-import { useAuth } from "@/pages/contexts/AuthContexts";
+import { useAuth } from "@/contexts/AuthContexts";
 import Head from "next/head";
 import { useEffect } from "react";
 import useResponsive from "@/pages/hooks/useResponsive";
@@ -50,7 +50,6 @@ export default function AddArtwork(){
     }));
 
     const {user, fetching, isLoggedIn} = useAuth();
-
 
     useEffect(() => { if(isLoggedIn==false && fetching==false) router.push('/artworks'); }, [isLoggedIn, fetching, router]);
     if(fetching) return (<CircularProgress key={0} color="inherit" />);

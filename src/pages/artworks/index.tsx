@@ -1,15 +1,16 @@
 import {
   Grid,
   Container,
-  CircularProgress
+  CircularProgress,
+  Typography
 } from '@mui/material';
 import { useQuery } from 'urql';
-import { type Artwork, type ArtworkRanks } from '@/pages/generated-graphql';
-import { ArtworksDocument, GetAuthArtworkRanksDocument } from '@/pages/generated-graphql';
+import { type Artwork, type ArtworkRanks } from '@/generated/generated-graphql';
+import { ArtworksDocument, GetAuthArtworkRanksDocument } from '@/generated/generated-graphql';
 import ArtworkListUnit from './components/artwork-list-unit';
 import { useEffect, useState } from 'react';
-import { useAuth } from '../contexts/AuthContexts';
-import { usePause } from '../contexts/PauseContexts';
+import { useAuth } from '@/contexts/AuthContexts';
+import { usePause } from '@/contexts/PauseContexts';
 import Head from 'next/head';
 import ArtworkPopover from './components/artwork-popover';
 

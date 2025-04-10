@@ -12,7 +12,7 @@ import { usePersistedOperations } from '@graphql-yoga/plugin-persisted-operation
 import { join } from 'path';
 
 // ビルド後のファイルパスを指定
-const persistedOperationsPath = join(process.cwd(), 'src/pages/api/persisted-operations.json');
+const persistedOperationsPath = join(process.cwd(), 'src/generated/persisted-operations.json');
 const persistedOperations = JSON.parse(readFileSync(persistedOperationsPath, 'utf-8'));
 
 export type Context = {

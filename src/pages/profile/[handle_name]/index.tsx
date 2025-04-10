@@ -4,13 +4,13 @@ import {
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useQuery } from 'urql';
-import type { User } from '@/pages/generated-graphql';
-import { UserDocument } from '@/pages/generated-graphql';
+import type { User } from '@/generated/generated-graphql';
+import { UserDocument } from '@/generated/generated-graphql';
 import ProfileHeader from '@/pages/profile/components/profile-header';
 import ProfileArtworks from '@/pages/profile/components/profile-artworks';
 import ProfileComments from '@/pages/profile/components/profile-comments';
 import Head from 'next/head';
-import { useAuth } from '@/pages/contexts/AuthContexts';
+import { useAuth } from '@/contexts/AuthContexts';
 
 export default function Profile(){
     const { user: viewing_user } = useAuth();

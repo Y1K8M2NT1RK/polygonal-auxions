@@ -2,7 +2,7 @@ import React, { FormEvent, useRef } from 'react';
 import { IconButton, SxProps, Theme } from '@mui/material';
 import { toast } from 'react-toastify';
 import { AnyVariables, OperationResult } from 'urql';
-import { User } from '../generated-graphql';
+import { User } from '@/generated/generated-graphql';
 
 type RankButtonProps = {
   isRanked: boolean;

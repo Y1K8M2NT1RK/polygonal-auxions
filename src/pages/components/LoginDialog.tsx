@@ -18,7 +18,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useAuth } from '../contexts/AuthContexts';
+import { useAuth } from '@/contexts/AuthContexts';
 import useResponsive from "../hooks/useResponsive";
 import useDarkMode from "../hooks/useDarkMode";
 

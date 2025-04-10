@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useQuery } from 'urql';
-import type { Artwork } from '@/pages/generated-graphql';
-import { ArtworkDocument } from '@/pages/generated-graphql';
+import type { Artwork } from '@/generated/generated-graphql';
+import { ArtworkDocument } from '@/generated/generated-graphql';
 import { CircularProgress, Container, Typography } from '@mui/material';
 import ArtworkComments from './components/artwork-comments';
 import ArtworkDetail from './components/artwork-detail';

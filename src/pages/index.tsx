@@ -1,5 +1,4 @@
-import { useAuth } from './contexts/AuthContexts';
-import Artworks from './artworks';
+import { useAuth } from '@/contexts/AuthContexts';
 import NotLoggedIn from './components/home/HomeNotLoggedIn';
 import LoggedIn from './components/home/HomeLoggedIn';
 

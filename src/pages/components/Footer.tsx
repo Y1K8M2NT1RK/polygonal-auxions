@@ -4,7 +4,7 @@ import AddIcon from '@mui/icons-material/Add';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import React from 'react'
 import stringAvatar from '../utils/default-avator-icon';
-import { useAuth } from '../contexts/AuthContexts';
+import { useAuth } from '@/contexts/AuthContexts';
 
 export default function Footer() {
 

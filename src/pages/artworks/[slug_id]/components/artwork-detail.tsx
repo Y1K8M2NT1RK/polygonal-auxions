@@ -13,7 +13,7 @@ import {
     AddArtworkRankDocument,
     RemoveArtworkRankDocument,
     type Artwork,
-} from '@/pages/generated-graphql';
+} from '@/generated/generated-graphql';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
@@ -22,7 +22,7 @@ import Link from 'next/link';
 import stringAvatar from '@/pages/utils/default-avator-icon';
 import { AnyVariables, useQuery, useMutation } from 'urql';
 import RankButton from '@/pages/components/RankButton';
-import { useAuth } from '@/pages/contexts/AuthContexts';
+import { useAuth } from '@/contexts/AuthContexts';
 import useDarkMode from '@/pages/hooks/useDarkMode';
 
 type Props = {

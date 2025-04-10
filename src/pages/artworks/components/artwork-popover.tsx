@@ -17,8 +17,8 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import WarningIcon from '@mui/icons-material/Warning';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { AnyVariables, useMutation } from 'urql';
-import { AddArtworkRankDocument, RemoveArtworkRankDocument, RemoveArtworkDocument, Artwork, ArtworkRanks } from '@/pages/generated-graphql';
-import { useAuth } from '@/pages/contexts/AuthContexts';
+import { AddArtworkRankDocument, RemoveArtworkRankDocument, RemoveArtworkDocument, Artwork, ArtworkRanks } from '@/generated/generated-graphql';
+import { useAuth } from '@/contexts/AuthContexts';
 import RankButton from '@/pages/components/RankButton';
 import AlertDialog from '@/pages/components/AlertDialog';
 

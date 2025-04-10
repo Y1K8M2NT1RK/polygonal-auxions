@@ -9,7 +9,7 @@ import {
     Box,
 } from '@mui/material';
 import Link from 'next/link';
-import { type Artwork } from '@/pages/generated-graphql';
+import { type Artwork } from '@/generated/generated-graphql';
 import { DateTime } from 'luxon';
 import stringAvatar from '@/pages/utils/default-avator-icon';
 import { ReactNode } from 'react';

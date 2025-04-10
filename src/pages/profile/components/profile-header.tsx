@@ -12,11 +12,11 @@ import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import PersonAddDisabledIcon from '@mui/icons-material/PersonAddDisabled';
 import FlagIcon from '@mui/icons-material/Flag';
 import EditIcon from '@mui/icons-material/Edit';
-import { FollowOrUnfollowDocument, type User } from '@/pages/generated-graphql';
+import { FollowOrUnfollowDocument, type User } from '@/generated/generated-graphql';
 import stringAvatar from '@/pages/utils/default-avator-icon';
 import { useMutation } from 'urql';
 import { toast } from 'react-toastify';
-import { useAuth } from '@/pages/contexts/AuthContexts';
+import { useAuth } from '@/contexts/AuthContexts';
 
 type Props = {
     viewing_user: User

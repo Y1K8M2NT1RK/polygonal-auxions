@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useQuery, useMutation } from 'urql';
-import { MeDocument, LoginDocument, RefreshDocument, LogoutDocument, User } from '../generated-graphql';
+import { MeDocument, LoginDocument, RefreshDocument, LogoutDocument, User } from '@/generated/generated-graphql';
 import { toast } from 'react-toastify';
 
 type AuthContextType = {

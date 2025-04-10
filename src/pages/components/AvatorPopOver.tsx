@@ -16,8 +16,8 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import AddIcon from '@mui/icons-material/Add';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import Link from 'next/link';
-import { type User } from '@/pages/generated-graphql';
-import { useAuth } from '../contexts/AuthContexts';
+import { type User } from '@/generated/generated-graphql';
+import { useAuth } from '@/contexts/AuthContexts';
 
 type Props = {
     auth: User;

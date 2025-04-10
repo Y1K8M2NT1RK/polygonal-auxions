@@ -11,7 +11,7 @@ const config: CodegenConfig = {
   ],
   emitLegacyCommonJSImports: false,
   generates: {
-    'src/pages/generated-graphql.ts': {
+    'src/generated/generated-graphql.ts': {
       plugins: ['typescript', 'typescript-operations', 'typescript-urql'],
       config: {
         scalars: {
@@ -19,7 +19,7 @@ const config: CodegenConfig = {
         },
       },
     },
-    'src/pages/api/persisted-operations.json': {
+    'src/generated/persisted-operations.json': {
       plugins: [
         {
           'graphql-codegen-persisted-query-ids': {
@@ -29,7 +29,7 @@ const config: CodegenConfig = {
         },
       ],
     },
-    'src/pages/persisted-operations.json': {
+    'src/generated/client-persisted-operations.json': {
       plugins: [
         {
           'graphql-codegen-persisted-query-ids': {
