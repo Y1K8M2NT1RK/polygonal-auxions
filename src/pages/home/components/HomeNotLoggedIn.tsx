@@ -1,14 +1,14 @@
-import SearchInput from '@/pages/components/SearchInput';
+import SearchInput from '@/components/SearchInput';
 import { Box, SxProps, Theme, Typography } from '@mui/material';
-import useResponsive from '@/pages/hooks/useResponsive';
-import LoginDialog from '@/pages/components/LoginDialog';
+import useResponsive from '@/hooks/useResponsive';
+import LoginDialog from '@/components/LoginDialog';
 
 type SxObject = {
     [key: string]: SxProps<Theme>;
 };
 
 export default function NotLoggedIn() {
-    const [isSmallScreen, isMediumScreen] = useResponsive();
+    const {isSmallScreen, isMediumScreen} = useResponsive();
     const LoginButtonSx: SxObject = {
         Box: {width: '100%',  display: 'flex', justifyContent: 'center'},
         Button: {

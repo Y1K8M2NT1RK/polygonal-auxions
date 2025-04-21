@@ -18,7 +18,7 @@ export default function ProfileComments({user}: Props){
         <Card sx={{my: 1, py: '20px', px: '20px'}} elevation={9}>
             <Typography variant="h5" sx={{pb: '10px'}}>コメント</Typography>
             <Grid container sx={{ flexGrow: 1, }} spacing={1}>
-                {(!user?.comments)
+                {user?.comments==undefined || (user?.comments.length == 0)
                 ? <CardContent><Typography>投稿したコメントはありません</Typography></CardContent>
                 : user.comments.map((comment: Comment, index: number) => (
                     <Grid item key={index} xs={25} md={4} sx={{width: '100%'}}>

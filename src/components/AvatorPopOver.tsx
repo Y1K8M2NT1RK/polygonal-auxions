@@ -17,7 +17,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import Link from 'next/link';
 import { type User } from '@/generated/generated-graphql';
 import { useAuth } from '@/contexts/AuthContexts';
-import DefaultUserIcon from '@/pages/components/DefaultUserIcon';
+import DefaultUserIcon from '@/components/DefaultUserIcon';
 
 type Props = {
     auth: User;

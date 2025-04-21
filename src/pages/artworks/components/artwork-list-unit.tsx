@@ -11,7 +11,7 @@ import {
 import Link from 'next/link';
 import { type Artwork } from '@/generated/generated-graphql';
 import { DateTime } from 'luxon';
-import DefaultUserIcon from '@/pages/components/DefaultUserIcon';
+import DefaultUserIcon from '@/components/DefaultUserIcon';
 import { ReactNode } from 'react';
 
 interface ArtworkListUnitProps {

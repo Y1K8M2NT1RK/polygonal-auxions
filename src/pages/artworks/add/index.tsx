@@ -13,14 +13,14 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
-import DefaultUserIcon from "@/pages/components/DefaultUserIcon";
+import DefaultUserIcon from "@/components/DefaultUserIcon";
 import { useMutation } from "urql";
 import { AddArtworkDocument } from "@/generated/generated-graphql";
 import { toast } from "react-toastify";
 import { useAuth } from "@/contexts/AuthContexts";
 import Head from "next/head";
 import { useEffect } from "react";
-import useResponsive from "@/pages/hooks/useResponsive";
+import useResponsive from "@/hooks/useResponsive";
 
 type FormData = {
     title: string;

@@ -1,6 +1,6 @@
 import { TextField, InputAdornment, IconButton } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
-import useResponsive from "../hooks/useResponsive";
+import useResponsive from "@/hooks/useResponsive";
 
 interface SearchInputProps {
   inputPaddingSize?: "small" | "medium";
@@ -9,7 +9,7 @@ interface SearchInputProps {
 }
 
 export default function SearchInput({inputPaddingSize, labelFontSize, inputFontSize}: SearchInputProps) {
-  const isSmallScreen = useResponsive();
+  const {isSmallScreen} = useResponsive();
   return (
     <>
       <TextField

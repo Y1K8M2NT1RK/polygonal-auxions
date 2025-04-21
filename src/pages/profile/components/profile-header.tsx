@@ -13,7 +13,7 @@ import PersonAddDisabledIcon from '@mui/icons-material/PersonAddDisabled';
 import FlagIcon from '@mui/icons-material/Flag';
 import EditIcon from '@mui/icons-material/Edit';
 import { FollowOrUnfollowDocument, type User } from '@/generated/generated-graphql';
-import DefaultUserIcon from '@/pages/components/DefaultUserIcon';
+import DefaultUserIcon from '@/components/DefaultUserIcon';
 import { useMutation } from 'urql';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContexts';

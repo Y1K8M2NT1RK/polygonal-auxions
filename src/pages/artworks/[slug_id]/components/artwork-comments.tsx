@@ -6,7 +6,7 @@ import {
 } from '@mui/material';
 import Link from 'next/link';
 import type { Comment, Artwork } from '@/generated/generated-graphql';
-import DefaultUserIcon from '@/pages/components/DefaultUserIcon';
+import DefaultUserIcon from '@/components/DefaultUserIcon';
 
 type Props = {
     artwork: Artwork

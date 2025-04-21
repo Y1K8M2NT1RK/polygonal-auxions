@@ -9,7 +9,7 @@ import {
  } from 'urql';
 import { AppCacheProvider as MUIProvider } from '@mui/material-nextjs/v14-pagesRouter';
 import { CssBaseline, ThemeProvider, createTheme, useMediaQuery } from '@mui/material';
-import Header from '@/pages/components/Header';
+import Header from '@/components/Header';
 import NextTopLoader from 'nextjs-toploader';
 import createAuthExchange from './utils/auth-exchanges';
 import { persistedExchange } from '@urql/exchange-persisted';
@@ -17,8 +17,8 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContexts';
 import { PauseProvider } from '@/contexts/PauseContexts';
 import { useRouter } from 'next/router';
 import type { NextRouter } from 'next/router';
-import useResponsive from './hooks/useResponsive';
-import Footer from './components/Footer';
+import useResponsive from '../hooks/useResponsive';
+import Footer from '@/components/Footer';
 
 interface AppContentProps extends Omit<AppProps, 'router'> {
   router: NextRouter;
@@ -78,7 +78,9 @@ export default function App(
 function AppContent({ Component, pageProps, router }: AppContentProps) {
   const { isLoggedIn } = useAuth();
   const isRootPath = router.pathname === '/';
-  const isLargeScreen = useResponsive();
+  const {isLargeScreen} = useResponsive();
+
+  console.log(isLargeScreen);
 
   return (
     <>

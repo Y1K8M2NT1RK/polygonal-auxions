@@ -1,5 +1,5 @@
 import React from 'react'
-import Preparing from '../Preparing'
+import Preparing from '@/components/Preparing'
 
 export default function LoggedIn() {
     return (

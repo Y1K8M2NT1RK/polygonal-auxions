@@ -19,11 +19,11 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import Link from 'next/link';
-import DefaultUserIcon from '@/pages/components/DefaultUserIcon';
+import DefaultUserIcon from '@/components/DefaultUserIcon';
 import { AnyVariables, useQuery, useMutation } from 'urql';
-import RankButton from '@/pages/components/RankButton';
+import RankButton from '@/components/RankButton';
 import { useAuth } from '@/contexts/AuthContexts';
-import useDarkMode from '@/pages/hooks/useDarkMode';
+import useDarkMode from '@/hooks/useDarkMode';
 
 type Props = {
     artwork: Artwork

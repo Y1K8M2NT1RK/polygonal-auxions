@@ -19,8 +19,8 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { AnyVariables, useMutation } from 'urql';
 import { AddArtworkRankDocument, RemoveArtworkRankDocument, RemoveArtworkDocument, Artwork, ArtworkRanks } from '@/generated/generated-graphql';
 import { useAuth } from '@/contexts/AuthContexts';
-import RankButton from '@/pages/components/RankButton';
-import AlertDialog from '@/pages/components/AlertDialog';
+import RankButton from '@/components/RankButton';
+import AlertDialog from '@/components/AlertDialog';
 
 type ArtworkPopoverProps = {
     artwork: Artwork & {deletedInFront: boolean;};
