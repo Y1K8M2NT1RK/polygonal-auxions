@@ -6,7 +6,6 @@ import {
     Container,
     Fab,
     FormControl,
-    Avatar,
     TextField,
     Typography,
     CardHeader,
@@ -14,7 +13,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
-import stringAvatar from '@/pages/utils/default-avator-icon';
+import DefaultUserIcon from "@/pages/components/DefaultUserIcon";
 import { useMutation } from "urql";
 import { AddArtworkDocument } from "@/generated/generated-graphql";
 import { toast } from "react-toastify";
@@ -35,7 +34,7 @@ export default function AddArtwork(){
     });
 
     const router = useRouter();
-    const { isSmallScreen } = useResponsive();
+    const isSmallScreen = useResponsive();
 
     const [, addArtwork] = useMutation(AddArtworkDocument);
     const onSubmit = handleSubmit((data:FormData) => addArtwork(data).then(result => {
@@ -71,7 +70,7 @@ export default function AddArtwork(){
                     <Typography variant="h5">作品の追加</Typography>
                     <Box component="form" method="POST" onSubmit={onSubmit}>
                         <CardHeader
-                            avatar={<Avatar {...stringAvatar(user.handle_name, {width: 40, height: 40, fontSize: 20,})} />}
+                            avatar={<DefaultUserIcon name={user.handle_name} furtherProp={{ width: 40, height: 40, fontSize: 20}} />}
                             title={<Typography variant="subtitle1">{user.handle_name}</Typography>}
                         />
                         <FormControl fullWidth sx={{mt: 2}}>

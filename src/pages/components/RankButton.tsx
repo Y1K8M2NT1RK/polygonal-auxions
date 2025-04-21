@@ -1,4 +1,4 @@
-import React, { FormEvent, useRef } from 'react';
+import { FormEvent, useRef, ElementType } from 'react';
 import { IconButton, SxProps, Theme } from '@mui/material';
 import { toast } from 'react-toastify';
 import { AnyVariables, OperationResult } from 'urql';
@@ -8,14 +8,14 @@ type RankButtonProps = {
   isRanked: boolean;
   onAddRank: () => Promise<OperationResult<AnyVariables, AnyVariables>>;
   onRemoveRank: () => Promise<OperationResult<AnyVariables, AnyVariables>>;
-  Icon: React.ElementType;
-  ActiveIcon: React.ElementType;
+  Icon: ElementType;
+  ActiveIcon: ElementType;
   color: 'primary' | 'secondary' | 'error' | 'default';
   user: User | null;
   style: SxProps<Theme>;
 };
 
-const RankButton: React.FC<RankButtonProps> = ({
+export default function RankButton({
     isRanked,
     onAddRank,
     onRemoveRank,
@@ -24,11 +24,14 @@ const RankButton: React.FC<RankButtonProps> = ({
     color,
     user,
     style
-}) => {
+}: RankButtonProps){
     const processing = useRef(false);
     const handleClick = async (event: FormEvent) => {
-        event.preventDefault();
-        event.stopPropagation();
+        // クライアントサイド専用の処理
+        if (typeof window !== 'undefined'){
+            event.preventDefault();
+            event.stopPropagation();
+        }
 
         if(processing.current == true) return;
         processing.current = true;
@@ -49,5 +52,3 @@ const RankButton: React.FC<RankButtonProps> = ({
         </IconButton>
     );
 };
-
-export default RankButton;

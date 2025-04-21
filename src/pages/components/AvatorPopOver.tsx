@@ -9,7 +9,6 @@ import {
     MenuItem,
 } from '@mui/material';
 import { MouseEvent, useState } from 'react';
-import stringAvatar from '@/pages/utils/default-avator-icon';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -18,6 +17,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import Link from 'next/link';
 import { type User } from '@/generated/generated-graphql';
 import { useAuth } from '@/contexts/AuthContexts';
+import DefaultUserIcon from '@/pages/components/DefaultUserIcon';
 
 type Props = {
     auth: User;
@@ -40,7 +40,7 @@ export default function AvatorPopover({auth}: Props){
                 <AddIcon sx={{fontSize: 40,}} />
             </IconButton>
             <IconButton sx={{height:'fit-content'}} onClick={handleClick}>
-                <Avatar {...stringAvatar(auth.handle_name, { width: 40, height: 40, fontSize: 20,})} />
+                <DefaultUserIcon name={auth?.handle_name} furtherProp={{ width: 40, height: 40, fontSize: 20,}} />
             </IconButton>
             <Popover
                 open={open}
@@ -56,7 +56,7 @@ export default function AvatorPopover({auth}: Props){
                                 <DashboardIcon /> ダッシュボード
                             </Typography>
                         </MenuItem>
-                        <MenuItem component={Link} href={`/profile/${auth.handle_name}`}>
+                        <MenuItem component={Link} href={`/profile/${auth?.handle_name}`}>
                             <Typography variant="button">
                                 <AccountBoxIcon /> プロフィール
                             </Typography>

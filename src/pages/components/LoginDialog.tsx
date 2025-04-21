@@ -47,7 +47,7 @@ export default function LoginDialog({ sxProps }: LoginDialogProps) {
     const handleClose = () => {clearErrors(); setOpen(false);};
 
     const isDarkMode = useDarkMode();
-    const { isSmallScreen, isMediumScreen } = useResponsive();
+    const [isSmallScreen, isMediumScreen] = useResponsive();
     const fullScreen = isSmallScreen || isMediumScreen;
 
     useEffect(() => {

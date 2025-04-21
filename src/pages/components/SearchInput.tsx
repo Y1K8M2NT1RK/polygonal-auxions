@@ -9,7 +9,7 @@ interface SearchInputProps {
 }
 
 export default function SearchInput({inputPaddingSize, labelFontSize, inputFontSize}: SearchInputProps) {
-  const { isSmallScreen } = useResponsive();
+  const isSmallScreen = useResponsive();
   return (
     <>
       <TextField

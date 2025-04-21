@@ -13,7 +13,7 @@ import PersonAddDisabledIcon from '@mui/icons-material/PersonAddDisabled';
 import FlagIcon from '@mui/icons-material/Flag';
 import EditIcon from '@mui/icons-material/Edit';
 import { FollowOrUnfollowDocument, type User } from '@/generated/generated-graphql';
-import stringAvatar from '@/pages/utils/default-avator-icon';
+import DefaultUserIcon from '@/pages/components/DefaultUserIcon';
 import { useMutation } from 'urql';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContexts';
@@ -26,7 +26,7 @@ export default function ProfileHeader({viewing_user}: Props){
 
     const { user: auth } = useAuth();
 
-    const isAuthFollowed = viewing_user.following.filter((val) => val.followed_by_id == auth?.id)[0] ? true : false;
+    const isAuthFollowed = viewing_user?.following.filter((val) => val.followed_by_id == auth?.id)[0] ? true : false;
 
     const [, FollowOrUnfollow] = useMutation(FollowOrUnfollowDocument);
 
@@ -34,14 +34,14 @@ export default function ProfileHeader({viewing_user}: Props){
         <Card>
             <CardMedia component="img" style={{height:"200px"}} />
             <CardHeader
-                avatar={<Avatar {...stringAvatar(viewing_user.handle_name, { width: 60, height: 60, fontSize: 30 })} />}
-                title={<Typography variant="h5">{viewing_user.handle_name}</Typography>}
-                subheader={<Typography>{viewing_user.introduction}</Typography>}
+                avatar={<DefaultUserIcon name={viewing_user?.handle_name} furtherProp={{ width: 60, height: 60, fontSize: 30 }} />}
+                title={<Typography variant="h5">{viewing_user?.handle_name}</Typography>}
+                subheader={<Typography>{viewing_user?.introduction}</Typography>}
             />
             <CardContent>
                 <Grid container sx={{ flexGrow: 1, }} spacing={2}>
                     {
-                        auth?.handle_name == viewing_user.handle_name 
+                        auth?.handle_name == viewing_user?.handle_name 
                         ?   (
                             <>
                                 <Grid item><Fab variant="extended"><EditIcon />編集</Fab></Grid>

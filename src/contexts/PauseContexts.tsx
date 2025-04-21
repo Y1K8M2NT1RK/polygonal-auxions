@@ -1,12 +1,12 @@
-import React, { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react'
+import { FC, Dispatch, SetStateAction, createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/router';
 
-type PauseContextType = { isPaused: boolean; setPaused: React.Dispatch<React.SetStateAction<boolean>>; };
+type PauseContextType = { isPaused: boolean; setPaused: Dispatch<SetStateAction<boolean>>; };
 type PauseProviderProps = { children: ReactNode; initialPaused: boolean; };
 
 const PauseContext = createContext<PauseContextType | undefined>(undefined);
 
-export const PauseProvider: React.FC<PauseProviderProps> = ({ children, initialPaused = false }) => {
+export const PauseProvider: FC<PauseProviderProps> = ({ children, initialPaused = false }) => {
 
     const [isPaused, setPaused] = useState<boolean>(initialPaused);
     const router = useRouter();

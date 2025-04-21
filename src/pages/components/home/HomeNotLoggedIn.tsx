@@ -8,7 +8,7 @@ type SxObject = {
 };
 
 export default function NotLoggedIn() {
-    const { isSmallScreen, isMediumScreen } = useResponsive();
+    const [isSmallScreen, isMediumScreen] = useResponsive();
     const LoginButtonSx: SxObject = {
         Box: {width: '100%',  display: 'flex', justifyContent: 'center'},
         Button: {

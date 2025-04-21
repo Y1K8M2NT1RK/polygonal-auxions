@@ -3,9 +3,12 @@ import { parse } from 'cookie';
 import { Operation, CombinedError } from 'urql';
 
 const getTokenFromCookies = (): string => {
-    // クライアントサイドでクッキーからトークンを取得
-    const cookies = parse(document.cookie || '');
-    return cookies.token || '';
+    // クライアントサイドでのみクッキーを取得
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+        const cookies = parse(document.cookie || '');
+        return cookies.token || '';
+    }
+    return ''; // SSR 環境では空文字を返す
 };
   
 const createAuthExchange = () => authExchange(async (utils) => {

@@ -5,6 +5,7 @@ import {
   fetchExchange,
   createClient,
   Provider as UrqlProvider,
+  ssrExchange,
  } from 'urql';
 import { AppCacheProvider as MUIProvider } from '@mui/material-nextjs/v14-pagesRouter';
 import { CssBaseline, ThemeProvider, createTheme, useMediaQuery } from '@mui/material';
@@ -42,10 +43,14 @@ export default function App(
         preferGetForPersistedQueries: true,
         enableForMutation: true,
       }),
+      ssrExchange({isClient: typeof window !== 'undefined'}),
       createAuthExchange(),
       fetchExchange,
     ],
     url: '/api/graphql',
+    fetchOptions: {
+      credentials: 'include',
+    },
   });
   return (
     <MUIProvider>
@@ -73,7 +78,7 @@ export default function App(
 function AppContent({ Component, pageProps, router }: AppContentProps) {
   const { isLoggedIn } = useAuth();
   const isRootPath = router.pathname === '/';
-  const { isLargeScreen } = useResponsive();
+  const isLargeScreen = useResponsive();
 
   return (
     <>
