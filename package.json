@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "WATCHPACK_POLLING=true next dev",
-    "build": "prisma generate --schema=./prisma/schema.prisma && prisma migrate deploy && graphql-codegen && next build",
+    "build": "prisma generate --schema=./node_modules/.prisma/client/schema.prisma && prisma migrate deploy && graphql-codegen && next build",
     "start": "next start",
     "lint": "next lint"
   },

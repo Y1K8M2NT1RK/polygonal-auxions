@@ -1,5 +1,6 @@
 # 開発環境用のディレクトリやファイル
 node_modules/
+!node_modules/.prisma
 .prisma/
 .vscode/
 .idea/
