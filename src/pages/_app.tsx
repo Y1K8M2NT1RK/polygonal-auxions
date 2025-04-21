@@ -80,8 +80,6 @@ function AppContent({ Component, pageProps, router }: AppContentProps) {
   const isRootPath = router.pathname === '/';
   const {isLargeScreen} = useResponsive();
 
-  console.log(isLargeScreen);
-
   return (
     <>
       {(!isRootPath || isLoggedIn) && isLargeScreen && <Header />}
