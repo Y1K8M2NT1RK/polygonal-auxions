@@ -1,0 +1,7 @@
+{
+    "functions": {
+        "api/graphql": {
+            "includeFiles": "node_modules/.prisma/**"
+        }
+    }
+}
