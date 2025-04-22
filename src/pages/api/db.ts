@@ -7,10 +7,7 @@ declare global {
 export const prisma = (
     global.prisma ||
 	new PrismaClient({
-		log:
-            process.env.NODE_ENV === "production"
-            ? ["warn", "error"]
-            : ["query", "info", "warn", "error"],
+		log: ['query', 'info', 'warn', 'error'], // クエリログを有効化
 	}).$extends({
         query: {
             artwork: {

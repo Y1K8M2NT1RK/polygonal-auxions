@@ -65,6 +65,7 @@ export default createYoga<
   context: async ({ req, res }) => createContext(req, res),
   maskedErrors: {
     maskError(error, message) {
+      console.error('GraphQL Error:', error); // エラーをログに記録
       const cause = (error as GraphQLError).originalError;
 
       // Validation Error
