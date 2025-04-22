@@ -1,7 +1,0 @@
-{
-    "build": {
-        "env": {
-            "PRISMA_QUERY_ENGINE_BINARY": "node_modules/.prisma/client/query-engine-rhel-openssl-3.0.x"
-        }
-    }
-  }
