@@ -50,7 +50,7 @@
         }
     ],
     "functions": {
-        "api/graphql": {
+        "src/pages/api/graphql": {
             "includeFiles": "node_modules/.prisma/**"
         }
     }
