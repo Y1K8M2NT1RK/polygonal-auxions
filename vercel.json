@@ -1,6 +1,6 @@
 {
     "functions": {
-        "api/graphql": {
+        "src/pages/api/graphql.ts": {
             "includeFiles": "node_modules/.prisma/**"
         }
     }
