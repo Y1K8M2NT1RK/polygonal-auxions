@@ -11,7 +11,7 @@ import { AppCacheProvider as MUIProvider } from '@mui/material-nextjs/v14-pagesR
 import { CssBaseline, ThemeProvider, createTheme, useMediaQuery } from '@mui/material';
 import Header from '@/components/Header';
 import NextTopLoader from 'nextjs-toploader';
-import createAuthExchange from './utils/auth-exchanges';
+import createAuthExchange from '../utils/auth-exchanges';
 import { persistedExchange } from '@urql/exchange-persisted';
 import { AuthProvider, useAuth } from '@/contexts/AuthContexts';
 import { PauseProvider } from '@/contexts/PauseContexts';
