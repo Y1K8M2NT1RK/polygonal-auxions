@@ -29,6 +29,7 @@
     "@pothos/plugin-simple-objects": "^3.7.0",
     "@pothos/plugin-validation": "^3.10.1",
     "@prisma/client": "^6.6.0",
+    "@supabase/supabase-js": "^2.49.4",
     "@types/bcrypt": "^5.0.2",
     "@types/luxon": "^3.4.2",
     "@urql/exchange-auth": "^2.2.0",
