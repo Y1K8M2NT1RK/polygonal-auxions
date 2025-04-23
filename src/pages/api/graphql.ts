@@ -62,13 +62,6 @@ export default createYoga<
       }
     }),
   ],
-  cors: {
-    origin: process.env.NODE_ENV === 'production'
-      ? process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000' // デフォルト値を追加
-      : '*', // 開発環境ではすべてのオリジンを許可
-    methods: ['GET', 'POST', 'OPTIONS'],
-    credentials: true, // 認証情報を許可
-  },
   context: async ({ req, res }) => createContext(req, res),
   maskedErrors: {
     maskError(error, message) {
