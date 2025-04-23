@@ -47,13 +47,8 @@ export default function App(
       createAuthExchange(),
       fetchExchange,
     ],
-    url: process.env.NODE_ENV === 'production'
-      ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/graphql/v1`
-      : '/api/graphql',
+    url: '/api/graphql',
     fetchOptions: {
-      headers: {
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-      },
       credentials: 'include',
     },
   });

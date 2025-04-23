@@ -3,9 +3,7 @@ import type { CodegenConfig } from '@graphql-codegen/cli';
 import { printSchema } from 'graphql';
 
 const config: CodegenConfig = {
-  schema: process.env.NODE_ENV === 'production'
-    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/graphql/v1`
-    : printSchema(schema),
+  schema: printSchema(schema),
   overwrite: true,
   documents: [
     'src/pages/api/graphql/mutations/*.graphql',
