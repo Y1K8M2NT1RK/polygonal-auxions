@@ -1,6 +1,6 @@
 {
     "functions": {
-        "api/**/*.ts": {
+        "src/pages/api/**/*.{ts,js}": {
             "includeFiles": "node_modules/.prisma/**"
         }
     }
