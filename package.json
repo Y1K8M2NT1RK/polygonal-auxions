@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "WATCHPACK_POLLING=true NODE_OPTIONS='--trace-warnings' next dev",
-    "build": "prisma generate && prisma migrate deploy && graphql-codegen && next build",
+    "build": "next build",
+    "vercel-build": "prisma generate && prisma migrate deploy && && next build && graphql-codegen",
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "next lint"
