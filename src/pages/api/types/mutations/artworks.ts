@@ -37,14 +37,8 @@ builder.mutationField("addArtwork", (t) =>
                     updated_at: new Date().toISOString(),
                     likes: 0,
                     bads: 0,
-                    user: {
-                        connect: await prisma.user.findUniqueOrThrow({
-                            where: { slug_id: ctx.auth?.slug_id },
-                            include: {}
-                        })
-                    },
-                    artwork_file: {},
-                    comments: {},
+                    user_id: ctx.auth?.id as number,
+                    artwork_file: {}
                 },
             }),
     })
