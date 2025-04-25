@@ -6,7 +6,7 @@ import { ZodError } from 'zod';
 import jwt from 'jsonwebtoken';
 import { prisma } from './db';
 import { parse } from 'cookie';
-import { User } from '@prisma/client';
+import { User } from '../../../prisma/generated/client';
 import { readFileSync } from 'fs';
 import { usePersistedOperations } from '@graphql-yoga/plugin-persisted-operations'
 import { join } from 'path';
