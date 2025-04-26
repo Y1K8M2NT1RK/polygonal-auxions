@@ -18,7 +18,7 @@ export default function ArtworkComments({artwork}: Props){
             <div>
                 <Typography variant="h5">コメント</Typography>
                 <div>
-                    {(!artwork?.comments)
+                    {artwork?.comments==undefined || (artwork?.comments.length == 0)
                     ? <Typography>コメントはありません</Typography>
                     : artwork.comments.map((comment: Comment, index: number) => (
                         <Box sx={{display: 'flex', alignItems: 'center', pt: '10px'}} key={index}>
