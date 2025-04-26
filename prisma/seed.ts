@@ -3,13 +3,38 @@ import { prisma } from '../src/pages/api/db'
 const main = async () => {
     // 途中で止まった場合に備えて、その時点まで作成したデータを全て削除
     await prisma.$transaction(async (prisma) => {
-        await prisma.artworkRanks.deleteMany(); console.log('artworkRanksの削除が完了しました。');
-        await prisma.follow.deleteMany(); console.log('followsの削除が完了しました。');
-        await prisma.user.deleteMany(); console.log('usersの削除が完了しました。');
-        await prisma.artwork.deleteMany(); console.log('artworksの削除が完了しました。');
-        await prisma.comment.deleteMany(); console.log('commentsの削除が完了しました。');
         await prisma.ranks.deleteMany(); console.log('ranksの削除が完了しました。');
+        await prisma.$executeRaw`ALTER SEQUENCE ranks_id_seq RESTART WITH 1;`;
         await prisma.rankTypes.deleteMany(); console.log('rankTypesの削除が完了しました。');
+        await prisma.$executeRaw`ALTER SEQUENCE rank_types_id_seq RESTART WITH 1;`;
+        await prisma.rankTypes.createMany({
+            data: [{name: '評価'}, {name: '保存'}, {name: '報告'}]
+        }); console.log('rankTypesの作成が完了しました。');
+        await prisma.ranks.createMany({
+            data: [
+                { name: '高評価' , rank_type_id: 1 },
+                { name: '低評価' , rank_type_id: 1 },
+                { name: 'お気に入り' , rank_type_id: 2 },
+                { name: 'ブックマーク' , rank_type_id: 2 },
+                { name: '不適切な表現（過激もしくは卑猥な表現など）' , rank_type_id: 3 },
+                { name: '犯罪・テロリズムの誘発' , rank_type_id: 3 },
+                { name: '虚偽のもしくは矛盾しているタイトル・サムネイル・表示内容' , rank_type_id: 3 },
+                { name: 'その他' , rank_type_id: 3 },
+            ]
+        }); console.log('ranksの作成が完了しました。');
+
+        if( process.env.NODE_ENV === 'production' ) return;
+
+        await prisma.artworkRanks.deleteMany(); console.log('artworkRanksの削除が完了しました。');
+        await prisma.$executeRaw`ALTER SEQUENCE artwork_ranks_id_seq RESTART WITH 1;`;
+        await prisma.follow.deleteMany(); console.log('followsの削除が完了しました。');
+        await prisma.authPayload.deleteMany(); console.log('auth_payloadの削除が完了しました。');
+        await prisma.user.deleteMany(); console.log('usersの削除が完了しました。');
+        await prisma.$executeRaw`ALTER SEQUENCE users_id_seq RESTART WITH 1;`;
+        await prisma.artwork.deleteMany(); console.log('artworksの削除が完了しました。');
+        await prisma.$executeRaw`ALTER SEQUENCE artworks_id_seq RESTART WITH 1;`;
+        await prisma.comment.deleteMany(); console.log('commentsの削除が完了しました。');
+        await prisma.$executeRaw`ALTER SEQUENCE comments_id_seq RESTART WITH 1;`;
         // 初期データ群
         await prisma.user.createMany({
             data: [
@@ -100,21 +125,6 @@ const main = async () => {
                 { user_id: 7, artwork_id: 3, body: '信じられん…。', created_at: new Date(2024, 4, 17).toISOString()},
             ]
         }); console.log('commentの作成が完了しました。');
-        await prisma.rankTypes.createMany({
-            data: [{name: '評価'}, {name: '保存'}, {name: '報告'}]
-        }); console.log('rankTypesの作成が完了しました。');
-        await prisma.ranks.createMany({
-            data: [
-                { name: '高評価' , rank_type_id: 1 },
-                { name: '低評価' , rank_type_id: 1 },
-                { name: 'お気に入り' , rank_type_id: 2 },
-                { name: 'ブックマーク' , rank_type_id: 2 },
-                { name: '不適切な表現（過激もしくは卑猥な表現など）' , rank_type_id: 3 },
-                { name: '犯罪・テロリズムの誘発' , rank_type_id: 3 },
-                { name: '虚偽のもしくは矛盾しているタイトル・サムネイル・表示内容' , rank_type_id: 3 },
-                { name: 'その他' , rank_type_id: 3 },
-            ]
-        }); console.log('ranksの作成が完了しました。');
         await prisma.artworkRanks.createMany({
             data: [
                 { artwork_id: 10, rank_id: 1, user_id: 5 },
