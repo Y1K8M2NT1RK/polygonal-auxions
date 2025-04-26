@@ -79,7 +79,7 @@ export default function App(
 function AppContent({ Component, pageProps, router }: AppContentProps) {
   const { isLoggedIn } = useAuth();
   const isRootPath = router.pathname === '/';
-  const {isLargeScreen} = useResponsive();
+  const {isSmallScreen, isLargeScreen} = useResponsive();
 
   return (
     <>
@@ -91,7 +91,7 @@ function AppContent({ Component, pageProps, router }: AppContentProps) {
         theme="colored"
         draggable
         transition={Bounce}
-        style={{zIndex: 1000, width: '100%'}}
+        style={{zIndex: 1000, ...(isSmallScreen ? {width: '100%'} : null)}}
       />
       <Component {...pageProps}/>
       {!isLargeScreen && <Footer />}
