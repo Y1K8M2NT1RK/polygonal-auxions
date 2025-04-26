@@ -1,4 +1,4 @@
-import { Avatar, BottomNavigation, BottomNavigationAction, Box, Paper } from '@mui/material'
+import { BottomNavigation, BottomNavigationAction, Paper } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -11,7 +11,7 @@ export default function Footer() {
     const { user, isLoggedIn } = useAuth();
 
     return (
-        <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0}} elevation={3}>
+        <Paper sx={{position: 'fixed', bottom: 0, right: 0, left: 0}} elevation={3}>
             <BottomNavigation showLabels>
                 <BottomNavigationAction label={'検索'} icon={<SearchIcon />} />
                 <BottomNavigationAction label={'作品追加'} icon={<AddIcon />} />

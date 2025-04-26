@@ -7,8 +7,8 @@ export default function MyDocument(props: DocumentProps & DocumentHeadTagsProps)
             <Head>
                 <DocumentHeadTags {...props} />
             </Head>
-            <body>
-                <Main />
+            <body style={{paddingBottom: '60px'}}>
+                <Main/>
                 <NextScript />
             </body>
         </Html>
