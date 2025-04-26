@@ -36,7 +36,11 @@ export default function RankButton({
         if(processing.current == true) return;
         processing.current = true;
 
-        if (!user) { return toast.error('ログインが必要です。'); }
+        if (!user) {
+            toast.error('ログインが必要です。');
+            processing.current = false;
+            return;
+        }
         try {
             isRanked ? await onRemoveRank() : await onAddRank();
         } catch {

@@ -9,7 +9,6 @@ import { Fragment } from "react";
 import LoginDialog from "./LoginDialog";
 import Link from "next/link";
 import AvatorPopover from "./AvatorPopOver";
-import { ToastContainer, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from '@/contexts/AuthContexts';
 import SearchInput from "./SearchInput";
@@ -20,14 +19,6 @@ export default function Header (){
 
     return (
         <Fragment>
-            <ToastContainer
-                position="bottom-center"
-                autoClose={5000}
-                closeOnClick
-                theme="colored"
-                draggable
-                transition={Bounce}
-            />
             <AppBar color='transparent' sx={{backdropFilter: 'blur(5px)'}}>
                 <Toolbar sx={{justifyContent: "space-between",}}>
                     <Typography

@@ -19,6 +19,7 @@ import { useRouter } from 'next/router';
 import type { NextRouter } from 'next/router';
 import useResponsive from '../hooks/useResponsive';
 import Footer from '@/components/Footer';
+import { ToastContainer, Bounce } from 'react-toastify';
 
 interface AppContentProps extends Omit<AppProps, 'router'> {
   router: NextRouter;
@@ -83,6 +84,15 @@ function AppContent({ Component, pageProps, router }: AppContentProps) {
   return (
     <>
       {(!isRootPath || isLoggedIn) && isLargeScreen && <Header />}
+      <ToastContainer
+        position="bottom-center"
+        autoClose={5000}
+        closeOnClick
+        theme="colored"
+        draggable
+        transition={Bounce}
+        style={{zIndex: 1000, width: '100%'}}
+      />
       <Component {...pageProps}/>
       {!isLargeScreen && <Footer />}
     </>
