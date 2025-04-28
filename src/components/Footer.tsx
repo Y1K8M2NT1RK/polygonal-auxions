@@ -1,5 +1,6 @@
 import { BottomNavigation, BottomNavigationAction, Paper } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search';
+import HomeIcon from '@mui/icons-material/Home';
 import AddIcon from '@mui/icons-material/Add';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import React from 'react'
@@ -13,6 +14,7 @@ export default function Footer() {
     return (
         <Paper sx={{position: 'fixed', bottom: 0, right: 0, left: 0}} elevation={3}>
             <BottomNavigation showLabels>
+                <BottomNavigationAction label={'ホーム'} icon={<HomeIcon />} href={'/'} />
                 <BottomNavigationAction label={'検索'} icon={<SearchIcon />} />
                 <BottomNavigationAction label={'作品追加'} icon={<AddIcon />} />
                 <BottomNavigationAction label={'マイページ'} icon={
