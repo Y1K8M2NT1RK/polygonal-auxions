@@ -1,5 +1,5 @@
 import SearchInput from '@/components/SearchInput';
-import { Box, SxProps, Theme, Typography } from '@mui/material';
+import { Box, Button, SxProps, Theme, Typography } from '@mui/material';
 import useResponsive from '@/hooks/useResponsive';
 import LoginDialog from '@/components/LoginDialog';
 
@@ -53,6 +53,7 @@ export default function NotLoggedIn() {
                     labelFontSize={isSmallScreen ? '1rem' : '1.25rem'}
                     inputFontSize={isSmallScreen ? '1rem' : '1.25rem'}
                 />
+                <Button href={'/artworks'}>検索しないで作品を見る</Button>
                 <LoginDialog sxProps={LoginButtonSx} />
             </Box>
         </Box>
