@@ -1,11 +1,12 @@
 import { 
     AppBar, 
     Box, 
+    Button, 
     Skeleton, 
     Toolbar,
     Typography,
 } from "@mui/material";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import LoginDialog from "./LoginDialog";
 import Link from "next/link";
 import AvatorPopover from "./AvatorPopOver";
@@ -14,8 +15,10 @@ import { useAuth } from '@/contexts/AuthContexts';
 import SearchInput from "./SearchInput";
 
 export default function Header (){
-
     const { user, fetching, isLoggedIn } = useAuth();
+
+    const [openDialog, setOpenDialog] = useState(false);
+    const handleDialogOpen = () => setOpenDialog(true);
 
     return (
         <Fragment>
@@ -43,7 +46,18 @@ export default function Header (){
                         ) : isLoggedIn && user ? (
                             <AvatorPopover auth={user} />
                         ) : (
-                            <LoginDialog />
+                            <LoginDialog
+                                button={
+                                    <Button
+                                        onClick={handleDialogOpen}
+                                        color="inherit"
+                                    >
+                                        ログイン
+                                    </Button>
+                                }
+                                openDialog={openDialog}
+                                setOpenDialog={setOpenDialog}
+                            />
                         )
                     }
                 </Toolbar>

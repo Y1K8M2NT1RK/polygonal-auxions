@@ -14,7 +14,7 @@ import {
 import LoginIcon from '@mui/icons-material/Login';
 import CloseIcon from '@mui/icons-material/Close';
 import Link from "next/link";
-import { ReactElement, useEffect, useState } from "react";
+import { ReactElement, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from '@/contexts/AuthContexts';
 import useResponsive from "@/hooks/useResponsive";
@@ -23,7 +23,6 @@ import useDarkMode from "../hooks/useDarkMode";
 type LoginDialogProps = {
     button?: ReactElement;
     openDialog: boolean;
-    handleDialogOpen?: () => void;
     setOpenDialog: (openDialog: boolean) => void;
     sxProps?: {
         [key: string]: SxProps<Theme>;
@@ -35,7 +34,12 @@ type FormData = {
     password: string;
 };
 
-export default function LoginDialog({ button, openDialog, setOpenDialog, handleDialogOpen,  sxProps }: LoginDialogProps) {
+export default function LoginDialog({
+    button,
+    openDialog,
+    setOpenDialog, 
+    sxProps
+}: LoginDialogProps) {
     const {register, handleSubmit, setError, clearErrors, formState: {errors} } = useForm<FormData>({
         defaultValues: {email: '', password: ''},
         mode: 'onSubmit',
@@ -44,15 +48,11 @@ export default function LoginDialog({ button, openDialog, setOpenDialog, handleD
     const { handleLogin, formErrors } = useAuth();
     const onSubmit = handleSubmit(async (data: FormData) => await handleLogin(data.email, data.password));
 
-    // // const [open, setOpen] = useState(false);
-    // const handleDialogOpen = () => setOpenDialog(true);
     const handleClose = () => {clearErrors(); setOpenDialog(false);};
 
     const isDarkMode = useDarkMode();
     const {isSmallScreen, isMediumScreen} = useResponsive();
     const fullScreen = isSmallScreen || isMediumScreen;
-
-    console.log(openDialog);
 
     useEffect(() => {
         for (const [key, val] of Object.entries(formErrors)) {
@@ -62,9 +62,7 @@ export default function LoginDialog({ button, openDialog, setOpenDialog, handleD
 
     return (
         <Box sx={sxProps?.Box}>
-            <Button onClick={handleDialogOpen} color="inherit" sx={sxProps?.Button}>
-                ログイン
-            </Button>
+            {button}
             <Dialog
                 open={openDialog}
                 onClose={handleClose}

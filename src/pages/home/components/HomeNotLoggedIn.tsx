@@ -1,7 +1,8 @@
 import SearchInput from '@/components/SearchInput';
-import { Box, SxProps, Theme, Typography } from '@mui/material';
+import { Box, Button, SxProps, Theme, Typography } from '@mui/material';
 import useResponsive from '@/hooks/useResponsive';
 import LoginDialog from '@/components/LoginDialog';
+import { useState } from 'react';
 
 type SxObject = {
     [key: string]: SxProps<Theme>;
@@ -9,6 +10,10 @@ type SxObject = {
 
 export default function NotLoggedIn() {
     const {isSmallScreen, isMediumScreen} = useResponsive();
+
+    const [openDialog, setOpenDialog] = useState(false);
+    const handleDialogOpen = () => setOpenDialog(true);
+
     const LoginButtonSx: SxObject = {
         Box: {width: '100%',  display: 'flex', justifyContent: 'center'},
         Button: {
@@ -18,6 +23,7 @@ export default function NotLoggedIn() {
             width: isSmallScreen ? '85%' : '90%',
         },
     }
+    
     return (
         <Box
             sx={{
@@ -53,7 +59,15 @@ export default function NotLoggedIn() {
                     labelFontSize={isSmallScreen ? '1rem' : '1.25rem'}
                     inputFontSize={isSmallScreen ? '1rem' : '1.25rem'}
                 />
-                <LoginDialog sxProps={LoginButtonSx} />
+                <LoginDialog
+                    button={
+                        <Button onClick={handleDialogOpen} color="inherit" sx={LoginButtonSx.Box}>
+                            ログイン
+                        </Button>
+                    }
+                    openDialog={openDialog}
+                    setOpenDialog={setOpenDialog}
+                />
             </Box>
         </Box>
     );
