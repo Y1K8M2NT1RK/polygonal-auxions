@@ -1,5 +1,5 @@
 /* eslint-disable */
-import type { Prisma, User, AuthPayload, Follow, Artwork, ArtworkFile, ArtworkGizmo, Comment, ArtworkRanks, Ranks, RankTypes } from ".prisma/client";
+import type { Prisma, User, AuthPayload, Follow, Artwork, ArtworkFile, ArtworkGizmo, Comment, ArtworkRanks, Ranks, RankTypes } from "../../../../prisma/generated/client";
 export default interface PrismaTypes {
     User: {
         Name: "User";
