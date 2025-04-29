@@ -14,6 +14,9 @@
 1. WebGLの導入
 2. 管理画面の導入
 
+2025年4月28日現在、下記リンクから実際にご使用いただけます。
+* https://polygonal-auxions.vercel.app/
+
 [目次へ戻る](https://github.com/Y1K8M2NT1RK/polygonal-auxions?tab=readme-ov-file#0-%E7%9B%AE%E6%AC%A1)
 
 ## 2. 実装済の機能/画面（全16点）
