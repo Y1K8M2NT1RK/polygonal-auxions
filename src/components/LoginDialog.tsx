@@ -10,19 +10,20 @@ import {
     TextField,
     Theme,
     Typography,
-    useMediaQuery,
-    useTheme,
 } from "@mui/material";
 import LoginIcon from '@mui/icons-material/Login';
 import CloseIcon from '@mui/icons-material/Close';
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { ReactElement, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from '@/contexts/AuthContexts';
 import useResponsive from "@/hooks/useResponsive";
 import useDarkMode from "../hooks/useDarkMode";
 
 type LoginDialogProps = {
+    button?: ReactElement;
+    openDialog: boolean;
+    setOpenDialog: (openDialog: boolean) => void;
     sxProps?: {
         [key: string]: SxProps<Theme>;
     };
@@ -33,7 +34,12 @@ type FormData = {
     password: string;
 };
 
-export default function LoginDialog({ sxProps }: LoginDialogProps) {
+export default function LoginDialog({
+    button,
+    openDialog,
+    setOpenDialog, 
+    sxProps
+}: LoginDialogProps) {
     const {register, handleSubmit, setError, clearErrors, formState: {errors} } = useForm<FormData>({
         defaultValues: {email: '', password: ''},
         mode: 'onSubmit',
@@ -42,9 +48,7 @@ export default function LoginDialog({ sxProps }: LoginDialogProps) {
     const { handleLogin, formErrors } = useAuth();
     const onSubmit = handleSubmit(async (data: FormData) => await handleLogin(data.email, data.password));
 
-    const [open, setOpen] = useState(false);
-    const handleClickOpen = () => setOpen(true);
-    const handleClose = () => {clearErrors(); setOpen(false);};
+    const handleClose = () => {clearErrors(); setOpenDialog(false);};
 
     const isDarkMode = useDarkMode();
     const {isSmallScreen, isMediumScreen} = useResponsive();
@@ -58,11 +62,9 @@ export default function LoginDialog({ sxProps }: LoginDialogProps) {
 
     return (
         <Box sx={sxProps?.Box}>
-            <Button onClick={handleClickOpen} color="inherit" sx={sxProps?.Button}>
-                ログイン
-            </Button>
+            {button}
             <Dialog
-                open={open}
+                open={openDialog}
                 onClose={handleClose}
                 fullScreen={fullScreen}
             >
