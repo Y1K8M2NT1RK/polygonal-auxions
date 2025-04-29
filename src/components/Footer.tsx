@@ -64,7 +64,6 @@ export default function Footer() {
                                     <ListItemButton onClick={() => {
                                         handleLogout();
                                         handleDrawerClose();
-                                        setOpenDialog(false);
                                     }}>
                                         <ListItemIcon><LogoutIcon /></ListItemIcon>
                                         <ListItemText primary={'ログアウト'}/>

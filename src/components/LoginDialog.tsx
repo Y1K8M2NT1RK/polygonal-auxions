@@ -46,7 +46,10 @@ export default function LoginDialog({
     });
 
     const { handleLogin, formErrors } = useAuth();
-    const onSubmit = handleSubmit(async (data: FormData) => await handleLogin(data.email, data.password));
+    const onSubmit = handleSubmit((data: FormData) => {
+        handleLogin(data.email, data.password);
+        handleClose();
+    });
 
     const handleClose = () => {clearErrors(); setOpenDialog(false);};
 
