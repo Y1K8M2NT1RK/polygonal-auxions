@@ -33,7 +33,8 @@ export default function App(
     palette: {mode: useMediaQuery('(prefers-color-scheme: dark)') ? 'dark' : 'light'},
     // 改行を反映
     components: {
-      MuiCssBaseline: {styleOverrides: {body: {whiteSpace: 'pre-wrap'}}},
+      MuiCssBaseline: {styleOverrides: {body: {whiteSpace: 'pre-wrap'},}},
+      MuiTextField: {defaultProps: {inputProps: {style: {fontSize: '17px',}}}},
       MuiButtonBase: {defaultProps: {disableRipple: true}},
     },
   });

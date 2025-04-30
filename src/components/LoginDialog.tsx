@@ -82,73 +82,74 @@ export default function LoginDialog({
                     }}
                 >
                     <CardContent sx={{textAlign: 'center'}}>
-                        <Typography variant="h5">ログイン</Typography>
-                        <IconButton
-                            aria-label="close"
-                            onClick={handleClose}
-                            sx={{
-                                position: 'absolute',
-                                right: 10,
-                                top: 10,
-                            }}
-                        >
-                            <CloseIcon />
-                        </IconButton>
-                        <Box component="form" method="POST" onSubmit={onSubmit}>
-                            <TextField
-                                fullWidth
-                                size="small"
-                                label="メールアドレス/ハンドルネーム"
-                                {...register("email")}
-                                onFocus={(e) => e.preventDefault()}
-                                error={!!errors?.root?.email?.message}
-                                helperText={errors?.root?.email?.message ? errors?.root?.email?.message : null}
-                                sx={{mt: 2}}
-                            />
-                            <TextField
-                                fullWidth
-                                size="small"
-                                type="password"
-                                label="パスワード"
-                                autoComplete="on"
-                                {...register("password")}
-                                onFocus={(e) => e.preventDefault()}
-                                error={!!errors?.root?.password?.message}
-                                helperText={errors?.root?.password?.message ? errors?.root?.password?.message : null}
-                                sx={{mt: 2}}
-                            />
-                            <Box display='flex' flexDirection='column'>
-                                <Fab
-                                    component={Button}
-                                    type="submit"
-                                    color="inherit"
-                                    variant="extended"
-                                    sx={{mt: 2, backgroundColor: isDarkMode?'#444444':'#CCCCCC'}}
-                                >ログイン <LoginIcon /></Fab>
-                                <Fab
-                                    component={Link}
-                                    href="#"
-                                    color="inherit"
-                                    variant="extended"
-                                    sx={{ mt: 2, backgroundColor: isDarkMode?'#444444':'#CCCCCC'}}
-                                >アカウント作成</Fab>
-                                <Fab
-                                    component={Link}
-                                    href="#"
-                                    size="small"
-                                    color="inherit"
-                                    variant="extended"
-                                    sx={{ mt: 2, backgroundColor: isDarkMode?'#444444':'#CCCCCC'}}
-                                >パスワードを忘れたときは</Fab>
-                            </Box>
-                        </Box>
+                        {
+                            fetching
+                            ? <CircularProgress color="inherit" />
+                            : <>
+                                <Typography variant="h5">ログイン</Typography>
+                                <IconButton
+                                    aria-label="close"
+                                    onClick={handleClose}
+                                    sx={{
+                                        position: 'absolute',
+                                        right: 10,
+                                        top: 10,
+                                    }}
+                                >
+                                    <CloseIcon />
+                                </IconButton>
+                                <Box component="form" method="POST" onSubmit={onSubmit}>
+                                    <TextField
+                                        fullWidth
+                                        size="small"
+                                        label="メールアドレス/ハンドルネーム"
+                                        {...register("email")}
+                                        error={!!errors?.root?.email?.message}
+                                        helperText={errors?.root?.email?.message ? errors?.root?.email?.message : null}
+                                        sx={{mt: 2}}
+                                        autoComplete="off"
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        size="small"
+                                        type="password"
+                                        label="パスワード"
+                                        {...register("password")}
+                                        error={!!errors?.root?.password?.message}
+                                        helperText={errors?.root?.password?.message ? errors?.root?.password?.message : null}
+                                        sx={{mt: 2}}
+                                        autoComplete="off"
+                                    />
+                                    <Box display='flex' flexDirection='column'>
+                                        <Fab
+                                            component={Button}
+                                            type="submit"
+                                            color="inherit"
+                                            variant="extended"
+                                            sx={{mt: 2, backgroundColor: isDarkMode?'#444444':'#CCCCCC'}}
+                                        >ログイン <LoginIcon /></Fab>
+                                        <Fab
+                                            component={Link}
+                                            href="#"
+                                            color="inherit"
+                                            variant="extended"
+                                            sx={{ mt: 2, backgroundColor: isDarkMode?'#444444':'#CCCCCC'}}
+                                        >アカウント作成</Fab>
+                                        <Fab
+                                            component={Link}
+                                            href="#"
+                                            size="small"
+                                            color="inherit"
+                                            variant="extended"
+                                            sx={{ mt: 2, backgroundColor: isDarkMode?'#444444':'#CCCCCC'}}
+                                        >パスワードを忘れたときは</Fab>
+                                    </Box>
+                                </Box>
+                            </>
+                        }
                     </CardContent>
                 </Card>
             </Dialog>
-            <Backdrop open={fetching} sx={{zIndex: (theme: Theme) => theme.zIndex.drawer + 1, color: '#fff'}}>
-                <CircularProgress color="inherit" />
-                <Typography>Loading...</Typography>
-            </Backdrop>
         </Box>
     );
 }
