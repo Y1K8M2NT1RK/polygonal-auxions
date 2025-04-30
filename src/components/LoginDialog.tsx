@@ -16,7 +16,7 @@ import {
 import LoginIcon from '@mui/icons-material/Login';
 import CloseIcon from '@mui/icons-material/Close';
 import Link from "next/link";
-import { ReactElement, useEffect } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from '@/contexts/AuthContexts';
 import useResponsive from "@/hooks/useResponsive";
@@ -47,10 +47,15 @@ export default function LoginDialog({
         mode: 'onSubmit',
     });
 
-    const { handleLogin, formErrors, fetching } = useAuth();
-    const onSubmit = handleSubmit((data: FormData) => 
-        handleLogin(data.email, data.password).then(() => { formErrors?.length == 0 && setOpenDialog(false) })
-    );
+    const [lockInput, setLockInput] = useState(false);
+
+    const { handleLogin, formErrors } = useAuth();
+    const onSubmit = handleSubmit((data: FormData) => {
+        setLockInput(true);
+        handleLogin(data.email, data.password)
+            .then(() => { formErrors?.length == 0 && (() => setOpenDialog(false))})
+            .finally(() => { setLockInput(false); });
+    });
 
     const handleClose = () => {clearErrors(); setOpenDialog(false);};
 
@@ -83,7 +88,7 @@ export default function LoginDialog({
                 >
                     <CardContent sx={{textAlign: 'center'}}>
                         {
-                            fetching
+                            lockInput==true
                             ? <CircularProgress color="inherit" />
                             : <>
                                 <Typography variant="h5">ログイン</Typography>

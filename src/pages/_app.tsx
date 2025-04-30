@@ -34,7 +34,7 @@ export default function App(
     // 改行を反映
     components: {
       MuiCssBaseline: {styleOverrides: {body: {whiteSpace: 'pre-wrap'},}},
-      MuiTextField: {defaultProps: {inputProps: {style: {fontSize: '17px',}}}},
+      MuiTextField: {defaultProps: {inputProps: {style: {fontSize: '18px',}}}},
       MuiButtonBase: {defaultProps: {disableRipple: true}},
     },
   });
@@ -92,7 +92,7 @@ function AppContent({ Component, pageProps, router }: AppContentProps) {
         theme="colored"
         draggable
         transition={Bounce}
-        style={{zIndex: 1000, ...(isSmallScreen ? {width: '100%'} : null)}}
+        style={{zIndex: 9999, ...(isSmallScreen ? {width: '100%'} : null)}}
       />
       <Component {...pageProps}/>
       {!isLargeScreen && <Footer />}
