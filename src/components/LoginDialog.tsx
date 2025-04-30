@@ -10,6 +10,8 @@ import {
     TextField,
     Theme,
     Typography,
+    Backdrop,
+    CircularProgress
 } from "@mui/material";
 import LoginIcon from '@mui/icons-material/Login';
 import CloseIcon from '@mui/icons-material/Close';
@@ -45,11 +47,10 @@ export default function LoginDialog({
         mode: 'onSubmit',
     });
 
-    const { handleLogin, formErrors } = useAuth();
-    const onSubmit = handleSubmit((data: FormData) => {
-        handleLogin(data.email, data.password);
-        handleClose();
-    });
+    const { handleLogin, formErrors, fetching } = useAuth();
+    const onSubmit = handleSubmit((data: FormData) => 
+        handleLogin(data.email, data.password).then(() => { formErrors?.length == 0 && setOpenDialog(false) })
+    );
 
     const handleClose = () => {clearErrors(); setOpenDialog(false);};
 
@@ -99,6 +100,7 @@ export default function LoginDialog({
                                 size="small"
                                 label="メールアドレス/ハンドルネーム"
                                 {...register("email")}
+                                onFocus={(e) => e.preventDefault()}
                                 error={!!errors?.root?.email?.message}
                                 helperText={errors?.root?.email?.message ? errors?.root?.email?.message : null}
                                 sx={{mt: 2}}
@@ -110,6 +112,7 @@ export default function LoginDialog({
                                 label="パスワード"
                                 autoComplete="on"
                                 {...register("password")}
+                                onFocus={(e) => e.preventDefault()}
                                 error={!!errors?.root?.password?.message}
                                 helperText={errors?.root?.password?.message ? errors?.root?.password?.message : null}
                                 sx={{mt: 2}}
@@ -142,6 +145,10 @@ export default function LoginDialog({
                     </CardContent>
                 </Card>
             </Dialog>
+            <Backdrop open={fetching} sx={{zIndex: (theme: Theme) => theme.zIndex.drawer + 1, color: '#fff'}}>
+                <CircularProgress color="inherit" />
+                <Typography>Loading...</Typography>
+            </Backdrop>
         </Box>
     );
 }
