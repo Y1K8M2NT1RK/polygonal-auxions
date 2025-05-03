@@ -28,6 +28,7 @@ type LoginDialogProps = {
     sxProps?: {
         [key: string]: SxProps<Theme>;
     };
+    isLockedInputExternally?: boolean | false;
 };
 
 type FormData = {
@@ -39,7 +40,8 @@ export default function LoginDialog({
     button,
     openDialog,
     setOpenDialog, 
-    sxProps
+    sxProps,
+    isLockedInputExternally
 }: LoginDialogProps) {
     const {register, handleSubmit, setError, clearErrors, formState: {errors} } = useForm<FormData>({
         defaultValues: {email: '', password: ''},
@@ -65,7 +67,9 @@ export default function LoginDialog({
         for (const [key, val] of Object.entries(formErrors)) {
             setError(`root.${key}`, {type: 'server', message: val[0]});
         }
-    }, [formErrors, setError]);
+        if( isLockedInputExternally==true ) setLockInput(true);
+        else if(!isLoggedIn) setLockInput(false);
+    }, [formErrors, setError, isLockedInputExternally]);
 
     useEffect(() => { if(!isLoggedIn) handleClose() }, [isLoggedIn]);
 

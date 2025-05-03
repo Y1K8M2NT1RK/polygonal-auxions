@@ -27,66 +27,78 @@ export default function Footer() {
     const [openDialog, setOpenDialog] = useState(false);
     const handleDialogOpen = () => setOpenDialog(true);
 
+    const [isLockedInputExternally, setIsLockedInputExternally] = useState(false);
+    const handleLockInputExternally = () => setIsLockedInputExternally(true);
+
     return (
         <Paper sx={{position: 'fixed', bottom: 0, right: 0, left: 0}} elevation={3}>
-            <BottomNavigation>
-                {   
-                    fetching ? null :
-                    <>
-                        <BottomNavigationAction showLabel label={'ホーム'} icon={<HomeIcon />} href={'/'} />
-                        <BottomNavigationAction showLabel label={'検索'} icon={<SearchIcon />} />
-                        {
-                            isLoggedIn && user
-                            ? (
-                                <>
-                                    <BottomNavigationAction showLabel label={'作品追加'} href={`/artworks/add`} icon={<AddIcon/>} />
-                                    <BottomNavigationAction showLabel label={'マイページ'} onClick={handleDrawerOpen} icon={
-                                        <DefaultUserIcon
-                                            name={user.handle_name}
-                                            furtherProp={{width: 30, height: 30, fontSize: 15}}
-                                        />
-                                    } />
-                                    <Drawer
-                                        open={openDrawer}
-                                        anchor={'bottom'}
-                                        onClose={handleDrawerClose}
-                                    >
-                                        <List>
-                                            <ListItemButton>
-                                                <ListItemIcon><DashboardIcon /></ListItemIcon>
-                                                <ListItemText primary={'ダッシュボード'}/>
-                                            </ListItemButton>
-                                            <ListItemButton href={`/profile/${user.handle_name}`}>
-                                                <ListItemIcon><AccountBoxIcon /></ListItemIcon>
-                                                <ListItemText primary={'プロフィール'}/>
-                                            </ListItemButton>
-                                            <ListItemButton>
-                                                <ListItemIcon><SettingsIcon /></ListItemIcon>
-                                                <ListItemText primary={'設定'}/>
-                                            </ListItemButton>
+            {   
+                fetching
+                ? <BottomNavigation />
+                : (
+                    isLoggedIn && user
+                    ? (
+                        <BottomNavigation>
+                            <BottomNavigationAction showLabel={true} label={'ホーム'} icon={<HomeIcon />} href={'/'} />
+                            <BottomNavigationAction showLabel={true} label={'検索'} icon={<SearchIcon />} />
+                            <BottomNavigationAction showLabel={true} label={'作品追加'} href={`/artworks/add`} icon={<AddIcon/>} />
+                            <BottomNavigationAction showLabel={true} label={'マイページ'} onClick={handleDrawerOpen} icon={
+                                <DefaultUserIcon
+                                    name={user.handle_name}
+                                    furtherProp={{width: 30, height: 30, fontSize: 15}}
+                                />
+                            } />
+                            <Drawer
+                                open={openDrawer}
+                                anchor={'bottom'}
+                                onClose={handleDrawerClose}
+                            >
+                                <List>
+                                    <ListItemButton>
+                                        <ListItemIcon><DashboardIcon /></ListItemIcon>
+                                        <ListItemText primary={'ダッシュボード'}/>
+                                    </ListItemButton>
+                                    <ListItemButton href={`/profile/${user.handle_name}`}>
+                                        <ListItemIcon><AccountBoxIcon /></ListItemIcon>
+                                        <ListItemText primary={'プロフィール'}/>
+                                    </ListItemButton>
+                                    <ListItemButton>
+                                        <ListItemIcon><SettingsIcon /></ListItemIcon>
+                                        <ListItemText primary={'設定'}/>
+                                    </ListItemButton>
+                                    <LoginDialog
+                                        button={
                                             <ListItemButton onClick={() => {
+                                                handleDialogOpen();
+                                                handleLockInputExternally();
                                                 handleLogout();
-                                                handleDrawerClose();
                                             }}>
                                                 <ListItemIcon><LogoutIcon /></ListItemIcon>
                                                 <ListItemText primary={'ログアウト'}/>
                                             </ListItemButton>
-                                        </List>
-                                    </Drawer>
-                                </>
-                            ) : (
-                                <BottomNavigationAction showLabel label={'ログイン'} icon={
-                                    <LoginDialog
-                                        button={<LoginIcon onClick={handleDialogOpen} />}
+                                        }
                                         openDialog={openDialog}
                                         setOpenDialog={setOpenDialog}
+                                        isLockedInputExternally={isLockedInputExternally}
                                     />
-                                } />
-                            )
-                        }
-                    </>
-                }
-            </BottomNavigation>
+                                </List>
+                            </Drawer>
+                        </ BottomNavigation>
+                    ) : (
+                        <BottomNavigation>
+                            <BottomNavigationAction showLabel={true} label={'ホーム'} icon={<HomeIcon />} href={'/'} />
+                            <BottomNavigationAction showLabel={true} label={'検索'} icon={<SearchIcon />} />
+                            <BottomNavigationAction showLabel={true} label={'ログイン'} icon={
+                                <LoginDialog
+                                    button={<LoginIcon onClick={handleDialogOpen} />}
+                                    openDialog={openDialog}
+                                    setOpenDialog={setOpenDialog}
+                                />
+                            } />
+                        </BottomNavigation>
+                    )
+                )
+            }
         </Paper>
     )
 }

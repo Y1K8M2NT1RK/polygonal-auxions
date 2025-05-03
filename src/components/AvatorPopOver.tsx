@@ -4,7 +4,6 @@ import {
     Typography,
     IconButton,
     Popover,
-
     MenuList,
     MenuItem,
 } from '@mui/material';
@@ -18,6 +17,7 @@ import Link from 'next/link';
 import { type User } from '@/generated/generated-graphql';
 import { useAuth } from '@/contexts/AuthContexts';
 import DefaultUserIcon from '@/components/DefaultUserIcon';
+import LoginDialog from './LoginDialog';
 
 type Props = {
     auth: User;
@@ -33,6 +33,12 @@ export default function AvatorPopover({auth}: Props){
     const handleClose = () => setAnchorEl(null);
   
     const open = Boolean(anchorEl);
+
+    const [openDialog, setOpenDialog] = useState(false);
+    const handleDialogOpen = () => setOpenDialog(true);
+
+    const [isLockedInputExternally, setIsLockedInputExternally] = useState(false);
+    const handleLockInputExternally = () => setIsLockedInputExternally(true);
 
     return (
         <Box>
@@ -62,9 +68,20 @@ export default function AvatorPopover({auth}: Props){
                             </Typography>
                         </MenuItem>
                         <MenuItem><Typography variant="button"><SettingsIcon /> 設定</Typography></MenuItem>
-                        <MenuItem onClick={handleLogout}>
-                            <Typography variant="button"><LogoutIcon /> ログアウト</Typography>
-                        </MenuItem>
+                        <LoginDialog
+                            button={
+                                <MenuItem onClick={() => {
+                                    handleDialogOpen();
+                                    handleLockInputExternally();
+                                    handleLogout();
+                                }}>
+                                    <Typography variant="button"><LogoutIcon /> ログアウト</Typography>
+                                </MenuItem>
+                            }
+                            openDialog={openDialog}
+                            setOpenDialog={setOpenDialog}
+                            isLockedInputExternally={isLockedInputExternally}
+                        />
                     </MenuList>
                 </Card>
             </Popover>
