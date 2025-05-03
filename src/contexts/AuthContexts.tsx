@@ -37,16 +37,14 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
       if (typeof window !== 'undefined') {
         document.cookie = `token=${result.data.login.data.accessToken}; HttpOnly; Secure; Path=/; SameSite=Strict`;
         document.cookie = `refreshToken=${result.data.login.data.refreshToken}; HttpOnly; Secure; Path=/; SameSite=Strict`;
+        window.location.reload();
       }
-      setIsLoggedIn(true);
-      reexecuteQuery({ requestPolicy: 'network-only' });
-      toast.success('ログインできました。');
     } else {
       const gqlErrors: string[] = result.error?.graphQLErrors[0].extensions.messages as string[];
       setFormErrors(gqlErrors);
       toast.error('ログインできません。入力内容をお確かめください。');
     }
-  }, [login, reexecuteQuery]);
+  }, [login]);
 
   const handleLogout = useCallback(async () => {
     const result = await logout({});
@@ -54,15 +52,12 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
       if (typeof window !== 'undefined') {
         document.cookie = 'token=; Max-Age=0; path=/; secure; HttpOnly; SameSite=Strict';
         document.cookie = 'refreshToken=; Max-Age=0; path=/; secure; HttpOnly; SameSite=Strict';
+        window.location.reload();
       }
-      setIsLoggedIn(false);
-      setAuth(null);
-      reexecuteQuery({ requestPolicy: 'network-only' });
-      toast.success('ログアウトしました。');
     } else {
       toast.error('ログアウトに失敗しました。');
     }
-  }, [logout, reexecuteQuery]);
+  }, [logout]);
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -76,6 +71,12 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
 
     return () => clearInterval(interval);
   }, [refreshToken, reexecuteQuery]);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      reexecuteQuery({ requestPolicy: 'network-only' });
+    }
+  }, [isLoggedIn, reexecuteQuery]);
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, user: auth, fetching, handleLogin, handleLogout, formErrors }}>

@@ -10,7 +10,6 @@ import {
     TextField,
     Theme,
     Typography,
-    Backdrop,
     CircularProgress
 } from "@mui/material";
 import LoginIcon from '@mui/icons-material/Login';
@@ -49,12 +48,11 @@ export default function LoginDialog({
 
     const [lockInput, setLockInput] = useState(false);
 
-    const { handleLogin, formErrors } = useAuth();
-    const onSubmit = handleSubmit((data: FormData) => {
+    const { handleLogin, formErrors, isLoggedIn } = useAuth();
+
+    const onSubmit = handleSubmit(async (data: FormData) => {
         setLockInput(true);
-        handleLogin(data.email, data.password)
-            .then(() => { formErrors?.length == 0 && (() => setOpenDialog(false))})
-            .finally(() => { setLockInput(false); });
+        await handleLogin(data.email, data.password);
     });
 
     const handleClose = () => {clearErrors(); setOpenDialog(false);};
@@ -68,6 +66,8 @@ export default function LoginDialog({
             setError(`root.${key}`, {type: 'server', message: val[0]});
         }
     }, [formErrors, setError]);
+
+    useEffect(() => { if(!isLoggedIn) handleClose() }, [isLoggedIn]);
 
     return (
         <Box sx={sxProps?.Box}>
@@ -112,7 +112,6 @@ export default function LoginDialog({
                                         error={!!errors?.root?.email?.message}
                                         helperText={errors?.root?.email?.message ? errors?.root?.email?.message : null}
                                         sx={{mt: 2}}
-                                        autoComplete="off"
                                     />
                                     <TextField
                                         fullWidth
@@ -123,7 +122,6 @@ export default function LoginDialog({
                                         error={!!errors?.root?.password?.message}
                                         helperText={errors?.root?.password?.message ? errors?.root?.password?.message : null}
                                         sx={{mt: 2}}
-                                        autoComplete="off"
                                     />
                                     <Box display='flex' flexDirection='column'>
                                         <Fab
