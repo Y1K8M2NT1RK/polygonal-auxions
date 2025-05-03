@@ -3,6 +3,7 @@ import { Box, Button, SxProps, Theme, Typography } from '@mui/material';
 import useResponsive from '@/hooks/useResponsive';
 import LoginDialog from '@/components/LoginDialog';
 import { useState } from 'react';
+import Link from 'next/link';
 
 type SxObject = {
     [key: string]: SxProps<Theme>;
@@ -59,7 +60,7 @@ export default function NotLoggedIn() {
                     labelFontSize={isSmallScreen ? '1rem' : '1.25rem'}
                     inputFontSize={isSmallScreen ? '1rem' : '1.25rem'}
                 />
-                <Button href={'/artworks'}>検索しないで作品を見る</Button>
+                <Button component={Link} href={'/artworks'}>検索しないで作品を見る</Button>
                 <LoginDialog
                     button={
                         <Button onClick={handleDialogOpen} color="inherit" sx={LoginButtonSx.Box}>
