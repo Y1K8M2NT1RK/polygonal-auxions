@@ -4,7 +4,7 @@ import {
     Typography,
     IconButton,
     Popover,
-    Avatar,
+
     MenuList,
     MenuItem,
 } from '@mui/material';
