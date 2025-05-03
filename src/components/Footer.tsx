@@ -18,7 +18,7 @@ import LoginDialog from './LoginDialog';
 
 export default function Footer() {
 
-    const { user, isLoggedIn, handleLogout } = useAuth();
+    const { user, isLoggedIn, handleLogout, fetching } = useAuth();
 
     const [openDrawer, setOpenDrawer] = useState<boolean>(false);
     const handleDrawerOpen = () => setOpenDrawer(true);
@@ -29,57 +29,62 @@ export default function Footer() {
 
     return (
         <Paper sx={{position: 'fixed', bottom: 0, right: 0, left: 0}} elevation={3}>
-            <BottomNavigation showLabels>
-                <BottomNavigationAction label={'ホーム'} icon={<HomeIcon />} href={'/'} />
-                <BottomNavigationAction label={'検索'} icon={<SearchIcon />} />
-                {
-                    isLoggedIn && user
-                    ? (
-                        <>
-                            <BottomNavigationAction showLabel label={'作品追加'} href={`/artworks/add`} icon={<AddIcon/>} />
-                            <BottomNavigationAction showLabel label={'マイページ'} onClick={handleDrawerOpen} icon={
-                                <DefaultUserIcon
-                                    name={user.handle_name}
-                                    furtherProp={{width: 30, height: 30, fontSize: 15}}
-                                />
-                            } />
-                            <Drawer
-                                open={openDrawer}
-                                anchor={'bottom'}
-                                onClose={handleDrawerClose}
-                            >
-                                <List>
-                                    <ListItemButton>
-                                        <ListItemIcon><DashboardIcon /></ListItemIcon>
-                                        <ListItemText primary={'ダッシュボード'}/>
-                                    </ListItemButton>
-                                    <ListItemButton href={`/profile/${user.handle_name}`}>
-                                        <ListItemIcon><AccountBoxIcon /></ListItemIcon>
-                                        <ListItemText primary={'プロフィール'}/>
-                                    </ListItemButton>
-                                    <ListItemButton>
-                                        <ListItemIcon><SettingsIcon /></ListItemIcon>
-                                        <ListItemText primary={'設定'}/>
-                                    </ListItemButton>
-                                    <ListItemButton onClick={() => {
-                                        handleLogout();
-                                        handleDrawerClose();
-                                    }}>
-                                        <ListItemIcon><LogoutIcon /></ListItemIcon>
-                                        <ListItemText primary={'ログアウト'}/>
-                                    </ListItemButton>
-                                </List>
-                            </Drawer>
-                        </>
-                    ) : (
-                        <BottomNavigationAction showLabel label={'ログイン'} icon={
-                            <LoginDialog
-                                button={<LoginIcon onClick={handleDialogOpen} />}
-                                openDialog={openDialog}
-                                setOpenDialog={setOpenDialog}
-                            />
-                        } />
-                    )
+            <BottomNavigation>
+                {   
+                    fetching ? null :
+                    <>
+                        <BottomNavigationAction showLabel label={'ホーム'} icon={<HomeIcon />} href={'/'} />
+                        <BottomNavigationAction showLabel label={'検索'} icon={<SearchIcon />} />
+                        {
+                            isLoggedIn && user
+                            ? (
+                                <>
+                                    <BottomNavigationAction showLabel label={'作品追加'} href={`/artworks/add`} icon={<AddIcon/>} />
+                                    <BottomNavigationAction showLabel label={'マイページ'} onClick={handleDrawerOpen} icon={
+                                        <DefaultUserIcon
+                                            name={user.handle_name}
+                                            furtherProp={{width: 30, height: 30, fontSize: 15}}
+                                        />
+                                    } />
+                                    <Drawer
+                                        open={openDrawer}
+                                        anchor={'bottom'}
+                                        onClose={handleDrawerClose}
+                                    >
+                                        <List>
+                                            <ListItemButton>
+                                                <ListItemIcon><DashboardIcon /></ListItemIcon>
+                                                <ListItemText primary={'ダッシュボード'}/>
+                                            </ListItemButton>
+                                            <ListItemButton href={`/profile/${user.handle_name}`}>
+                                                <ListItemIcon><AccountBoxIcon /></ListItemIcon>
+                                                <ListItemText primary={'プロフィール'}/>
+                                            </ListItemButton>
+                                            <ListItemButton>
+                                                <ListItemIcon><SettingsIcon /></ListItemIcon>
+                                                <ListItemText primary={'設定'}/>
+                                            </ListItemButton>
+                                            <ListItemButton onClick={() => {
+                                                handleLogout();
+                                                handleDrawerClose();
+                                            }}>
+                                                <ListItemIcon><LogoutIcon /></ListItemIcon>
+                                                <ListItemText primary={'ログアウト'}/>
+                                            </ListItemButton>
+                                        </List>
+                                    </Drawer>
+                                </>
+                            ) : (
+                                <BottomNavigationAction showLabel label={'ログイン'} icon={
+                                    <LoginDialog
+                                        button={<LoginIcon onClick={handleDialogOpen} />}
+                                        openDialog={openDialog}
+                                        setOpenDialog={setOpenDialog}
+                                    />
+                                } />
+                            )
+                        }
+                    </>
                 }
             </BottomNavigation>
         </Paper>
