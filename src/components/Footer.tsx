@@ -15,6 +15,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import LoginDialog from './LoginDialog';
+import Link from 'next/link';
 
 export default function Footer() {
 
@@ -39,10 +40,10 @@ export default function Footer() {
                     isLoggedIn && user
                     ? (
                         <BottomNavigation>
-                            <BottomNavigationAction showLabel={true} label={'ホーム'} icon={<HomeIcon />} href={'/'} />
+                            <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'ホーム'} icon={<HomeIcon />} href={'/'} />
                             <BottomNavigationAction showLabel={true} label={'検索'} icon={<SearchIcon />} />
-                            <BottomNavigationAction showLabel={true} label={'作品追加'} href={`/artworks/add`} icon={<AddIcon/>} />
-                            <BottomNavigationAction showLabel={true} label={'マイページ'} onClick={handleDrawerOpen} icon={
+                            <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'作品追加'} href={`/artworks/add`} icon={<AddIcon/>} />
+                            <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'マイページ'} onClick={handleDrawerOpen} icon={
                                 <DefaultUserIcon
                                     name={user.handle_name}
                                     furtherProp={{width: 30, height: 30, fontSize: 15}}
@@ -58,7 +59,7 @@ export default function Footer() {
                                         <ListItemIcon><DashboardIcon /></ListItemIcon>
                                         <ListItemText primary={'ダッシュボード'}/>
                                     </ListItemButton>
-                                    <ListItemButton href={`/profile/${user.handle_name}`}>
+                                    <ListItemButton LinkComponent={Link} href={`/profile/${user.handle_name}`}>
                                         <ListItemIcon><AccountBoxIcon /></ListItemIcon>
                                         <ListItemText primary={'プロフィール'}/>
                                     </ListItemButton>
@@ -86,7 +87,7 @@ export default function Footer() {
                         </ BottomNavigation>
                     ) : (
                         <BottomNavigation>
-                            <BottomNavigationAction showLabel={true} label={'ホーム'} icon={<HomeIcon />} href={'/'} />
+                            <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'ホーム'} icon={<HomeIcon />} href={'/'} />
                             <BottomNavigationAction showLabel={true} label={'検索'} icon={<SearchIcon />} />
                             <BottomNavigationAction showLabel={true} label={'ログイン'} icon={
                                 <LoginDialog
