@@ -15,7 +15,7 @@ import {
 import LoginIcon from '@mui/icons-material/Login';
 import CloseIcon from '@mui/icons-material/Close';
 import Link from "next/link";
-import { ReactElement, useEffect, useState } from "react";
+import { ReactElement, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from '@/contexts/AuthContexts';
 import useResponsive from "@/hooks/useResponsive";
@@ -57,7 +57,7 @@ export default function LoginDialog({
         await handleLogin(data.email, data.password);
     });
 
-    const handleClose = () => {clearErrors(); setOpenDialog(false);};
+    const handleClose = useCallback(() => { clearErrors(); setOpenDialog(false); }, [clearErrors, setOpenDialog]);
 
     const isDarkMode = useDarkMode();
     const {isSmallScreen, isMediumScreen} = useResponsive();
@@ -69,9 +69,9 @@ export default function LoginDialog({
         }
         if( isLockedInputExternally==true ) setLockInput(true);
         else if(!isLoggedIn) setLockInput(false);
-    }, [formErrors, setError, isLockedInputExternally]);
+    }, [formErrors, setError, isLockedInputExternally, isLoggedIn]);
 
-    useEffect(() => { if(!isLoggedIn) handleClose() }, [isLoggedIn]);
+    useEffect(() => { if(!isLoggedIn) handleClose() }, [isLoggedIn, handleClose]);
 
     return (
         <Box sx={sxProps?.Box}>
