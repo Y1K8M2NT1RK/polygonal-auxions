@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "WATCHPACK_POLLING=true NODE_OPTIONS='--trace-warnings' next dev",
     "build": "next build",
+    "build-with-debug": "NEXT_DEBUG=true npm run build",
     "vercel-build": "prisma generate && prisma migrate deploy && graphql-codegen && next build && prisma db seed",
     "postinstall": "if [ \"$SKIP_POSTINSTALL\" != \"true\" ]; then prisma generate; fi",
     "start": "next start",
