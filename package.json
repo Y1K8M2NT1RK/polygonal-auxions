@@ -6,11 +6,10 @@
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "scripts": {
-    "dev": "WATCHPACK_POLLING=true NODE_OPTIONS='--trace-warnings' next dev",
+    "dev": "next dev",
     "build": "next build",
     "build-with-debug": "NEXT_DEBUG=true npm run build",
-    "vercel-build": "prisma generate && prisma migrate deploy && graphql-codegen && next build && prisma db seed",
-    "postinstall": "if [ \"$SKIP_POSTINSTALL\" != \"true\" ]; then prisma generate; fi",
+    "vercel-build": "VERCEL_BUILD=true prisma generate && prisma migrate deploy && graphql-codegen && next build && prisma db seed",
     "start": "next start",
     "lint": "next lint"
   },
