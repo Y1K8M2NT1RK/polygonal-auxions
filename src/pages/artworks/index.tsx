@@ -16,20 +16,27 @@ import ArtworkPopover from './components/artwork-popover';
 export default function Artworks() {
   const { isPaused, setPaused } = usePause();
 
-  const [resultArtworks] = useQuery({query: ArtworksDocument, pause: isPaused, requestPolicy: 'cache-and-network'});
+  const [resultArtworks] = useQuery({
+    query: ArtworksDocument,
+    pause: isPaused,
+    requestPolicy: 'network-only'
+  });
   const { fetching, error, data: dataArtworks } = resultArtworks;
 
-  const [deletedArtworksInFront, setDeletedArtworksInFront] = useState<{artwork_id: number, deleted: boolean}[]>([]);
+  const [deletedArtworksInFront, setDeletedArtworksInFront] = useState<{
+    artwork_id: number,
+    deleted: boolean,
+  }[]>([]);
+
   const artworks: (Artwork & {deletedInFront: boolean;})[] = dataArtworks?.artworks;
 
-  const { user } = useAuth();
+  useEffect(() => { 
+    if( deletedArtworksInFront.length > 0 ) setPaused(true);
+  }, [deletedArtworksInFront, artworks, setPaused]);
 
   let artworkRanks: ArtworkRanks[]|null = null;
 
-  const [resultArtworkRanks, reExecuteArtworkRanksQuery] = useQuery({query: GetAuthArtworkRanksDocument});
-
-  useEffect(() => reExecuteArtworkRanksQuery({ requestPolicy: 'network-only' }), [user, reExecuteArtworkRanksQuery]);
-  useEffect(() => setPaused(true), [artworks, setPaused]);
+  const [resultArtworkRanks] = useQuery({query: GetAuthArtworkRanksDocument});
 
   const { data: dataArtworkRanks } = resultArtworkRanks;
   artworkRanks = dataArtworkRanks?.getAuthArtworkRanks as ArtworkRanks[];
