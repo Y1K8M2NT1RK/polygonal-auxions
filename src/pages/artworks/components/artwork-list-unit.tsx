@@ -47,14 +47,25 @@ export default function ArtworkListUnit({ artwork, deletedArtworksInFront, child
                     </Box>
                     <Card sx={{display: 'flex', flexDirection: 'column',}}>
                         <Link href={`/artworks/${artwork?.slug_id}`} passHref>
-                            <CardActionArea sx={{aspectRatio: '5 / 3', height: "15em"}}>
+                            <CardActionArea sx={{height: "15em"}}>
                                 <CardContent>
                                     <Typography>{artwork?.title}</Typography>
                                 </CardContent>
                             </CardActionArea>
                         </Link>
                     </Card>
-                    <Typography variant="subtitle1" sx={{ textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>{artwork?.title}</Typography>
+                    <Typography
+                        variant="subtitle1"
+                        sx={{
+                            textOverflow: "ellipsis",
+                            overflow: "hidden",
+                            whiteSpace: "nowrap",
+                            width: {
+                                xs: '80vw',
+                                md: '100%',
+                            }
+                        }}
+                    >{artwork?.title}</Typography>
                     <Typography variant="subtitle2">{DateTime.fromISO(artwork?.created_at).toFormat('yyyy年MM月dd日')}にアップロード</Typography>
                 </Paper>
             }
