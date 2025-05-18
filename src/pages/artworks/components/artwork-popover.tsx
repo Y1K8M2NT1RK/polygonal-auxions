@@ -10,6 +10,7 @@ import {
 import { Dispatch, MouseEvent, SetStateAction, useState } from 'react';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import FlagIcon from '@mui/icons-material/Flag';
+import EditIcon from '@mui/icons-material/Edit';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
@@ -25,7 +26,7 @@ import AlertDialog from '@/components/AlertDialog';
 type ArtworkPopoverProps = {
     artwork: Artwork & {deletedInFront: boolean;};
     artworkRanks: ArtworkRanks[]|null;
-    setDeletedArtworksInFront: Dispatch<SetStateAction<{
+    setDeletedArtworksInFront?: Dispatch<SetStateAction<{
         artwork_id: number;
         deleted: boolean;
     }[]>>;
@@ -95,6 +96,7 @@ export default function ArtworkPopover({artwork, artworkRanks, setDeletedArtwork
             >
                 <Card>
                     <MenuList sx={{display: 'flex', flexDirection: 'column', width: 'max-content'}} dense>
+                        {isOwner ? <MenuItem><Typography variant="button"><EditIcon /> 編集</Typography></MenuItem> : null}
                         <MenuItem><Typography variant="button"><FlagIcon /> 報告</Typography></MenuItem>
                         {
                             isOwner
