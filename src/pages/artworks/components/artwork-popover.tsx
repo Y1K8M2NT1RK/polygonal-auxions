@@ -130,10 +130,12 @@ export default function ArtworkPopover({artwork, artworkRanks, setDeletedArtwork
                                     }
                                     onConfirm={() => {
                                         RemoveArtwork({artwork_id: String(artwork.id)});
-                                        setDeletedArtworksInFront(status => [...status, {
-                                            artwork_id: parseInt(artwork.id),
-                                            deleted: true,
-                                        }]);
+                                        if (setDeletedArtworksInFront) {
+                                            setDeletedArtworksInFront(status => [...status, {
+                                                artwork_id: parseInt(artwork.id),
+                                                deleted: true,
+                                            }]);
+                                        }
                                         handleDialogClose();
                                     }}
                                     onCancel={handleDialogClose}

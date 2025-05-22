@@ -8,7 +8,6 @@ import { type Artwork, type ArtworkRanks } from '@/generated/generated-graphql';
 import { ArtworksDocument, GetAuthArtworkRanksDocument } from '@/generated/generated-graphql';
 import ArtworkListUnit from './components/artwork-list-unit';
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/AuthContexts';
 import { usePause } from '@/contexts/PauseContexts';
 import Head from 'next/head';
 import ArtworkPopover from './components/artwork-popover';

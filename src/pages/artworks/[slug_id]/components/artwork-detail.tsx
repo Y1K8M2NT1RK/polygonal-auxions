@@ -140,8 +140,14 @@ export default function ArtworkDetail({artwork, handleIsEditing, isEditing, feat
             <Grid container sx={{ flexGrow: 1, pt: '10px' }} spacing={2}>
                 {
                     isOwner
-                    ? <Grid item><Fab variant="extended" onClick={handleIsEditing} disabled={!!isEditing}>
-                        <EditIcon />{!!isEditing? '編集中...' : '編集'}</Fab>
+                    ? <Grid item>
+                        <Fab
+                            variant="extended"
+                            onClick={() => handleIsEditing && handleIsEditing(!isEditing)}
+                            disabled={!!isEditing}
+                        >
+                            <EditIcon />{!!isEditing? '編集中...' : '編集'}
+                        </Fab>
                     </Grid>
                     : null
                 }

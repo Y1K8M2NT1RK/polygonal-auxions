@@ -40,7 +40,7 @@ export default function Artwork(){
 
     const { fetching, error, data } = result;
 
-    const [isEditing, setIsEditing] = useState(useRouter().query.isEditing || false);
+    const [isEditing, setIsEditing] = useState(useRouter().query.isEditing as unknown as boolean || false);
     const handleIsEditing = () => setIsEditing(true);
     const handleCancelEditing = () => setIsEditing(false);
 
@@ -76,7 +76,7 @@ export default function Artwork(){
                             isEditing
                             ?  <FormControl fullWidth sx={{mt: 2}}>
                                 <TextField 
-                                    size="meduim"
+                                    size="medium"
                                     label="作品名"
                                     InputLabelProps={{ style: { fontSize: 20 } }}
                                     InputProps={{ style: { fontSize: 20 } }}
@@ -108,7 +108,7 @@ export default function Artwork(){
                                     </FormControl>
                                     <Box sx={{display: 'flex',}}>
                                         <Fab color="primary" variant="extended" sx={{mt: 1, mr: 2}} type="submit">更新</Fab>
-                                        <Fab color="white" variant="extended" sx={{mt: 1,}} onClick={() => {
+                                        <Fab variant="extended" sx={{mt: 1,}} onClick={() => {
                                             handleCancelEditing();
                                             reset({artwork_slug_id: artwork.slug_id, title: artwork.title,  feature: artwork.feature,});
                                             toast.info('編集をキャンセルしました');
