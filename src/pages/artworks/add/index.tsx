@@ -15,7 +15,7 @@ import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import DefaultUserIcon from "@/components/DefaultUserIcon";
 import { useMutation } from "urql";
-import { AddArtworkDocument } from "@/generated/generated-graphql";
+import { UpsertArtworkDocument } from "@/generated/generated-graphql";
 import { toast } from "react-toastify";
 import { useAuth } from "@/contexts/AuthContexts";
 import Head from "next/head";
@@ -36,8 +36,8 @@ export default function AddArtwork(){
     const router = useRouter();
     const isSmallScreen = useResponsive();
 
-    const [, addArtwork] = useMutation(AddArtworkDocument);
-    const onSubmit = handleSubmit((data:FormData) => addArtwork(data).then(result => {
+    const [, upsertArtwork] = useMutation(UpsertArtworkDocument);
+    const onSubmit = handleSubmit((data:FormData) => upsertArtwork(data).then(result => {
         if(result.error){
             const gqlErrors:string[] = result.error?.graphQLErrors[0].extensions.messages as string[];
             for( const [key, val] of Object.entries(gqlErrors) ) setError(`root.${key}`, {type: 'server', message: val[0]});

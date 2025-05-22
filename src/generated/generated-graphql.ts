@@ -74,7 +74,6 @@ export type Follow = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  addArtwork: MutationAddArtworkResult;
   addArtworkRank: ArtworkRanks;
   followOrUnfollow: Follow;
   login: MutationLoginResult;
@@ -82,12 +81,7 @@ export type Mutation = {
   refresh: MutationRefreshResult;
   removeArtwork: Artwork;
   removeArtworkRank: ArtworkRanks;
-};
-
-
-export type MutationAddArtworkArgs = {
-  feature: Scalars['String']['input'];
-  title: Scalars['String']['input'];
+  upsertArtwork: MutationUpsertArtworkResult;
 };
 
 
@@ -119,11 +113,11 @@ export type MutationRemoveArtworkRankArgs = {
   rank_id: Scalars['String']['input'];
 };
 
-export type MutationAddArtworkResult = MutationAddArtworkSuccess | ZodError;
 
-export type MutationAddArtworkSuccess = {
-  __typename?: 'MutationAddArtworkSuccess';
-  data: Artwork;
+export type MutationUpsertArtworkArgs = {
+  artwork_slug_id?: InputMaybe<Scalars['String']['input']>;
+  feature: Scalars['String']['input'];
+  title: Scalars['String']['input'];
 };
 
 export type MutationLoginResult = MutationLoginSuccess | ZodError;
@@ -138,6 +132,13 @@ export type MutationRefreshResult = MutationRefreshSuccess | ZodError;
 export type MutationRefreshSuccess = {
   __typename?: 'MutationRefreshSuccess';
   data: AuthPayload;
+};
+
+export type MutationUpsertArtworkResult = MutationUpsertArtworkSuccess | ZodError;
+
+export type MutationUpsertArtworkSuccess = {
+  __typename?: 'MutationUpsertArtworkSuccess';
+  data: Artwork;
 };
 
 export type Query = {
@@ -198,13 +199,14 @@ export type ZodFieldError = {
   path: Array<Scalars['String']['output']>;
 };
 
-export type AddArtworkMutationVariables = Exact<{
+export type UpsertArtworkMutationVariables = Exact<{
   title: Scalars['String']['input'];
   feature: Scalars['String']['input'];
+  artwork_slug_id?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type AddArtworkMutation = { __typename?: 'Mutation', addArtwork: { __typename: 'MutationAddArtworkSuccess' } | { __typename: 'ZodError', message: string } };
+export type UpsertArtworkMutation = { __typename?: 'Mutation', upsertArtwork: { __typename: 'MutationUpsertArtworkSuccess' } | { __typename: 'ZodError', message: string } };
 
 export type RemoveArtworkMutationVariables = Exact<{
   artwork_id: Scalars['String']['input'];
@@ -294,11 +296,15 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, handle_name: string } };
 
 
-export const AddArtworkDocument = gql`
-    mutation AddArtwork($title: String!, $feature: String!) {
-  addArtwork(feature: $feature, title: $title) {
+export const UpsertArtworkDocument = gql`
+    mutation UpsertArtwork($title: String!, $feature: String!, $artwork_slug_id: String) {
+  upsertArtwork(
+    feature: $feature
+    title: $title
+    artwork_slug_id: $artwork_slug_id
+  ) {
     __typename
-    ... on MutationAddArtworkSuccess {
+    ... on MutationUpsertArtworkSuccess {
       __typename
     }
     ... on ZodError {
@@ -309,8 +315,8 @@ export const AddArtworkDocument = gql`
 }
     `;
 
-export function useAddArtworkMutation() {
-  return Urql.useMutation<AddArtworkMutation, AddArtworkMutationVariables>(AddArtworkDocument);
+export function useUpsertArtworkMutation() {
+  return Urql.useMutation<UpsertArtworkMutation, UpsertArtworkMutationVariables>(UpsertArtworkDocument);
 };
 export const RemoveArtworkDocument = gql`
     mutation RemoveArtwork($artwork_id: String!) {

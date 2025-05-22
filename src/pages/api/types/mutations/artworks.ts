@@ -4,12 +4,13 @@ import { prisma } from '../../db';
 import { ZodError } from 'zod';
 import { Artwork, ArtworkRanks } from '../consts';
 
-builder.mutationField("addArtwork", (t) => 
+builder.mutationField("upsertArtwork", (t) => 
     t.prismaField({
         type: Artwork,
         errors: { types: [ZodError], },
         authScopes: { isAuthenticated: true, },
         args: {
+            artwork_slug_id: t.arg.string({ required: false }),
             title: t.arg.string({
                 required: true,
                 validate: {
@@ -27,11 +28,17 @@ builder.mutationField("addArtwork", (t) =>
                 },
             }),
         },
-        resolve: async (query, _parent, args, ctx, _info) => 
-            prisma.artwork.create({
-                ...query,
-                data: {
-                    ...args,
+        resolve: async (_query, _parent, args, ctx, _info) => 
+            prisma.artwork.upsert({
+                where: { slug_id: args.artwork_slug_id??'' },
+                update: {
+                    title: args.title,
+                    feature: args.feature,
+                    updated_at: new Date().toISOString(),
+                },
+                create: {
+                    title: args.title,
+                    feature: args.feature,
                     slug_id: randomUUID(),
                     created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString(),

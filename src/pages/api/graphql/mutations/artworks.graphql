@@ -1,7 +1,7 @@
-mutation AddArtwork($title: String!, $feature: String!) {
-  addArtwork(feature: $feature, title: $title) {
+mutation UpsertArtwork($title: String!, $feature: String!, $artwork_slug_id: String) {
+  upsertArtwork(feature: $feature, title: $title, artwork_slug_id: $artwork_slug_id) {
     __typename
-    ... on MutationAddArtworkSuccess {
+    ... on MutationUpsertArtworkSuccess {
       __typename
     }
     ... on ZodError {

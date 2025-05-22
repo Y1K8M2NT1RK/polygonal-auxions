@@ -8,6 +8,7 @@ import {
     MenuItem,
 } from '@mui/material';
 import { Dispatch, MouseEvent, SetStateAction, useState } from 'react';
+import Link from 'next/link';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import FlagIcon from '@mui/icons-material/Flag';
 import EditIcon from '@mui/icons-material/Edit';
@@ -96,7 +97,21 @@ export default function ArtworkPopover({artwork, artworkRanks, setDeletedArtwork
             >
                 <Card>
                     <MenuList sx={{display: 'flex', flexDirection: 'column', width: 'max-content'}} dense>
-                        {isOwner ? <MenuItem><Typography variant="button"><EditIcon /> 編集</Typography></MenuItem> : null}
+                        {
+                            isOwner
+                            ? <MenuItem>
+                                <Typography
+                                    variant="button"
+                                    component={Link}
+                                    href={{
+                                        pathname: `/artworks/${artwork?.slug_id}`,
+                                        query: { isEditing: true },
+                                    }}
+                                    passHref
+                                ><EditIcon /> 編集</Typography>
+                            </MenuItem>
+                            : null
+                        }
                         <MenuItem><Typography variant="button"><FlagIcon /> 報告</Typography></MenuItem>
                         {
                             isOwner
