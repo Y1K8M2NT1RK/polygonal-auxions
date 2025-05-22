@@ -25,6 +25,7 @@ import FlagIcon from '@mui/icons-material/Flag';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import WarningIcon from '@mui/icons-material/Warning';
 import Link from 'next/link';
+import { toast } from "react-toastify";
 import { RemoveArtworkDocument } from '@/generated/generated-graphql';
 import DefaultUserIcon from '@/components/DefaultUserIcon';
 import { AnyVariables, useQuery, useMutation } from 'urql';
@@ -160,6 +161,7 @@ export default function ArtworkDetail({artwork, handleIsEditing, isEditing, feat
                             }
                             onConfirm={() => {
                                 RemoveArtwork({artwork_id: String(artwork.id)});
+                                toast.success('削除しました。');
                             }}
                             onCancel={handleDialogClose}
                         />

@@ -28,6 +28,7 @@ query Artwork($slug_id: String!) {
         likes
         bads
         feature
+        deleted
         created_at
         user {
             handle_name

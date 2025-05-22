@@ -22,7 +22,7 @@ import { toast } from "react-toastify";
 import ArtworkComments from './components/artwork-comments';
 import ArtworkDetail from './components/artwork-detail';
 import Head from 'next/head';
-import AlertDialog from '@/components/AlertDialog';
+import NotFound from '@/components/NotFound';
 
 type FormData = {
     title: string;
@@ -62,56 +62,65 @@ export default function Artwork(){
 
     return (
         <Container sx={{ mt: 2, mb: 2 }}>
-            <Head><title>{`作品「${artwork.title}」の詳細`}</title></Head>
-            <Box component="form" method="POST" onSubmit={onSubmit}>
-                <FormControl><TextField hidden {...register("artwork_slug_id")} defaultValue={artwork.slug_id} /></FormControl>
-                {
-                    isEditing
-                    ?  <FormControl fullWidth sx={{mt: 2}}>
-                        <TextField 
-                            size="meduim"
-                            label="作品名"
-                            InputLabelProps={{ style: { fontSize: 20 } }}
-                            InputProps={{ style: { fontSize: 20 } }}
-                            defaultValue={artwork.title}
-                            {...register("title")}
-                            error={!!errors?.root?.title?.message}
-                            helperText={errors?.root?.title?.message ? errors?.root?.title?.message : null}
-                        />
-                    </FormControl>
-                    : <Typography variant="h4">{artwork.title}</Typography>
-                }
-                <ArtworkDetail
-                    artwork={artwork}
-                    handleIsEditing={handleIsEditing}
-                    isEditing={isEditing}
-                    featureTextareaEl={
-                        <Grid item>
-                            <FormControl fullWidth sx={{mt: 2}}>
-                                <TextField
-                                    multiline
-                                    size="small"
-                                    label="説明文"
-                                    rows={10}
-                                    defaultValue={artwork.feature}
-                                    {...register("feature")}
-                                    error={!!errors?.root?.feature?.message}
-                                    helperText={errors?.root?.feature?.message ? errors?.root?.feature?.message : null}
+            {
+                artwork.deleted == true
+                ? <>
+                    <title>見つかりませんでした。</title>
+                    <NotFound />
+                </>
+                : <>
+                    <Head><title>{`作品「${artwork.title}」の詳細`}</title></Head>
+                    <Box component="form" method="POST" onSubmit={onSubmit}>
+                        <FormControl><TextField hidden {...register("artwork_slug_id")} defaultValue={artwork.slug_id} /></FormControl>
+                        {
+                            isEditing
+                            ?  <FormControl fullWidth sx={{mt: 2}}>
+                                <TextField 
+                                    size="meduim"
+                                    label="作品名"
+                                    InputLabelProps={{ style: { fontSize: 20 } }}
+                                    InputProps={{ style: { fontSize: 20 } }}
+                                    defaultValue={artwork.title}
+                                    {...register("title")}
+                                    error={!!errors?.root?.title?.message}
+                                    helperText={errors?.root?.title?.message ? errors?.root?.title?.message : null}
                                 />
                             </FormControl>
-                            <Box sx={{display: 'flex',}}>
-                                <Fab color="primary" variant="extended" sx={{mt: 1, mr: 2}} type="submit">更新</Fab>
-                                <Fab color="white" variant="extended" sx={{mt: 1,}} onClick={() => {
-                                    handleCancelEditing();
-                                    reset({artwork_slug_id: artwork.slug_id, title: artwork.title,  feature: artwork.feature,});
-                                    toast.info('編集をキャンセルしました');
-                                }}>キャンセル</Fab>
-                            </Box>
-                        </Grid>
-                    }
-                />
-            </Box>
-            <ArtworkComments artwork={artwork}/>
+                            : <Typography variant="h4">{artwork.title}</Typography>
+                        }
+                        <ArtworkDetail
+                            artwork={artwork}
+                            handleIsEditing={handleIsEditing}
+                            isEditing={isEditing}
+                            featureTextareaEl={
+                                <Grid item>
+                                    <FormControl fullWidth sx={{mt: 2}}>
+                                        <TextField
+                                            multiline
+                                            size="small"
+                                            label="説明文"
+                                            rows={10}
+                                            defaultValue={artwork.feature}
+                                            {...register("feature")}
+                                            error={!!errors?.root?.feature?.message}
+                                            helperText={errors?.root?.feature?.message ? errors?.root?.feature?.message : null}
+                                        />
+                                    </FormControl>
+                                    <Box sx={{display: 'flex',}}>
+                                        <Fab color="primary" variant="extended" sx={{mt: 1, mr: 2}} type="submit">更新</Fab>
+                                        <Fab color="white" variant="extended" sx={{mt: 1,}} onClick={() => {
+                                            handleCancelEditing();
+                                            reset({artwork_slug_id: artwork.slug_id, title: artwork.title,  feature: artwork.feature,});
+                                            toast.info('編集をキャンセルしました');
+                                        }}>キャンセル</Fab>
+                                    </Box>
+                                </Grid>
+                            }
+                        />
+                    </Box>
+                    <ArtworkComments artwork={artwork}/>
+                </>
+            }
         </Container>
     );
 }

@@ -274,7 +274,7 @@ export type ArtworkQueryVariables = Exact<{
 }>;
 
 
-export type ArtworkQuery = { __typename?: 'Query', artwork: { __typename?: 'Artwork', id: string, slug_id: string, title: string, likes: number, bads: number, feature: string, created_at: any, user: { __typename?: 'User', handle_name: string }, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, user: { __typename?: 'User', handle_name: string } }> } };
+export type ArtworkQuery = { __typename?: 'Query', artwork: { __typename?: 'Artwork', id: string, slug_id: string, title: string, likes: number, bads: number, feature: string, deleted: boolean, created_at: any, user: { __typename?: 'User', handle_name: string }, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, user: { __typename?: 'User', handle_name: string } }> } };
 
 export type GetArtworkRanksQueryVariables = Exact<{
   artwork_id: Scalars['String']['input'];
@@ -460,6 +460,7 @@ export const ArtworkDocument = gql`
     likes
     bads
     feature
+    deleted
     created_at
     user {
       handle_name
