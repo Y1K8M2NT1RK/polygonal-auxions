@@ -61,3 +61,14 @@ export const ArtworkRanks = builder.prismaObject('ArtworkRanks', {
         user_id: t.exposeID('user_id'),
     }),
 });
+
+export const Comment = builder.prismaObject('Comment', {
+    fields: (t) => ({
+        body: t.exposeString('body'),
+        artwork_id: t.exposeID('artwork_id'),
+        slug_id: t.exposeID('slug_id'),
+        created_at: t.expose('created_at', {type: 'Date'}),
+        user: t.relation('user'),
+        artwork: t.relation('artwork'),
+    }),
+});

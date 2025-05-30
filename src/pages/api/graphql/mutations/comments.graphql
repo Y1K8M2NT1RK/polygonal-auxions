@@ -1,0 +1,18 @@
+mutation UpsertComment($body: String!, $artwork_id: String!, $comment_slug_id: String) {
+  upsertComment(body: $body, artwork_id: $artwork_id, comment_slug_id: $comment_slug_id) {
+    __typename
+    ... on MutationUpsertCommentSuccess {
+      __typename
+    }
+    ... on ZodError {
+      __typename
+      message
+    }
+  }
+}
+
+mutation RemoveComment($comment_slug_id: String!) {
+  removeComment(comment_slug_id: $comment_slug_id) {
+    __typename
+  }
+}

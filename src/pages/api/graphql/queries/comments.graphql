@@ -1,0 +1,11 @@
+query getArtworkComments($artwork_id: String!) {
+    getArtworkComments (artwork_id: $artwork_id) {
+        body
+        artwork_id
+        slug_id
+        created_at
+        user {
+            handle_name
+        }
+    }
+}

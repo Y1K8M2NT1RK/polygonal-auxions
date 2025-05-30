@@ -1,10 +1,15 @@
-import { builder } from '../../builder';
+import { builder } from "../../builder";
+import { prisma } from '../../db';
+import { Comment } from '../consts';
 
-builder.prismaObject('Comment', {
-    fields: (t) => ({
-        body: t.exposeString('body'),
-        created_at: t.expose('created_at', {type: 'Date'}),
-        user: t.relation('user'),
-        artwork: t.relation('artwork'),
-    }),
-});
+builder.queryField("getArtworkComments", (t) => t.prismaField({
+    type: [Comment],
+    args: { artwork_id: t.arg.string({ required: true }), },
+    resolve: (query, _parent, args, _ctx, _info) => 
+        prisma.comment.findMany({
+            ...query,
+            where: { artwork_id: parseInt(args.artwork_id) },
+            orderBy: { created_at: 'desc' },
+            include: { user: true, }
+        }),
+}));
