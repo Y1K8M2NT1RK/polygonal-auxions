@@ -1,4 +1,9 @@
 import { builder } from '../builder';
+import { prisma } from '../db';
+import jwt from 'jsonwebtoken';
+import { serialize } from 'cookie';
+import { YogaContext } from '../context';
+import { AuthPayload as PrismaAuthPayloadType } from '../../../../prisma/generated/client';
 
 export const User = builder.prismaObject('User', {
     fields: (t) => ({
@@ -72,3 +77,42 @@ export const Comment = builder.prismaObject('Comment', {
         artwork: t.relation('artwork'),
     }),
 });
+
+export const cookieModule: {
+    token: object;
+    refreshToken: object;
+    setCookie: (user_id: number, context: YogaContext) => Promise<PrismaAuthPayloadType>;
+    deleteCookie: (context: YogaContext) => Promise<boolean>;
+} = {
+    token:  { name: 'token', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 3600,},
+    refreshToken: { name: 'refreshToken', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 604800,},
+    setCookie: async (user_id: number, context: YogaContext) => {
+        const access_token = jwt.sign({ id: user_id }, process.env.JWT_SECRET??'', { expiresIn: '1h' });
+        const refresh_token = jwt.sign({ id: user_id }, process.env.JWT_REFRESH_SECRET??'', { expiresIn: '7d' });
+        const authPayload = await prisma.authPayload.upsert({
+            where: { user_id: user_id },
+            update: {access_token, refresh_token, expires_at: new Date(Date.now() + 15 * 60 * 1000),},
+            create: {access_token, refresh_token, user_id: user_id, expires_at: new Date(Date.now() + 15 * 60 * 1000),},
+        });
+        context.res.setHeader('Set-Cookie', [
+            serialize('token', access_token, cookieModule.token),
+            serialize('refreshToken', refresh_token, cookieModule.refreshToken),
+        ]);
+        return authPayload;
+    },
+    deleteCookie: async (context: YogaContext) => {
+        await prisma.authPayload.delete({
+            where: { 
+                user_id: context?.auth?.id as number,
+                OR: [
+                    { access_token: context.req.cookies.token },
+                    { refresh_token: context.req.cookies.refreshToken }
+                ]},
+        });
+        context.res.setHeader('Set-Cookie', [
+            serialize('token', '', { ...cookieModule.token, maxAge: -1 }),
+            serialize('refreshToken', '', { ...cookieModule.token, maxAge: -1 }),
+        ]);
+        return true;
+    },
+}

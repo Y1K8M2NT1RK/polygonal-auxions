@@ -3,13 +3,7 @@ import { prisma } from '../../db';
 import { ZodError } from 'zod';
 import { compareSync, genSaltSync, hashSync } from 'bcrypt';
 import { AuthPayload, Follows } from '../consts';
-import jwt from 'jsonwebtoken';
-import { serialize } from 'cookie';
-
-const cookieOptions: { token: object; refreshToken: object } = {
-    token:  { name: 'token', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 3600,},
-    refreshToken: { name: 'refreshToken', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 604800,}
-}
+import { cookieModule } from '../consts';
 
 builder.mutationField("login", (t) => 
     t.prismaField({
@@ -53,18 +47,7 @@ builder.mutationField("login", (t) =>
         resolve: async (_query, _parent, args, ctx) => {
             const user = await prisma.user.findUnique({where: {email: args.email},});
             if (!user) throw new Error();
-            const access_token = jwt.sign({ id: user.id }, process.env.JWT_SECRET??'', { expiresIn: '1h' });
-            const refresh_token = jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET??'', { expiresIn: '7d' });
-            const authPayload = await prisma.authPayload.upsert({
-                where: { user_id: user.id },
-                update: {access_token, refresh_token, expires_at: new Date(Date.now() + 15 * 60 * 1000),},
-                create: {access_token, refresh_token, user_id: user.id, expires_at: new Date(Date.now() + 15 * 60 * 1000),},
-            });
-            ctx.res.setHeader('Set-Cookie', [
-                serialize('token', access_token, cookieOptions.token),
-                serialize('refreshToken', refresh_token, cookieOptions.refreshToken),
-            ]);
-            return authPayload;
+            return cookieModule.setCookie(user.id, ctx);
         },
     })
 );
@@ -75,17 +58,9 @@ builder.mutationField("refresh", (t) =>
         errors: { types: [ZodError], },
         authScopes: { isAuthenticated: true, },
         resolve: async (_query, _parent, _args, ctx) => {
-            const authPayload = await prisma.authPayload.findUnique({
-                where: {
-                    user_id: ctx?.auth?.id as number,
-                    refresh_token: ctx.req.cookies.refreshToken
-                },
-            });
+            const authPayload = cookieModule.setCookie(ctx?.auth?.id as number, ctx);
             if ( !authPayload) {
-                ctx.res.setHeader('Set-Cookie', [
-                    serialize('token', '', { ...cookieOptions.token, maxAge: -1 }),
-                    serialize('refreshToken', '', { ...cookieOptions.token, maxAge: -1 }),
-                ]);
+                cookieModule.deleteCookie(ctx);
                 throw new Error('User not found');
             }
             return authPayload;
@@ -98,19 +73,7 @@ builder.mutationField("logout", (t) =>
         authScopes: { isAuthenticated: true, },
         resolve: async (_query, _parent, ctx) => {
             try { 
-                await prisma.authPayload.delete({
-                    where: { 
-                        user_id: ctx?.auth?.id as number,
-                        OR: [
-                            { access_token: ctx.req.cookies.token },
-                            { refresh_token: ctx.req.cookies.refreshToken }
-                        ]},
-                });
-                ctx.res.setHeader('Set-Cookie', [
-                    serialize('token', '', { ...cookieOptions.token, maxAge: -1 }),
-                    serialize('refreshToken', '', { ...cookieOptions.token, maxAge: -1 }),
-                ]);
-                return true;
+                return cookieModule.deleteCookie(ctx);
             } catch (error) {
                 console.error('Logout error:', error);
                 return false;
