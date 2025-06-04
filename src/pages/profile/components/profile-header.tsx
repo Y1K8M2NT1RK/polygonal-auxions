@@ -14,7 +14,8 @@ import {
     ListItemText,
     Link,
     Box,
-    Chip
+    Chip,
+    IconButton,
 } from '@mui/material';
 import {
     FollowOrUnfollowDocument,
@@ -24,6 +25,7 @@ import {
 } from '@/generated/generated-graphql';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import PersonAddDisabledIcon from '@mui/icons-material/PersonAddDisabled';
+import CloseIcon from '@mui/icons-material/Close';
 import FlagIcon from '@mui/icons-material/Flag';
 import EditIcon from '@mui/icons-material/Edit';
 import DefaultUserIcon from '@/components/DefaultUserIcon';
@@ -97,11 +99,14 @@ export default function ProfileHeader({viewing_user}: Props){
                                     isDialogOpen={openDialog}
                                     onClose={handleDialogClose}
                                     headerContent={
-                                        <Tabs value={value}>
-                                            <Tab onClick={() => dispatch('following')} label={"フォロー中("+followingUsers?.length+")"} value={'following'} />
-                                            <Tab onClick={() => dispatch('followedBy')} label={"フォロワー("+followedByUsers?.length+")"} value={'followedBy'} />
-                                            <Tab disabled label="ブロック中" />
-                                        </Tabs>
+                                        <>
+                                            <Tabs value={value} variant="scrollable" allowScrollButtonsMobile>
+                                                <Tab onClick={() => dispatch('following')} label={"フォロー中("+followingUsers?.length+")"} value={'following'} />
+                                                <Tab onClick={() => dispatch('followedBy')} label={"フォロワー("+followedByUsers?.length+")"} value={'followedBy'} />
+                                                <Tab disabled label="ブロック中" />
+                                            </Tabs>
+                                            <IconButton aria-label="close" onClick={handleDialogClose} sx={{width: '50px'}} ><CloseIcon /></IconButton>
+                                        </>
                                     }
                                     bodyContent={
                                         <Box>

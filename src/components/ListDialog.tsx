@@ -1,3 +1,4 @@
+import useResponsive from '@/hooks/useResponsive';
 import {
     Box,
     Dialog,
@@ -20,9 +21,10 @@ export default function ListDialog({
         onClose
     }: ListDialogProps
 ) {
+    const {isSmallScreen} = useResponsive();
     return (
         <Box>
-            <Dialog open={isDialogOpen} onClose={onClose}>
+            <Dialog open={isDialogOpen} onClose={onClose} fullScreen={isSmallScreen}>
                 <DialogTitle>
                     <Box sx={{ display: 'flex', justifyContent: 'center',}}>{headerContent}</Box>
                 </ DialogTitle>
