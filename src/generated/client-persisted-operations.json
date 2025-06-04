@@ -15,5 +15,7 @@
    "getArtworkRanks": "758def72e4cea5f9348dc8997f4fbf66cf31ed25a6b9536836d04ccbaf8b224a",
    "getArtworkComments": "99ef8cfba9532a09dbb760afa148cf244f1ea903a9477c3f3b3098c694a5b324",
    "User": "3fe064b5c53fe778a8b25d22b1f4f9dd6db2d370ae8f2030394a0ec121d8f745",
-   "me": "9aad1f6c21b353b7eee40946f2962ca90fcd9ed488b03f83aba38e5345492ab7"
+   "me": "9aad1f6c21b353b7eee40946f2962ca90fcd9ed488b03f83aba38e5345492ab7",
+   "getFollowing": "3c21079933ef9313aebb61f8de3e5c317a29dee1617dc94c0a4c85d10d78515c",
+   "getFollowedBy": "9ad4f281a37dfe2ff0ebae1f75c2c70fd81fbe71362eecbf4889903fdf3c1492"
 }

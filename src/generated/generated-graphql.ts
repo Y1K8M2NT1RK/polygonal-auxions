@@ -171,6 +171,8 @@ export type Query = {
   getArtworkComments: Array<Comment>;
   getArtworkRanks: Array<ArtworkRanks>;
   getAuthArtworkRanks: Array<ArtworkRanks>;
+  getFollowedByUser: Array<User>;
+  getFollowingUser: Array<User>;
   me: User;
   user: User;
 };
@@ -346,6 +348,16 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, handle_name: string } };
+
+export type GetFollowingQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetFollowingQuery = { __typename?: 'Query', getFollowingUser: Array<{ __typename?: 'User', handle_name: string, introduction: string }> };
+
+export type GetFollowedByQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetFollowedByQuery = { __typename?: 'Query', getFollowedByUser: Array<{ __typename?: 'User', handle_name: string, introduction: string }> };
 
 
 export const UpsertArtworkDocument = gql`
@@ -640,4 +652,28 @@ export const MeDocument = gql`
 
 export function useMeQuery(options?: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'>) {
   return Urql.useQuery<MeQuery, MeQueryVariables>({ query: MeDocument, ...options });
+};
+export const GetFollowingDocument = gql`
+    query getFollowing {
+  getFollowingUser {
+    handle_name
+    introduction
+  }
+}
+    `;
+
+export function useGetFollowingQuery(options?: Omit<Urql.UseQueryArgs<GetFollowingQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetFollowingQuery, GetFollowingQueryVariables>({ query: GetFollowingDocument, ...options });
+};
+export const GetFollowedByDocument = gql`
+    query getFollowedBy {
+  getFollowedByUser {
+    handle_name
+    introduction
+  }
+}
+    `;
+
+export function useGetFollowedByQuery(options?: Omit<Urql.UseQueryArgs<GetFollowedByQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetFollowedByQuery, GetFollowedByQueryVariables>({ query: GetFollowedByDocument, ...options });
 };

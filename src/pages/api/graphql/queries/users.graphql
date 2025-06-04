@@ -35,3 +35,17 @@ query me{
         handle_name
     }
 }
+
+query getFollowing {
+    getFollowingUser {
+        handle_name
+        introduction
+    }
+}
+
+query getFollowedBy {
+    getFollowedByUser {
+        handle_name
+        introduction
+    }
+}

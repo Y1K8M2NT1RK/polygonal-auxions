@@ -31,3 +31,37 @@ builder.queryField("me", (t) =>
       })},
   })
 );
+
+builder.queryField("getFollowingUser", (t) =>
+  t.prismaField({
+    type: [User]!,
+    authScopes: { isAuthenticated: true, },
+    resolve: (query, _parent, _args, ctx, _info) => {
+      return prisma.user.findMany({
+        ...query,
+        where: {
+          following: {
+            some: { followed_by_id: ctx.auth?.id as number }
+          }
+        },
+      });
+    },
+  })
+);
+
+builder.queryField("getFollowedByUser", (t) =>
+  t.prismaField({
+    type: [User]!,
+    authScopes: { isAuthenticated: true, },
+    resolve: (query, _parent, _args, ctx, _info) => {
+      return prisma.user.findMany({
+        ...query,
+        where: {
+          followed_by: {
+            some: { following_id: ctx.auth?.id as number }
+          }
+        }
+      });
+    },
+  })
+);

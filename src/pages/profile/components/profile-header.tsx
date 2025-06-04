@@ -1,22 +1,37 @@
 import {
-    Avatar,
     Card,
     CardContent,
     CardHeader,
     CardMedia,
     Fab,
     Grid,
-    Typography
+    Typography,
+    Tabs,
+    Tab,
+    List,
+    ListItem,
+    ListItemAvatar,
+    ListItemText,
+    Link,
+    Box,
+    Chip
 } from '@mui/material';
+import {
+    FollowOrUnfollowDocument,
+    GetFollowingDocument,
+    GetFollowedByDocument,
+    type User,
+} from '@/generated/generated-graphql';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import PersonAddDisabledIcon from '@mui/icons-material/PersonAddDisabled';
 import FlagIcon from '@mui/icons-material/Flag';
 import EditIcon from '@mui/icons-material/Edit';
-import { FollowOrUnfollowDocument, type User } from '@/generated/generated-graphql';
 import DefaultUserIcon from '@/components/DefaultUserIcon';
-import { useMutation } from 'urql';
+import { useMutation, useQuery } from 'urql';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContexts';
+import ListDialog from '@/components/ListDialog';
+import { useState, useReducer } from 'react';
 
 type Props = {
     viewing_user: User
@@ -29,6 +44,37 @@ export default function ProfileHeader({viewing_user}: Props){
     const isAuthFollowed = viewing_user?.following.filter((val) => val.followed_by_id == auth?.id)[0] ? true : false;
 
     const [, FollowOrUnfollow] = useMutation(FollowOrUnfollowDocument);
+
+    const [following, reExecuteGetFollowing] = useQuery({query: GetFollowingDocument});
+    const [followedBy, reExecuteGetFollowedBy] = useQuery({query: GetFollowedByDocument});
+
+    const [openDialog, setOpenDialog] = useState(false);
+    const handleDialogOpen = () => setOpenDialog(true);
+    const handleDialogClose = () => setOpenDialog(false);
+
+    const arrayFollowEachOther = (following: User[], followedBy: User[]) => {
+        return following.filter(followingUser =>
+            followedBy?.some(followedByUser => followedByUser.handle_name === followingUser.handle_name)
+        );
+    };
+    const followingUsers = following.data?.getFollowingUser;
+    const followedByUsers = followedBy.data?.getFollowedByUser;
+
+    const [value, dispatch] = useReducer((target: string, action: string) => {
+        switch (action) {
+            case 'following':
+                setOpenDialog(true);
+                reExecuteGetFollowing;
+                return 'following';
+            case 'followedBy':
+                setOpenDialog(true);
+                reExecuteGetFollowedBy;
+                return 'followedBy';
+            default:
+                setOpenDialog(false);
+                return target;
+        }
+    }, 'following');
 
     return (
         <Card>
@@ -45,8 +91,83 @@ export default function ProfileHeader({viewing_user}: Props){
                         ?   (
                             <>
                                 <Grid item><Fab variant="extended"><EditIcon />編集</Fab></Grid>
-                                <Grid item><Fab variant="extended">フォロー中</Fab></Grid>
-                                <Grid item><Fab variant="extended">フォロワー</Fab></Grid>
+                                <Grid item><Fab onClick={() => {handleDialogOpen(); dispatch('following');}} variant="extended">フォロー中({followingUsers?.length})</Fab></Grid>
+                                <Grid item><Fab onClick={() => {handleDialogOpen(); dispatch('followedBy');}} variant="extended">フォロワー({followedByUsers?.length})</Fab></Grid>
+                                <ListDialog
+                                    isDialogOpen={openDialog}
+                                    onClose={handleDialogClose}
+                                    headerContent={
+                                        <Tabs value={value}>
+                                            <Tab onClick={() => dispatch('following')} label={"フォロー中("+followingUsers?.length+")"} value={'following'} />
+                                            <Tab onClick={() => dispatch('followedBy')} label={"フォロワー("+followedByUsers?.length+")"} value={'followedBy'} />
+                                            <Tab disabled label="ブロック中" />
+                                        </Tabs>
+                                    }
+                                    bodyContent={
+                                        <Box>
+                                            {
+                                                value=='following'
+                                                ?   <List>
+                                                        {
+                                                            followingUsers?.length > 0
+                                                            ?   followingUsers.map((val: User) => (
+                                                                <ListItem key={val.handle_name}>
+                                                                    <ListItemAvatar>
+                                                                        <Link href={`/profile/${val?.handle_name}`}>
+                                                                            <DefaultUserIcon name={val?.handle_name} furtherProp={{mr: '10px',}} />
+                                                                        </Link>
+                                                                    </ListItemAvatar>
+                                                                    <ListItemText
+                                                                        primary={val?.handle_name}
+                                                                        secondary={<Typography>{val?.introduction}</Typography>}
+                                                                    />
+                                                                    {
+                                                                        arrayFollowEachOther(followingUsers, followedByUsers).some(user => user.handle_name === val.handle_name)
+                                                                        ?   <Chip label="相互フォロー済" color="success" />
+                                                                        :   null
+                                                                    }
+                                                                </ListItem>
+                                                            ))
+                                                            :   <ListItem>
+                                                                <ListItemText primary="フォロー中のユーザーはいません。" />
+                                                            </ListItem>
+                                                        }
+                                                    </List>
+                                                :   null
+                                            }
+                                            {
+                                                value=='followedBy'
+                                                ?   <List>
+                                                        {
+                                                            followedByUsers?.length > 0
+                                                            ?   followedByUsers.map((val: User) => (
+                                                                <ListItem key={val.handle_name}>
+                                                                    <ListItemAvatar>
+                                                                        <Link href={`/profile/${val?.handle_name}`}>
+                                                                            <DefaultUserIcon name={val?.handle_name} furtherProp={{mr: '10px',}} />
+                                                                        </Link>
+                                                                    </ListItemAvatar>
+                                                                    <ListItemText
+                                                                        primary={val?.handle_name}
+                                                                        secondary={<Typography>{val?.introduction}</Typography>}
+                                                                    />
+                                                                    {
+                                                                        arrayFollowEachOther(followingUsers, followedByUsers).some(user => user.handle_name === val.handle_name)
+                                                                        ?   <Chip label="相互フォロー済" color="success" />
+                                                                        :   null
+                                                                    }
+                                                                </ListItem>
+                                                            ))
+                                                            :  <ListItem>
+                                                                <ListItemText primary="フォロワーはいません。" />
+                                                            </ListItem>
+                                                        }
+                                                    </List>
+                                                :   null
+                                            }
+                                        </Box>
+                                    }
+                                />
                             </>
                         )
                         :   (
@@ -60,7 +181,7 @@ export default function ProfileHeader({viewing_user}: Props){
                                                 onClick={() => {
                                                     if(!auth) return toast.error('ログインが必要です。');
                                                     FollowOrUnfollow({following_id: viewing_user.id, mode: 'unfollow'})
-                                                        .then(() => toast.success(viewing_user.handle_name+'をフォローを解除しました。'))
+                                                        .then(() => toast.success(viewing_user.handle_name+'のフォローを解除しました。'))
                                                         .catch(() => toast.error('エラーが発生しました。'))
                                                 }}
                                             ><PersonAddDisabledIcon />フォローを解除</Fab>
