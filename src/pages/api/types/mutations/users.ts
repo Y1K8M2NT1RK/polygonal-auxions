@@ -6,6 +6,11 @@ import { AuthPayload, Follows } from '../consts';
 import jwt from 'jsonwebtoken';
 import { serialize } from 'cookie';
 
+const cookieOptions: { token: object; refreshToken: object } = {
+    token:  { name: 'token', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 3600,},
+    refreshToken: { name: 'refreshToken', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 604800,}
+}
+
 builder.mutationField("login", (t) => 
     t.prismaField({
         type: AuthPayload,
@@ -46,35 +51,19 @@ builder.mutationField("login", (t) =>
             {message: 'パスワードが違います。', path: ['password']},
         ],
         resolve: async (_query, _parent, args, ctx) => {
-            const { res } = ctx;
             const user = await prisma.user.findUnique({where: {email: args.email},});
             if (!user) throw new Error();
-            const access_token = jwt.sign({ id: user.id }, process.env.JWT_SECRET??'', { expiresIn: '15m' });
+            const access_token = jwt.sign({ id: user.id }, process.env.JWT_SECRET??'', { expiresIn: '1h' });
             const refresh_token = jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET??'', { expiresIn: '7d' });
             const authPayload = await prisma.authPayload.upsert({
                 where: { user_id: user.id },
                 update: {access_token, refresh_token, expires_at: new Date(Date.now() + 15 * 60 * 1000),},
                 create: {access_token, refresh_token, user_id: user.id, expires_at: new Date(Date.now() + 15 * 60 * 1000),},
             });
-
-            // クッキーにトークンを保存
-            res.setHeader('Set-Cookie', [
-                serialize('token', access_token, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    maxAge: 3600, // 1 hour
-                    path: '/',
-                    sameSite: 'strict',
-                }),
-                serialize('refreshToken', refresh_token, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    maxAge: 604800, // 7 days
-                    path: '/',
-                    sameSite: 'strict',
-                }),
+            ctx.res.setHeader('Set-Cookie', [
+                serialize('token', access_token, cookieOptions.token),
+                serialize('refreshToken', refresh_token, cookieOptions.refreshToken),
             ]);
-
             return authPayload;
         },
     })
@@ -86,36 +75,19 @@ builder.mutationField("refresh", (t) =>
         errors: { types: [ZodError], },
         authScopes: { isAuthenticated: true, },
         resolve: async (_query, _parent, _args, ctx) => {
-            const { res } = ctx;
-            const user_id = ctx.auth?.id as number;
-            const access_token = jwt.sign({ id: user_id }, process.env.JWT_SECRET??'', { expiresIn: '15m' });
-            const refresh_token = jwt.sign({ id: user_id }, process.env.JWT_REFRESH_SECRET??'', { expiresIn: '7d' });
-            const authPayload = await prisma.authPayload.upsert({
-                where: { user_id: user_id },
-                update: {access_token, refresh_token, expires_at: new Date(Date.now() + 15 * 60 * 1000),},
-                create: {access_token, refresh_token, user_id: user_id, expires_at: new Date(Date.now() + 15 * 60 * 1000),},
+            const authPayload = await prisma.authPayload.findUnique({
+                where: {
+                    user_id: ctx?.auth?.id as number,
+                    refresh_token: ctx.req.cookies.refreshToken
+                },
             });
-            const user = await prisma.user.findUnique({ where: { id: user_id }});
-            if (!user) throw new Error('User not found');
-
-            // クッキーに新しいトークンを保存
-            res.setHeader('Set-Cookie', [
-                serialize('token', access_token, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    maxAge: 3600, // 1 hour
-                    path: '/',
-                    sameSite: 'strict',
-                }),
-                serialize('refreshToken', refresh_token, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    maxAge: 604800, // 7 days
-                    path: '/',
-                    sameSite: 'strict',
-                }),
-            ]);
-
+            if ( !authPayload) {
+                ctx.res.setHeader('Set-Cookie', [
+                    serialize('token', '', { ...cookieOptions.token, maxAge: -1 }),
+                    serialize('refreshToken', '', { ...cookieOptions.token, maxAge: -1 }),
+                ]);
+                throw new Error('User not found');
+            }
             return authPayload;
         },
     })
@@ -126,23 +98,17 @@ builder.mutationField("logout", (t) =>
         authScopes: { isAuthenticated: true, },
         resolve: async (_query, _parent, ctx) => {
             try { 
-                const { res } = ctx;
-                await prisma.authPayload.delete({ where: { user_id: ctx?.auth?.id }, });
-                res.setHeader('Set-Cookie', [
-                    serialize('token', '', {
-                        httpOnly: true,
-                        secure: process.env.NODE_ENV === 'production',
-                        maxAge: -1, // Expire the cookie
-                        path: '/',
-                        sameSite: 'strict',
-                    }),
-                    serialize('refreshToken', '', {
-                        httpOnly: true,
-                        secure: process.env.NODE_ENV === 'production',
-                        maxAge: -1, // Expire the cookie
-                        path: '/',
-                        sameSite: 'strict',
-                    }),
+                await prisma.authPayload.delete({
+                    where: { 
+                        user_id: ctx?.auth?.id as number,
+                        OR: [
+                            { access_token: ctx.req.cookies.token },
+                            { refresh_token: ctx.req.cookies.refreshToken }
+                        ]},
+                });
+                ctx.res.setHeader('Set-Cookie', [
+                    serialize('token', '', { ...cookieOptions.token, maxAge: -1 }),
+                    serialize('refreshToken', '', { ...cookieOptions.token, maxAge: -1 }),
                 ]);
                 return true;
             } catch (error) {

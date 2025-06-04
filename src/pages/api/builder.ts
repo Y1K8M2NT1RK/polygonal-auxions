@@ -2,7 +2,7 @@ import SchemaBuilder from '@pothos/core';
 import { DateTimeResolver } from "graphql-scalars";
 import type PrismaTypes from '@/pages/api/types/pothos';
 import { prisma } from './db';
-import { Context } from './graphql';
+import { YogaContext } from './context';
 
 import PrismaPlugin from '@pothos/plugin-prisma';
 import PrismaUtilsPlugin from "@pothos/plugin-prisma-utils";
@@ -15,7 +15,7 @@ import ErrorsPlugin from '@pothos/plugin-errors';
 
 export const builder = new SchemaBuilder<{
   AuthScopes: { isAuthenticated: boolean };
-  Context: Context;
+  Context: YogaContext;
   PrismaTypes: PrismaTypes;
   Scalars: {
     Date: {

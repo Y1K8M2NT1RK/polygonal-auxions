@@ -1,6 +1,8 @@
-import { type YogaInitialContext } from "graphql-yoga";
-import { User } from "@/generated/generated-graphql";
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { User } from '../../../prisma/generated/client';
 
-export interface Context extends YogaInitialContext {
-    auth: User;
+export interface YogaContext {
+  res: NextApiResponse;
+  req: NextApiRequest;
+  auth: User | null;
 }

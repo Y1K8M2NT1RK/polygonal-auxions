@@ -1,11 +1,11 @@
 import { schema } from '@/pages/api/schema';
 import { createYoga } from 'graphql-yoga';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import type { YogaContext } from './context';
 import { GraphQLError } from 'graphql';
 import { ZodError } from 'zod';
-import jwt from 'jsonwebtoken';
+import jwt, { type JwtPayload } from 'jsonwebtoken';
 import { prisma } from './db';
-import { parse } from 'cookie';
 import { User } from '../../../prisma/generated/client';
 import { readFileSync } from 'fs';
 import { usePersistedOperations } from '@graphql-yoga/plugin-persisted-operations'
@@ -15,28 +15,19 @@ import { join } from 'path';
 const persistedOperationsPath = join(process.cwd(), 'src/generated/persisted-operations.json');
 const persistedOperations = JSON.parse(readFileSync(persistedOperationsPath, 'utf-8'));
 
-export type Context = {
-  res: NextApiResponse;
-  req: NextApiRequest;
-  auth: User | null;
-};
-
 // GraphQL-Yogaのcontextを設定
 export const createContext = async (
   req: NextApiRequest,
-  res: NextApiResponse
-): Promise<Context> => {
-  const cookies = parse(req.headers.cookie || '');
-  const token = cookies.token || '';
-  const refreshToken = cookies.refreshToken || '';
+  res: NextApiResponse,
+): Promise<YogaContext> => {
+  const token = req.cookies?.token;
 
   let auth: User | null = null;
-  if (token) {
+
+  if (!!token) {
     try {
-      let decoded: { id: number };
-      if( refreshToken ) decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET ?? '') as { id: number };
-      else decoded = jwt.verify(token, process.env.JWT_SECRET ?? '') as { id: number };
-      auth = await prisma.user.findUnique({ where: { id: decoded.id },});
+      const user_id = (jwt.verify(token, process.env.JWT_SECRET||'') as JwtPayload).id as number;
+      auth = await prisma.user.findUnique({ where: { id: user_id },});
     } catch (error) {
       console.error('トークンの特定がエラーにより不可:', error);
     }
@@ -50,7 +41,7 @@ export default createYoga<
     req: NextApiRequest;
     res: NextApiResponse;
   },
-  Context
+  YogaContext
 >({
   graphiql: process.env.NODE_ENV === "development",
   graphqlEndpoint: '/api/graphql',
