@@ -1,5 +1,4 @@
 import {
-    Avatar,
     Card,
     CardContent,
     CardActionArea,
@@ -13,6 +12,7 @@ import { type Artwork } from '@/generated/generated-graphql';
 import { DateTime } from 'luxon';
 import DefaultUserIcon from '@/components/DefaultUserIcon';
 import { ReactNode } from 'react';
+import Image from 'next/image';
 
 interface ArtworkListUnitProps {
     artwork: Artwork & { deletedInFront: boolean };
@@ -49,7 +49,18 @@ export default function ArtworkListUnit({ artwork, deletedArtworksInFront, child
                         <Link href={`/artworks/${artwork?.slug_id}`} passHref>
                             <CardActionArea sx={{height: "15em"}}>
                                 <CardContent>
-                                    <Typography>{artwork?.title}</Typography>
+                                    {
+                                        !!(artwork?.artwork_file) && artwork?.artwork_file.length > 0
+                                        ? <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+                                            <Image
+                                                src={`${artwork.artwork_file[0]?.file_path}`}
+                                                alt={artwork?.title}
+                                                fill
+                                                style={{maxWidth: '100%', maxHeight: '100%', objectFit: 'cover'}}
+                                            />
+                                          </Box>
+                                        : <Typography variant="h3" sx={{display: 'flex', justifyContent: 'center', opacity: 0.3}}>NO IMAGE</Typography>
+                                    }
                                 </CardContent>
                             </CardActionArea>
                         </Link>

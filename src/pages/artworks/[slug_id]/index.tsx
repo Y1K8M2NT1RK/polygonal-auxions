@@ -7,6 +7,9 @@ import {
     Fab,
     Grid,
     Box,
+    Paper,
+    Input,
+    Button
 } from '@mui/material';
 import { 
     UpsertArtworkDocument,
@@ -17,17 +20,25 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "urql";
 import { useRouter } from 'next/router';
 import { useQuery } from 'urql';
-import { useState } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { toast } from "react-toastify";
 import ArtworkComments from './components/artwork-comments';
 import ArtworkDetail from './components/artwork-detail';
 import Head from 'next/head';
 import NotFound from '@/components/NotFound';
+import Image from 'next/image';
+import Link from 'next/link';
+import { upload } from "@vercel/blob/client";
+import useResponsive from '@/hooks/useResponsive';
 
 type FormData = {
     title: string;
     feature: string;
     artwork_slug_id: string;
+    current_image_url?: string;
+    image_url?: string;
+    content_type?: string;
+    is_image_deleted?: boolean;
 };
 
 export default function Artwork(){
@@ -42,23 +53,40 @@ export default function Artwork(){
 
     const [isEditing, setIsEditing] = useState(useRouter().query.isEditing as unknown as boolean || false);
     const handleIsEditing = () => setIsEditing(true);
-    const handleCancelEditing = () => setIsEditing(false);
+    const handleCancelEditing = () => {setIsEditing(false); setImageUpload(null); setIsImageDeleted(false);};
+
+    const [imageUpload, setImageUpload] = useState<File | null>(null);
+    const [isImageDeleted, setIsImageDeleted] = useState<boolean>(false);
+
+    const {isSmallScreen} = useResponsive();
 
     if (fetching) return (<Container><CircularProgress color="inherit" /></Container>);
     if (error) return `Error! ${error.message}`;
 
     const artwork: Artwork = data?.artwork;
-    const onSubmit = handleSubmit((data:FormData) => upsertArtwork(data).then(result => {
-        if(result.error){
-            const gqlErrors:string[] = result.error?.graphQLErrors[0].extensions.messages as string[];
-            for( const [key, val] of Object.entries(gqlErrors) ) setError(`root.${key}`, {type: 'server', message: val[0]});
-            toast.error('更新できません。入力内容をお確かめください。');
-            return;
+    
+    const onSubmit = handleSubmit(async (data:FormData) => {
+        if( !!imageUpload ){
+            const { url, contentType } = await upload(
+                `artworks/thumbnail/${imageUpload.name}`,
+                imageUpload,
+                { access: 'public', handleUploadUrl: '/api/upload' }
+            );
+            data.image_url = url;
+            data.content_type = contentType;
         }
-        reExecuteArtwork();
-        toast.success('更新しました。');
-        handleCancelEditing();
-    }));
+        return upsertArtwork(data).then(result => {
+            if(result.error){
+                const gqlErrors:string[] = result.error?.graphQLErrors[0].extensions.messages as string[];
+                for( const [key, val] of Object.entries(gqlErrors) ) setError(`root.${key}`, {type: 'server', message: val[0]});
+                toast.error('更新できません。入力内容をお確かめください。');
+                return;
+            }
+            reExecuteArtwork();
+            toast.success('更新しました。');
+            handleCancelEditing();
+        });
+    });
 
     return (
         <Container sx={{ mt: 2, mb: 2 }}>
@@ -71,6 +99,106 @@ export default function Artwork(){
                 : <>
                     <Head><title>{`作品「${artwork.title}」の詳細`}</title></Head>
                     <Box component="form" method="POST" onSubmit={onSubmit}>
+                        <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+                            <FormControl><TextField hidden {...register("current_image_url")} defaultValue={artwork.artwork_file[0]?.file_path} /></FormControl>
+                            <FormControl><TextField hidden {...register("is_image_deleted")} defaultValue={isImageDeleted} /></FormControl>
+                            <Box component="label" sx={{position: 'relative', cursor: 'pointer',}}>
+                            {
+                                !!isEditing
+                                ? (
+                                    <>
+                                        {
+                                            isImageDeleted==false && ((!!(artwork?.artwork_file) && artwork?.artwork_file.length > 0) || !!imageUpload)
+                                            ? <Image
+                                                src={imageUpload ? URL.createObjectURL(imageUpload) : `${artwork.artwork_file[0]?.file_path}`}
+                                                alt={artwork?.title}
+                                                width={500}
+                                                height={500}
+                                                style={{
+                                                    maxWidth: '100%',
+                                                    maxHeight: '100%',
+                                                    objectFit: 'cover',
+                                                    opacity: 0.3,
+                                                }}
+                                                priority
+                                            />
+                                            : <Paper sx={{ height: '300px', width: `${isSmallScreen==true ? '90vw': '500px'}`, objectFit: 'cover'}}>
+                                                <Typography variant="h3" sx={{
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    height: '100%',
+                                                    opacity: 0.3,
+                                                }}>NO IMAGE</Typography>
+                                            </ Paper>
+                                        }
+                                        <Input
+                                            type="file"
+                                            inputProps={{ multiple: false, }}
+                                            sx={{ display: 'none' }}
+                                            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                                                setIsImageDeleted(false);
+                                                setImageUpload(e.target.files ? e.target.files[0] : null);
+                                            }}
+                                        />
+                                        <Box sx={{
+                                            position: 'absolute',
+                                            top: '50%',
+                                            left: '50%',
+                                            transform: 'translate(-50%, -50%)',
+                                        }}>
+                                            <Box sx={{width: 'max-content', display: 'flex', justifyContent: 'center', flexDirection: 'column'}}>
+                                                <Typography>クリックしてサムネイルを変更</Typography>
+                                                {
+                                                    ((
+                                                            isImageDeleted==false
+                                                        &&  (!!(artwork?.artwork_file) && artwork?.artwork_file.length > 0)
+                                                    )   ||  !!imageUpload
+                                                    ) && <Button onClick={(e) => {
+                                                        e.preventDefault();
+                                                        setIsImageDeleted(true);
+                                                        setImageUpload(null);
+                                                    }}>サムネイルを削除</Button>
+                                                }
+                                            </Box>
+                                        </Box>
+                                    </> 
+                                )
+                                : ( 
+                                    !!(artwork?.artwork_file) && artwork?.artwork_file.length > 0
+                                    ? <Link
+                                        target="_blank"
+                                        href={!!isEditing ? '' : `${artwork.artwork_file[0]?.file_path}`}
+                                        passHref
+                                    >
+                                        <Image
+                                            src={`${artwork.artwork_file[0]?.file_path}`}
+                                            alt={artwork?.title}
+                                            width={500}
+                                            height={500}
+                                            {...(!!isEditing ? {component: "label"} : null)}
+                                            style={{
+                                                maxWidth: '100%',
+                                                maxHeight: '100%',
+                                                objectFit: 'cover',
+                                                opacity: 1,
+                                            }}
+                                            priority
+                                        />
+                                    </Link>
+                                    : <Paper sx={{ height: '300px', width: `${isSmallScreen==true ? '90vw': '500px'}`, objectFit: 'cover'}}>
+                                        <Typography variant="h3" sx={{
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            height: '100%',
+                                            opacity: 0.3,
+                                        }}>NO IMAGE</Typography>
+                                    </ Paper>
+                                )
+                            }
+                            </ Box>
+                        </Box>
                         <FormControl><TextField hidden {...register("artwork_slug_id")} defaultValue={artwork.slug_id} /></FormControl>
                         {
                             isEditing

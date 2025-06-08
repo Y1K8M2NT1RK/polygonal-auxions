@@ -55,6 +55,7 @@ export const Artwork = builder.prismaObject('Artwork', {
         user_id: t.exposeID('user_id'),
         comments: t.relation('comments'),
         artwork_ranks: t.relation('artwork_ranks'),
+        artwork_file: t.relation('artwork_file'),
      }),
 });
 
@@ -64,6 +65,14 @@ export const ArtworkRanks = builder.prismaObject('ArtworkRanks', {
         artwork_id: t.exposeID('artwork_id'),
         rank_id: t.exposeID('rank_id'),
         user_id: t.exposeID('user_id'),
+    }),
+});
+
+export const ArtworkFile = builder.prismaObject('ArtworkFile', {
+    fields: (t) => ({
+        id: t.exposeID('id'),
+        artwork_id: t.exposeID('artwork_id'),
+        file_path: t.exposeString('file_path'),
     }),
 });
 

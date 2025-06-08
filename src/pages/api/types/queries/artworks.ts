@@ -6,7 +6,12 @@ import { Artwork, ArtworkRanks } from '../consts';
 builder.queryField("artworks", (t) =>
   t.prismaField({
     type: [Artwork], // 複数のデータを求める場合は[]で囲う
-    resolve: (query, _parent, _args, _ctx, _info) => prisma.artwork.findMany({ ...query, orderBy: { created_at: 'desc' }}),
+    resolve: (query, _parent, _args, _ctx, _info) => 
+      prisma.artwork.findMany({
+        ...query,
+        orderBy: { created_at: 'desc' },
+        include: { artwork_file: true }
+    }),
   })
 );
 
@@ -34,7 +39,7 @@ builder.queryField("artwork", (t) =>
       prisma.artwork.findUniqueOrThrow({
         ...query,
         where: { slug_id: args.slug_id },
-        include: { comments: { orderBy: { created_at : 'desc' }},}
+        include: { comments: { orderBy: { created_at : 'desc' }},  artwork_file: true }
       }),
   })
 );

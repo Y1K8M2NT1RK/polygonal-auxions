@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import Link from 'next/link';
 import type { User, Comment } from '@/generated/generated-graphql';
+import Image from 'next/image';
 
 type Props = {
     user: User
@@ -27,8 +28,24 @@ export default function ProfileComments({user}: Props){
                                 <Box sx={{display: 'flex',}}>
                                     <Link href={`/artworks/${comment.artwork.slug_id}`} style={{height: '100px', aspectRatio: '5 / 3'}} passHref>
                                         <CardActionArea sx={{height: '100px',}}>
-                                            <CardContent>
-                                                <Typography>{comment.artwork.title}</Typography>
+                                            <CardContent sx={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                                {
+                                                    !!(comment.artwork?.artwork_file) && comment.artwork?.artwork_file.length > 0
+                                                    ? <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+                                                        <Image
+                                                            fill
+                                                            priority
+                                                            src={`${comment.artwork.artwork_file[0]?.file_path}`}
+                                                            alt={comment.artwork?.title}
+                                                            style={{maxWidth: '100%', maxHeight: '100%', objectFit: 'cover'}}
+                                                        />
+                                                      </Box>
+                                                    : <Typography variant="h5" sx={{
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        opacity: 0.3,
+                                                    }}>NO IMAGE</Typography>
+                                                }
                                             </CardContent>
                                         </CardActionArea>
                                     </Link>

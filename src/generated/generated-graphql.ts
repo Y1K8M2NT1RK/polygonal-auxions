@@ -21,6 +21,7 @@ export type Scalars = {
 
 export type Artwork = {
   __typename?: 'Artwork';
+  artwork_file: Array<ArtworkFile>;
   artwork_ranks: Array<ArtworkRanks>;
   bads: Scalars['Int']['output'];
   comments: Array<Comment>;
@@ -33,6 +34,13 @@ export type Artwork = {
   title: Scalars['String']['output'];
   user: User;
   user_id: Scalars['ID']['output'];
+};
+
+export type ArtworkFile = {
+  __typename?: 'ArtworkFile';
+  artwork_id: Scalars['ID']['output'];
+  file_path: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
 };
 
 export type ArtworkRanks = {
@@ -125,7 +133,11 @@ export type MutationRemoveCommentArgs = {
 
 export type MutationUpsertArtworkArgs = {
   artwork_slug_id?: InputMaybe<Scalars['String']['input']>;
+  content_type?: InputMaybe<Scalars['String']['input']>;
+  current_image_url?: InputMaybe<Scalars['String']['input']>;
   feature: Scalars['String']['input'];
+  image_url?: InputMaybe<Scalars['String']['input']>;
+  is_image_deleted?: InputMaybe<Scalars['String']['input']>;
   title: Scalars['String']['input'];
 };
 
@@ -234,6 +246,10 @@ export type UpsertArtworkMutationVariables = Exact<{
   title: Scalars['String']['input'];
   feature: Scalars['String']['input'];
   artwork_slug_id?: InputMaybe<Scalars['String']['input']>;
+  current_image_url?: InputMaybe<Scalars['String']['input']>;
+  image_url?: InputMaybe<Scalars['String']['input']>;
+  content_type?: InputMaybe<Scalars['String']['input']>;
+  is_image_deleted?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -307,7 +323,7 @@ export type FollowOrUnfollowMutation = { __typename?: 'Mutation', followOrUnfoll
 export type ArtworksQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ArtworksQuery = { __typename?: 'Query', artworks: Array<{ __typename?: 'Artwork', id: string, title: string, slug_id: string, feature: string, created_at: any, user: { __typename?: 'User', handle_name: string } }> };
+export type ArtworksQuery = { __typename?: 'Query', artworks: Array<{ __typename?: 'Artwork', id: string, title: string, slug_id: string, feature: string, created_at: any, user: { __typename?: 'User', handle_name: string }, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }> }> };
 
 export type GetAuthArtworkRanksQueryVariables = Exact<{
   artwork_id?: InputMaybe<Scalars['String']['input']>;
@@ -321,7 +337,7 @@ export type ArtworkQueryVariables = Exact<{
 }>;
 
 
-export type ArtworkQuery = { __typename?: 'Query', artwork: { __typename?: 'Artwork', id: string, slug_id: string, title: string, likes: number, bads: number, feature: string, deleted: boolean, created_at: any, user: { __typename?: 'User', handle_name: string }, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, user: { __typename?: 'User', handle_name: string } }> } };
+export type ArtworkQuery = { __typename?: 'Query', artwork: { __typename?: 'Artwork', id: string, slug_id: string, title: string, likes: number, bads: number, feature: string, deleted: boolean, created_at: any, user: { __typename?: 'User', handle_name: string }, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, user: { __typename?: 'User', handle_name: string } }> } };
 
 export type GetArtworkRanksQueryVariables = Exact<{
   artwork_id: Scalars['String']['input'];
@@ -342,7 +358,7 @@ export type UserQueryVariables = Exact<{
 }>;
 
 
-export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', id: string, name: string, name_kana?: string | null, handle_name: string, introduction: string, address: string, email: string, created_at: any, artworks: Array<{ __typename?: 'Artwork', slug_id: string, title: string, likes: number, bads: number, created_at: any }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, artwork: { __typename?: 'Artwork', slug_id: string, title: string } }>, following: Array<{ __typename?: 'Follow', followed_by_id: string }> } };
+export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', id: string, name: string, name_kana?: string | null, handle_name: string, introduction: string, address: string, email: string, created_at: any, artworks: Array<{ __typename?: 'Artwork', slug_id: string, title: string, likes: number, bads: number, created_at: any, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }> }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, artwork: { __typename?: 'Artwork', slug_id: string, title: string } }>, following: Array<{ __typename?: 'Follow', followed_by_id: string }> } };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -361,11 +377,15 @@ export type GetFollowedByQuery = { __typename?: 'Query', getFollowedByUser: Arra
 
 
 export const UpsertArtworkDocument = gql`
-    mutation UpsertArtwork($title: String!, $feature: String!, $artwork_slug_id: String) {
+    mutation UpsertArtwork($title: String!, $feature: String!, $artwork_slug_id: String, $current_image_url: String, $image_url: String, $content_type: String, $is_image_deleted: String) {
   upsertArtwork(
     feature: $feature
     title: $title
     artwork_slug_id: $artwork_slug_id
+    current_image_url: $current_image_url
+    image_url: $image_url
+    content_type: $content_type
+    is_image_deleted: $is_image_deleted
   ) {
     __typename
     ... on MutationUpsertArtworkSuccess {
@@ -527,6 +547,9 @@ export const ArtworksDocument = gql`
     user {
       handle_name
     }
+    artwork_file {
+      file_path
+    }
   }
 }
     `;
@@ -561,6 +584,9 @@ export const ArtworkDocument = gql`
     created_at
     user {
       handle_name
+    }
+    artwork_file {
+      file_path
     }
     comments {
       body
@@ -622,6 +648,9 @@ export const UserDocument = gql`
       likes
       bads
       created_at
+      artwork_file {
+        file_path
+      }
     }
     comments {
       body

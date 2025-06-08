@@ -1,5 +1,5 @@
 {
-   "UpsertArtwork": "f247bde9928d5afbcb5cf56c7a6989a6679daf4d7d3a59b99b06186033ceb2bf",
+   "UpsertArtwork": "e058721f5f54d1d616f3b63dc91b5b7e0144ef8cc1b7b21702586cc3529e3537",
    "RemoveArtwork": "8aa33cc212a4f56f7c23963a39ff8f2f56000bb7f47c4c8ca23255d32b169d18",
    "AddArtworkRank": "74b68287fb7f44ee0145b0306ef41f279c945ccfc6bf2ea2c3766179bc35ad8b",
    "RemoveArtworkRank": "bf1df66da53213c7ce5fe8d0a907b8f36250f4db1049905981a9ae33e5b4d7af",
@@ -9,12 +9,12 @@
    "Refresh": "79dff1b9eb5896840382077d9d86131571d69e38bde0e2582f4285dd376cf417",
    "Logout": "d33294c28ffdaff741dcadc2dba75b4013cdc29cd5f9e8f61d3ac85d57868a04",
    "followOrUnfollow": "d0315ca0769be8e73ff9858e0b3ab82625280e37c4d7e909b9d87b8490cb9391",
-   "Artworks": "ed5f958f35deb2c33e3fb0cd0097651e6cc02e255484538aa4e2226a10a35e7f",
+   "Artworks": "6e473e6985774f4c51b7e647539d4a2b1ece1ff216b5727b596888c0c58a5cad",
    "getAuthArtworkRanks": "a5831550f26dbdcbcb9d561fc2fb17e320c2fbcc0885f50200e91e5cf966bd00",
-   "Artwork": "17a5bd6eeea12b33b24f3713c0f54adedd2be29aa8b475e30c9ce870be9434ab",
+   "Artwork": "252ad3dd838d70e8c456eb27631401adf7bbc05abd360c7dc426423a08a5cc5f",
    "getArtworkRanks": "758def72e4cea5f9348dc8997f4fbf66cf31ed25a6b9536836d04ccbaf8b224a",
    "getArtworkComments": "99ef8cfba9532a09dbb760afa148cf244f1ea903a9477c3f3b3098c694a5b324",
-   "User": "3fe064b5c53fe778a8b25d22b1f4f9dd6db2d370ae8f2030394a0ec121d8f745",
+   "User": "107869948c40ff9d5bf7c84565e1ed050797b6e2144bb0284c0ef759e4ec8567",
    "me": "9aad1f6c21b353b7eee40946f2962ca90fcd9ed488b03f83aba38e5345492ab7",
    "getFollowing": "3c21079933ef9313aebb61f8de3e5c317a29dee1617dc94c0a4c85d10d78515c",
    "getFollowedBy": "9ad4f281a37dfe2ff0ebae1f75c2c70fd81fbe71362eecbf4889903fdf3c1492"

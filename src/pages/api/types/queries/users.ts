@@ -12,7 +12,10 @@ builder.queryField("user", (t) =>
         ...query,
         where: { handle_name: args.handle_name },
         include: {
-          artworks: { orderBy: { created_at : 'desc' }},
+          artworks: {
+            orderBy: { created_at : 'desc' },
+            include: { artwork_file: true }
+          },
           comments: { orderBy: { created_at : 'desc' }}
         }
       }),

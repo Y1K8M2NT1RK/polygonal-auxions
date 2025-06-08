@@ -1,5 +1,21 @@
-mutation UpsertArtwork($title: String!, $feature: String!, $artwork_slug_id: String) {
-  upsertArtwork(feature: $feature, title: $title, artwork_slug_id: $artwork_slug_id) {
+mutation UpsertArtwork(
+  $title: String!,
+  $feature: String!,
+  $artwork_slug_id: String,
+  $current_image_url: String,
+  $image_url: String,
+  $content_type: String,
+  $is_image_deleted: String,
+) {
+  upsertArtwork(
+    feature: $feature,
+    title: $title,
+    artwork_slug_id: $artwork_slug_id,
+    current_image_url: $current_image_url,
+    image_url: $image_url,
+    content_type: $content_type,
+    is_image_deleted: $is_image_deleted,
+  ) {
     __typename
     ... on MutationUpsertArtworkSuccess {
       __typename
