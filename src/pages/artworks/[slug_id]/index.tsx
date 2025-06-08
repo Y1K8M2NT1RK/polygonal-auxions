@@ -30,6 +30,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { upload } from "@vercel/blob/client";
 import useResponsive from '@/hooks/useResponsive';
+import { BLOB_BASE_DIR } from '@/constants/blob';
 
 type FormData = {
     title: string;
@@ -68,7 +69,7 @@ export default function Artwork(){
     const onSubmit = handleSubmit(async (data:FormData) => {
         if( !!imageUpload ){
             const { url, contentType } = await upload(
-                `artworks/thumbnail/${imageUpload.name}`,
+                `/${BLOB_BASE_DIR}/artworks/thumbnail/${imageUpload.name}`,
                 imageUpload,
                 { access: 'public', handleUploadUrl: '/api/upload' }
             );

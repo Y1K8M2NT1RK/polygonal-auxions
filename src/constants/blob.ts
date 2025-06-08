@@ -1,0 +1,1 @@
+export const BLOB_BASE_DIR = process.env.NODE_ENV === 'production' ? 'prod' : 'dev';
