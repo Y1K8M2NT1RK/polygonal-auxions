@@ -137,7 +137,7 @@ export type MutationUpsertArtworkArgs = {
   current_image_url?: InputMaybe<Scalars['String']['input']>;
   feature: Scalars['String']['input'];
   image_url?: InputMaybe<Scalars['String']['input']>;
-  is_image_deleted?: InputMaybe<Scalars['String']['input']>;
+  is_image_deleted?: InputMaybe<Scalars['Boolean']['input']>;
   title: Scalars['String']['input'];
 };
 
@@ -249,7 +249,7 @@ export type UpsertArtworkMutationVariables = Exact<{
   current_image_url?: InputMaybe<Scalars['String']['input']>;
   image_url?: InputMaybe<Scalars['String']['input']>;
   content_type?: InputMaybe<Scalars['String']['input']>;
-  is_image_deleted?: InputMaybe<Scalars['String']['input']>;
+  is_image_deleted?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -377,7 +377,7 @@ export type GetFollowedByQuery = { __typename?: 'Query', getFollowedByUser: Arra
 
 
 export const UpsertArtworkDocument = gql`
-    mutation UpsertArtwork($title: String!, $feature: String!, $artwork_slug_id: String, $current_image_url: String, $image_url: String, $content_type: String, $is_image_deleted: String) {
+    mutation UpsertArtwork($title: String!, $feature: String!, $artwork_slug_id: String, $current_image_url: String, $image_url: String, $content_type: String, $is_image_deleted: Boolean) {
   upsertArtwork(
     feature: $feature
     title: $title

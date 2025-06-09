@@ -45,7 +45,10 @@ type FormData = {
 export default function Artwork(){
     const slug_id = useRouter().query.slug_id!;
 
-    const {register, handleSubmit, setError, formState: {errors}, reset } = useForm<FormData>({ mode: 'onSubmit',});
+    const {register, handleSubmit, setError, formState: {errors}, reset, watch, setValue } = useForm<FormData>({
+        mode: 'onSubmit',
+        defaultValues: { is_image_deleted: false }
+    });
     
     const [result, reExecuteArtwork] = useQuery({query: ArtworkDocument, variables: {slug_id}, requestPolicy: 'network-only'});
     const [, upsertArtwork] = useMutation(UpsertArtworkDocument);
@@ -54,10 +57,10 @@ export default function Artwork(){
 
     const [isEditing, setIsEditing] = useState(useRouter().query.isEditing as unknown as boolean || false);
     const handleIsEditing = () => setIsEditing(true);
-    const handleCancelEditing = () => {setIsEditing(false); setImageUpload(null); setIsImageDeleted(false);};
+    const handleCancelEditing = () => {setIsEditing(false); setImageUpload(null); setValue("is_image_deleted", false);};
 
     const [imageUpload, setImageUpload] = useState<File | null>(null);
-    const [isImageDeleted, setIsImageDeleted] = useState<boolean>(false);
+    const isImageDeleted = watch('is_image_deleted');
 
     const {isSmallScreen} = useResponsive();
 
@@ -83,9 +86,10 @@ export default function Artwork(){
                 toast.error('更新できません。入力内容をお確かめください。');
                 return;
             }
-            reExecuteArtwork();
-            toast.success('更新しました。');
             handleCancelEditing();
+            reExecuteArtwork();
+            setValue("current_image_url", data.image_url);
+            toast.success('更新しました。');
         });
     });
 
@@ -102,7 +106,7 @@ export default function Artwork(){
                     <Box component="form" method="POST" onSubmit={onSubmit}>
                         <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                             <FormControl><TextField hidden {...register("current_image_url")} defaultValue={artwork.artwork_file[0]?.file_path} /></FormControl>
-                            <FormControl><TextField hidden {...register("is_image_deleted")} defaultValue={isImageDeleted} /></FormControl>
+                            <FormControl><TextField hidden {...register("is_image_deleted")} /></FormControl>
                             <Box component="label" sx={{position: 'relative', cursor: 'pointer',}}>
                             {
                                 !!isEditing
@@ -138,7 +142,7 @@ export default function Artwork(){
                                             inputProps={{ multiple: false, }}
                                             sx={{ display: 'none' }}
                                             onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                                                setIsImageDeleted(false);
+                                                setValue("is_image_deleted", false);
                                                 setImageUpload(e.target.files ? e.target.files[0] : null);
                                             }}
                                         />
@@ -157,7 +161,7 @@ export default function Artwork(){
                                                     )   ||  !!imageUpload
                                                     ) && <Button onClick={(e) => {
                                                         e.preventDefault();
-                                                        setIsImageDeleted(true);
+                                                        setValue("is_image_deleted", true);
                                                         setImageUpload(null);
                                                     }}>サムネイルを削除</Button>
                                                 }
@@ -239,7 +243,13 @@ export default function Artwork(){
                                         <Fab color="primary" variant="extended" sx={{mt: 1, mr: 2}} type="submit">更新</Fab>
                                         <Fab variant="extended" sx={{mt: 1,}} onClick={() => {
                                             handleCancelEditing();
-                                            reset({artwork_slug_id: artwork.slug_id, title: artwork.title,  feature: artwork.feature,});
+                                            reset({
+                                                artwork_slug_id: artwork.slug_id,
+                                                is_image_deleted: false,
+                                                current_image_url: artwork.artwork_file[0]?.file_path,
+                                                title: artwork.title,
+                                                feature: artwork.feature,
+                                            });
                                             toast.info('編集をキャンセルしました');
                                         }}>キャンセル</Fab>
                                     </Box>

@@ -31,19 +31,19 @@ builder.mutationField("upsertArtwork", (t) =>
             current_image_url: t.arg.string({ required: false, }),
             image_url: t.arg.string({  required: false, }),
             content_type: t.arg.string({ required: false, }),
-            is_image_deleted: t.arg.string({ required: false, defaultValue: 'false' }),
+            is_image_deleted: t.arg.boolean({ required: false, defaultValue: false }),
         },
         resolve: async (_query, _parent, args, ctx, _info) => {
             let targetArtworkFile = null;
             if (
                     (args.artwork_slug_id && args.current_image_url)
-                ||  (args.is_image_deleted=='false' && targetArtworkFile)
+                ||  (args.is_image_deleted==true)
             ) {
                 await del(args.current_image_url as string, {token: process.env.BLOB_READ_WRITE_TOKEN});
                 targetArtworkFile = await prisma.artworkFile.findFirst({
                     where: { file_path: args.current_image_url as string, },
                 });
-                if ( args.is_image_deleted && targetArtworkFile ) {
+                if ( args.is_image_deleted==true && targetArtworkFile ) {
                     await prisma.artworkFile.delete({where: {id: targetArtworkFile.id}});
                 }
             }

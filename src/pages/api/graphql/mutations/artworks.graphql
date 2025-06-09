@@ -5,7 +5,7 @@ mutation UpsertArtwork(
   $current_image_url: String,
   $image_url: String,
   $content_type: String,
-  $is_image_deleted: String,
+  $is_image_deleted: Boolean,
 ) {
   upsertArtwork(
     feature: $feature,
