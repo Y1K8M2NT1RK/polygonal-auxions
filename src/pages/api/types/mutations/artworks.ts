@@ -39,7 +39,9 @@ builder.mutationField("upsertArtwork", (t) =>
                     (args.artwork_slug_id && args.current_image_url)
                 ||  (args.is_image_deleted==true)
             ) {
-                await del(args.current_image_url as string, {token: process.env.BLOB_READ_WRITE_TOKEN});
+                if( args.current_image_url ){
+                    await del(args.current_image_url as string, {token: process.env.BLOB_READ_WRITE_TOKEN});
+                }
                 targetArtworkFile = await prisma.artworkFile.findFirst({
                     where: { file_path: args.current_image_url as string, },
                 });
