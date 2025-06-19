@@ -22,7 +22,7 @@ interface ArtworkListUnitProps {
 
 export default function ArtworkListUnit({ artwork, deletedArtworksInFront, children }: ArtworkListUnitProps) {
     return (
-        <Grid item xs={12} md={6} lg={4} height={'25em'}>
+        <Grid size={{xs: 12, md: 6, lg: 4}} sx={{ height: '25em', }}>
             {
                 !!deletedArtworksInFront?.some(val => val.artwork_id == parseInt(artwork.id))
                 ? <Paper sx={{

@@ -79,7 +79,7 @@ export default function ProfileHeader({viewing_user}: Props){
                 reExecuteGetFollowedBy;
                 return 'followedBy';
             default:
-                setOpenDialog(null);
+                setOpenDialog({dialog_name: null});
                 return target;
         }
     }, 'following');
@@ -98,9 +98,9 @@ export default function ProfileHeader({viewing_user}: Props){
                         auth?.handle_name == viewing_user?.handle_name 
                         ?   (
                             <>
-                                <Grid item><Fab onClick={() => {setOpenDialog({dialog_name: 'profile'})}} variant="extended"><EditIcon />編集</Fab></Grid>
-                                <Grid item><Fab onClick={() => {dispatch('following');}} variant="extended">フォロー中({followingUsers?.length})</Fab></Grid>
-                                <Grid item><Fab onClick={() => {dispatch('followedBy');}} variant="extended">フォロワー({followedByUsers?.length})</Fab></Grid>
+                                <Grid><Fab onClick={() => {setOpenDialog({dialog_name: 'profile'})}} variant="extended"><EditIcon />編集</Fab></Grid>
+                                <Grid><Fab onClick={() => {dispatch('following');}} variant="extended">フォロー中({followingUsers?.length})</Fab></Grid>
+                                <Grid><Fab onClick={() => {dispatch('followedBy');}} variant="extended">フォロワー({followedByUsers?.length})</Fab></Grid>
                                 <ProfileEditDialog
                                     isDialogOpen={openDialog.dialog_name === 'profile'}
                                     onClose={handleDialogClose}
@@ -188,7 +188,7 @@ export default function ProfileHeader({viewing_user}: Props){
                         )
                         :   (
                             <>
-                                <Grid item>
+                                <Grid>
                                     {
                                         isAuthFollowed
                                         ?   (
@@ -214,7 +214,7 @@ export default function ProfileHeader({viewing_user}: Props){
                                         )
                                     }
                                 </Grid>
-                                <Grid item><Fab variant="extended"><FlagIcon />報告</Fab></Grid>
+                                <Grid><Fab variant="extended"><FlagIcon />報告</Fab></Grid>
                             </>
                         )
                     }

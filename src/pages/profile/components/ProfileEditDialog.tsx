@@ -102,7 +102,6 @@ export default function ProfileEditDialog({isDialogOpen, onClose, user}: Profile
                                     InputLabelProps={{ style: { fontSize: 20 } }}
                                     InputProps={{ style: { fontSize: 20 } }}
                                     defaultValue={user?.handle_name}
-                                    {...register("handle_name")}
                                     disabled
                                 />
                             </FormControl>
@@ -113,7 +112,6 @@ export default function ProfileEditDialog({isDialogOpen, onClose, user}: Profile
                                     InputLabelProps={{ style: { fontSize: 20 } }}
                                     InputProps={{ style: { fontSize: 20 } }}
                                     defaultValue={user?.email}
-                                    {...register("email")}
                                     disabled
                                 />
                             </FormControl>

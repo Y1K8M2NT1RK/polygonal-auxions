@@ -226,7 +226,7 @@ export default function Artwork(){
                             handleIsEditing={handleIsEditing}
                             isEditing={isEditing}
                             featureTextareaEl={
-                                <Grid item>
+                                <Grid>
                                     <FormControl fullWidth sx={{mt: 2}}>
                                         <TextField
                                             multiline

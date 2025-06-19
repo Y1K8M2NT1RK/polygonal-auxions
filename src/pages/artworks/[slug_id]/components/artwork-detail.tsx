@@ -140,7 +140,7 @@ export default function ArtworkDetail({artwork, handleIsEditing, isEditing, feat
             <Grid container sx={{ flexGrow: 1, pt: '10px' }} spacing={2}>
                 {
                     isOwner
-                    ? <Grid item>
+                    ? <Grid>
                         <Fab
                             variant="extended"
                             onClick={() => handleIsEditing && handleIsEditing(!isEditing)}
@@ -151,10 +151,10 @@ export default function ArtworkDetail({artwork, handleIsEditing, isEditing, feat
                     </Grid>
                     : null
                 }
-                <Grid item><Fab variant="extended"><FlagIcon />報告</Fab></Grid>
+                <Grid><Fab variant="extended"><FlagIcon />報告</Fab></Grid>
                 {
                     isOwner
-                    ? <Grid item>
+                    ? <Grid>
                         <AlertDialog
                             button={<Fab variant="extended" color="error" onClick={handleDialogOpen}><DeleteForeverIcon />削除</Fab>}
                             isDialogOpen={openDialog}
