@@ -22,6 +22,11 @@ const main = async () => {
                 { name: 'その他' , rank_type_id: 3 },
             ]
         }); console.log('ranksの作成が完了しました。');
+        await prisma.purpose.deleteMany(); console.log('purposesの削除が完了しました。');
+        await prisma.$executeRaw`ALTER SEQUENCE purposes_id_seq RESTART WITH 1;`;
+        await prisma.purpose.createMany({
+            data: [{name: 'アイコン'}, {name: '背景'},]
+        }); console.log('purposesの作成が完了しました。');
 
         if( process.env.NODE_ENV === 'production' ) return;
 

@@ -30,7 +30,7 @@ model User {
   password          String     @db.VarChar(30)
   birthday          DateTime   @db.Date
   introduction      String     @db.VarChar(500)
-  phone_number      String     @db.VarChar()
+  phone_number      String     @db.VarChar(15)
   email             String     @unique @db.VarChar(150)
   address           String     @db.VarChar(150)
   created_at        DateTime   @default(now()) @db.Timestamp()
@@ -38,6 +38,7 @@ model User {
 
   auth_payload      AuthPayload?
 
+  user_files        UserFiles[]     @relation("user_files_fk")
   artworks          Artwork[]       @relation("artworks_fk")
   artwork_ranks     ArtworkRanks[]  @relation("artwork_ranks_fk")
   comments          Comment[]       @relation("comments_fk")
@@ -45,6 +46,31 @@ model User {
   following         Follow[]        @relation("following")
 
   @@map(name: "users")
+}
+
+model UserFiles { // アイコンの他背景画像にも使用
+  id            Int       @id @default(autoincrement())
+  user_id       Int
+  purpose_id    Int
+  file_path     String    @db.VarChar(500)
+  file_name     String    @default(cuid())
+  extension     String    @db.VarChar(4)
+  created_at    DateTime  @default(now()) @db.Timestamp()
+  updated_at    DateTime  @default(now()) @db.Timestamp() @updatedAt
+
+  user          User      @relation("user_files_fk", fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  purpose       Purpose   @relation("user_files_fk", fields: [purpose_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@map(name: "user_files")
+}
+
+model Purpose { // 1: アイコン, 2: 背景
+  id            Int       @id @default(autoincrement())
+  name          String    @unique @db.VarChar(50)
+
+  user_files    UserFiles[] @relation("user_files_fk")
+
+  @@map(name: "purposes")
 }
 
 model AuthPayload {
@@ -175,7 +201,6 @@ model RankTypes { // このテーブルは、評価機能のみならず報告/�
 }
 
 // model ArtworksInCart {}
-// model UserFiles {} // アイコンの他背景画像にも使用
 // model Histories {
 //  user_id
 //  type_id

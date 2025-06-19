@@ -92,6 +92,7 @@ export type Mutation = {
   removeArtwork: Artwork;
   removeArtworkRank: ArtworkRanks;
   removeComment: Comment;
+  updateMyProfile: MutationUpdateMyProfileResult;
   upsertArtwork: MutationUpsertArtworkResult;
   upsertComment: MutationUpsertCommentResult;
 };
@@ -131,6 +132,16 @@ export type MutationRemoveCommentArgs = {
 };
 
 
+export type MutationUpdateMyProfileArgs = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  birthday?: InputMaybe<Scalars['String']['input']>;
+  introduction?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  name_kana?: InputMaybe<Scalars['String']['input']>;
+  phone_number?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type MutationUpsertArtworkArgs = {
   artwork_slug_id?: InputMaybe<Scalars['String']['input']>;
   content_type?: InputMaybe<Scalars['String']['input']>;
@@ -160,6 +171,13 @@ export type MutationRefreshResult = MutationRefreshSuccess | ZodError;
 export type MutationRefreshSuccess = {
   __typename?: 'MutationRefreshSuccess';
   data: AuthPayload;
+};
+
+export type MutationUpdateMyProfileResult = MutationUpdateMyProfileSuccess | ZodError;
+
+export type MutationUpdateMyProfileSuccess = {
+  __typename?: 'MutationUpdateMyProfileSuccess';
+  data: User;
 };
 
 export type MutationUpsertArtworkResult = MutationUpsertArtworkSuccess | ZodError;
@@ -218,6 +236,7 @@ export type User = {
   __typename?: 'User';
   address: Scalars['String']['output'];
   artworks: Array<Artwork>;
+  birthday?: Maybe<Scalars['Date']['output']>;
   comments: Array<Comment>;
   created_at: Scalars['Date']['output'];
   email: Scalars['String']['output'];
@@ -227,6 +246,7 @@ export type User = {
   introduction: Scalars['String']['output'];
   name: Scalars['String']['output'];
   name_kana?: Maybe<Scalars['String']['output']>;
+  phone_number?: Maybe<Scalars['String']['output']>;
   slug_id: Scalars['String']['output'];
 };
 
@@ -307,6 +327,18 @@ export type RefreshMutationVariables = Exact<{ [key: string]: never; }>;
 
 export type RefreshMutation = { __typename?: 'Mutation', refresh: { __typename: 'MutationRefreshSuccess', data: { __typename?: 'AuthPayload', accessToken: string, refreshToken: string } } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
 
+export type UpdateMyProfileMutationVariables = Exact<{
+  name?: InputMaybe<Scalars['String']['input']>;
+  name_kana?: InputMaybe<Scalars['String']['input']>;
+  birthday?: InputMaybe<Scalars['String']['input']>;
+  introduction?: InputMaybe<Scalars['String']['input']>;
+  phone_number?: InputMaybe<Scalars['String']['input']>;
+  address?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type UpdateMyProfileMutation = { __typename?: 'Mutation', updateMyProfile: { __typename: 'MutationUpdateMyProfileSuccess', data: { __typename?: 'User', id: string, name: string, name_kana?: string | null, birthday?: any | null, introduction: string, phone_number?: string | null, address: string } } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
+
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -358,7 +390,7 @@ export type UserQueryVariables = Exact<{
 }>;
 
 
-export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', id: string, name: string, name_kana?: string | null, handle_name: string, introduction: string, address: string, email: string, created_at: any, artworks: Array<{ __typename?: 'Artwork', slug_id: string, title: string, likes: number, bads: number, created_at: any, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }> }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, artwork: { __typename?: 'Artwork', slug_id: string, title: string } }>, following: Array<{ __typename?: 'Follow', followed_by_id: string }> } };
+export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', id: string, name: string, name_kana?: string | null, handle_name: string, introduction: string, birthday?: any | null, phone_number?: string | null, address: string, email: string, created_at: any, artworks: Array<{ __typename?: 'Artwork', slug_id: string, title: string, likes: number, bads: number, created_at: any, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }> }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, artwork: { __typename?: 'Artwork', slug_id: string, title: string } }>, following: Array<{ __typename?: 'Follow', followed_by_id: string }> } };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -516,6 +548,42 @@ export const RefreshDocument = gql`
 export function useRefreshMutation() {
   return Urql.useMutation<RefreshMutation, RefreshMutationVariables>(RefreshDocument);
 };
+export const UpdateMyProfileDocument = gql`
+    mutation UpdateMyProfile($name: String, $name_kana: String, $birthday: String, $introduction: String, $phone_number: String, $address: String) {
+  updateMyProfile(
+    name: $name
+    name_kana: $name_kana
+    birthday: $birthday
+    introduction: $introduction
+    phone_number: $phone_number
+    address: $address
+  ) {
+    ... on MutationUpdateMyProfileSuccess {
+      __typename
+      data {
+        id
+        name
+        name_kana
+        birthday
+        introduction
+        phone_number
+        address
+      }
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors {
+        message
+      }
+    }
+  }
+}
+    `;
+
+export function useUpdateMyProfileMutation() {
+  return Urql.useMutation<UpdateMyProfileMutation, UpdateMyProfileMutationVariables>(UpdateMyProfileDocument);
+};
 export const LogoutDocument = gql`
     mutation Logout {
   logout
@@ -639,6 +707,8 @@ export const UserDocument = gql`
     name_kana
     handle_name
     introduction
+    birthday
+    phone_number
     address
     email
     created_at

@@ -1,5 +1,5 @@
 /* eslint-disable */
-import type { Prisma, User, AuthPayload, Follow, Artwork, ArtworkFile, ArtworkGizmo, Comment, ArtworkRanks, Ranks, RankTypes } from "../../../../prisma/generated/client";
+import type { Prisma, User, UserFiles, Purpose, AuthPayload, Follow, Artwork, ArtworkFile, ArtworkGizmo, Comment, ArtworkRanks, Ranks, RankTypes } from "../../../../prisma/generated/client";
 export default interface PrismaTypes {
     User: {
         Name: "User";
@@ -11,13 +11,18 @@ export default interface PrismaTypes {
         Where: Prisma.UserWhereInput;
         Create: {};
         Update: {};
-        RelationName: "auth_payload" | "artworks" | "artwork_ranks" | "comments" | "followed_by" | "following";
-        ListRelations: "artworks" | "artwork_ranks" | "comments" | "followed_by" | "following";
+        RelationName: "auth_payload" | "user_files" | "artworks" | "artwork_ranks" | "comments" | "followed_by" | "following";
+        ListRelations: "user_files" | "artworks" | "artwork_ranks" | "comments" | "followed_by" | "following";
         Relations: {
             auth_payload: {
                 Shape: AuthPayload | null;
                 Name: "AuthPayload";
                 Nullable: true;
+            };
+            user_files: {
+                Shape: UserFiles[];
+                Name: "UserFiles";
+                Nullable: false;
             };
             artworks: {
                 Shape: Artwork[];
@@ -42,6 +47,51 @@ export default interface PrismaTypes {
             following: {
                 Shape: Follow[];
                 Name: "Follow";
+                Nullable: false;
+            };
+        };
+    };
+    UserFiles: {
+        Name: "UserFiles";
+        Shape: UserFiles;
+        Include: Prisma.UserFilesInclude;
+        Select: Prisma.UserFilesSelect;
+        OrderBy: Prisma.UserFilesOrderByWithRelationInput;
+        WhereUnique: Prisma.UserFilesWhereUniqueInput;
+        Where: Prisma.UserFilesWhereInput;
+        Create: {};
+        Update: {};
+        RelationName: "user" | "purpose";
+        ListRelations: never;
+        Relations: {
+            user: {
+                Shape: User;
+                Name: "User";
+                Nullable: false;
+            };
+            purpose: {
+                Shape: Purpose;
+                Name: "Purpose";
+                Nullable: false;
+            };
+        };
+    };
+    Purpose: {
+        Name: "Purpose";
+        Shape: Purpose;
+        Include: Prisma.PurposeInclude;
+        Select: Prisma.PurposeSelect;
+        OrderBy: Prisma.PurposeOrderByWithRelationInput;
+        WhereUnique: Prisma.PurposeWhereUniqueInput;
+        Where: Prisma.PurposeWhereInput;
+        Create: {};
+        Update: {};
+        RelationName: "user_files";
+        ListRelations: "user_files";
+        Relations: {
+            user_files: {
+                Shape: UserFiles[];
+                Name: "UserFiles";
                 Nullable: false;
             };
         };

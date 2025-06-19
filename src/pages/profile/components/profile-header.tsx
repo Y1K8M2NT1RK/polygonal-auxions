@@ -33,10 +33,15 @@ import { useMutation, useQuery } from 'urql';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContexts';
 import ListDialog from '@/components/ListDialog';
+import ProfileEditDialog from '@/pages/profile/components/ProfileEditDialog';
 import { useState, useReducer } from 'react';
 
 type Props = {
     viewing_user: User
+}
+
+type DialogState = {
+    dialog_name: 'profile' | 'follow' | null;
 }
 
 export default function ProfileHeader({viewing_user}: Props){
@@ -50,9 +55,10 @@ export default function ProfileHeader({viewing_user}: Props){
     const [following, reExecuteGetFollowing] = useQuery({query: GetFollowingDocument});
     const [followedBy, reExecuteGetFollowedBy] = useQuery({query: GetFollowedByDocument});
 
-    const [openDialog, setOpenDialog] = useState(false);
-    const handleDialogOpen = () => setOpenDialog(true);
-    const handleDialogClose = () => setOpenDialog(false);
+    // const [openDialog, setOpenDialog] = useState(false);
+    const [openDialog, setOpenDialog] = useState<DialogState>({dialog_name: null});
+    const handleDialogOpen = (dialog_name: DialogState) => setOpenDialog({ ...dialog_name, });
+    const handleDialogClose = () => setOpenDialog({ dialog_name: null });
 
     const arrayFollowEachOther = (following: User[], followedBy: User[]) => {
         return following.filter(followingUser =>
@@ -65,15 +71,15 @@ export default function ProfileHeader({viewing_user}: Props){
     const [value, dispatch] = useReducer((target: string, action: string) => {
         switch (action) {
             case 'following':
-                setOpenDialog(true);
+                setOpenDialog({ dialog_name: 'follow' });
                 reExecuteGetFollowing;
                 return 'following';
             case 'followedBy':
-                setOpenDialog(true);
+                setOpenDialog({ dialog_name: 'follow' });
                 reExecuteGetFollowedBy;
                 return 'followedBy';
             default:
-                setOpenDialog(false);
+                setOpenDialog(null);
                 return target;
         }
     }, 'following');
@@ -92,11 +98,16 @@ export default function ProfileHeader({viewing_user}: Props){
                         auth?.handle_name == viewing_user?.handle_name 
                         ?   (
                             <>
-                                <Grid item><Fab variant="extended"><EditIcon />編集</Fab></Grid>
-                                <Grid item><Fab onClick={() => {handleDialogOpen(); dispatch('following');}} variant="extended">フォロー中({followingUsers?.length})</Fab></Grid>
-                                <Grid item><Fab onClick={() => {handleDialogOpen(); dispatch('followedBy');}} variant="extended">フォロワー({followedByUsers?.length})</Fab></Grid>
+                                <Grid item><Fab onClick={() => {setOpenDialog({dialog_name: 'profile'})}} variant="extended"><EditIcon />編集</Fab></Grid>
+                                <Grid item><Fab onClick={() => {dispatch('following');}} variant="extended">フォロー中({followingUsers?.length})</Fab></Grid>
+                                <Grid item><Fab onClick={() => {dispatch('followedBy');}} variant="extended">フォロワー({followedByUsers?.length})</Fab></Grid>
+                                <ProfileEditDialog
+                                    isDialogOpen={openDialog.dialog_name === 'profile'}
+                                    onClose={handleDialogClose}
+                                    user={viewing_user}
+                                />
                                 <ListDialog
-                                    isDialogOpen={openDialog}
+                                    isDialogOpen={openDialog.dialog_name === 'follow'}
                                     onClose={handleDialogClose}
                                     headerContent={
                                         <>

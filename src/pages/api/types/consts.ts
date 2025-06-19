@@ -14,6 +14,8 @@ export const User = builder.prismaObject('User', {
         handle_name: t.exposeString('handle_name'),
         email: t.exposeString('email'),
         introduction: t.exposeString('introduction'),
+        phone_number: t.exposeString('phone_number', {nullable: true}),
+        birthday: t.expose('birthday', {type: 'Date', nullable: true}),
         address: t.exposeString('address'),
         created_at: t.expose('created_at', {type: 'Date'}),
         artworks: t.relation('artworks'),

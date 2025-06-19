@@ -5,6 +5,8 @@ query User($handle_name: String!) {
         name_kana
         handle_name
         introduction
+        birthday
+        phone_number
         address
         email
         created_at

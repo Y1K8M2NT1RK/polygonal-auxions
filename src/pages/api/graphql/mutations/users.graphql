@@ -37,6 +37,44 @@ mutation Refresh {
   }
 }
 
+mutation UpdateMyProfile(
+  $name: String,
+  $name_kana: String,
+  $birthday: String,
+  $introduction: String,
+  $phone_number: String,
+  $address: String,
+) {
+  updateMyProfile(
+    name: $name,
+    name_kana: $name_kana,
+    birthday: $birthday,
+    introduction: $introduction,
+    phone_number: $phone_number,
+    address: $address,
+  ) {
+    ... on MutationUpdateMyProfileSuccess {
+      __typename
+      data {
+        id
+        name
+        name_kana
+        birthday
+        introduction
+        phone_number
+        address
+      }
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors {
+        message
+      }
+    }
+  }
+}
+
 mutation Logout {
   logout
 }

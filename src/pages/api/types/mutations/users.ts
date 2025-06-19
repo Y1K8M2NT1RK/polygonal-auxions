@@ -2,7 +2,7 @@ import { builder } from '../../builder';
 import { prisma } from '../../db';
 import { ZodError } from 'zod';
 import { compareSync, genSaltSync, hashSync } from 'bcrypt';
-import { AuthPayload, Follows } from '../consts';
+import { AuthPayload, Follows, User } from '../consts';
 import { cookieModule } from '../consts';
 
 builder.mutationField("login", (t) => 
@@ -67,6 +67,69 @@ builder.mutationField("refresh", (t) =>
         },
     })
 );
+
+builder.mutationField("updateMyProfile", (t) =>
+    t.prismaField({
+        type: User,
+        errors: { types: [ZodError], },
+        authScopes: { isAuthenticated: true, },
+        args: {
+            name: t.arg.string({
+                required: false,
+                validate: {type: 'string', maxLength: [25, {message: '文字数が多すぎます。'}],},
+            }),
+            name_kana: t.arg.string({
+                required: false,
+                validate: {type: 'string', maxLength: [50, {message: '文字数が多すぎます。'}],},
+            }),
+            birthday: t.arg.string({
+                required: false,
+                validate: {
+                    type: 'string',
+                    refine: [
+                        (val: string) => {
+                            const date = new Date(val);
+                            return !isNaN(date.getTime());
+                        },
+                        {message: '日付の形式が正しくありません。'}
+                    ],
+                },
+            }),
+            introduction: t.arg.string({
+                required: false,
+                validate: {type: 'string', maxLength: [500, {message: '文字数が多すぎます。'}],},
+            }),
+            phone_number: t.arg.string({
+                required: false,
+                validate: {
+                    type: 'string',
+                    maxLength: [15, {message: '文字数が多すぎます。'}],
+                    refine: [
+                        (val: string) => ((/^\d+$/).test(val)),
+                        {message: '電話番号は数字のみで入力してください。'}
+                    ],
+                },
+            }),
+            address: t.arg.string({
+                required: false,
+                validate: {type: 'string', maxLength: [150, {message: '文字数が多すぎます。'}],},
+            }),
+        },
+        resolve: async (_query, _parent, args, ctx) => {
+            return prisma.user.update({
+                where: { id: ctx.auth?.id as number },
+                data: {
+                    name: args?.name ?? '',
+                    name_kana: args?.name_kana ?? '',
+                    birthday: args?.birthday ? new Date(args?.birthday) : '',
+                    introduction: args?.introduction ?? '',
+                    phone_number: args?.phone_number ?? '',
+                    address: args?.address ?? '',
+                },
+            })
+        },
+    })
+)
 
 builder.mutationField("logout", (t) => 
     t.boolean({
