@@ -4,6 +4,7 @@ import { ZodError } from 'zod';
 import { compareSync, genSaltSync, hashSync } from 'bcrypt';
 import { AuthPayload, Follows, User } from '../consts';
 import { cookieModule } from '../consts';
+import { ImageInput } from '../consts';
 
 builder.mutationField("login", (t) => 
     t.prismaField({
@@ -114,6 +115,8 @@ builder.mutationField("updateMyProfile", (t) =>
                 required: false,
                 validate: {type: 'string', maxLength: [150, {message: '文字数が多すぎます。'}],},
             }),
+            bg: t.arg({ type: ImageInput, required: false, }),
+            icon: t.arg({ type: ImageInput, required: false, })
         },
         resolve: async (_query, _parent, args, ctx) => {
             return prisma.user.update({
@@ -125,6 +128,24 @@ builder.mutationField("updateMyProfile", (t) =>
                     introduction: args?.introduction ?? '',
                     phone_number: args?.phone_number ?? '',
                     address: args?.address ?? '',
+                    user_files: {
+                        createMany: {
+                            data: [
+                                {
+                                    purpose_id: 1,
+                                    file_path: args?.bg?.url ?? '',
+                                    file_name: args?.bg?.url?.split('/').pop(),
+                                    extension: args?.bg?.content_type?.split('/')[1] ?? '',
+                                },
+                                {
+                                    purpose_id: 2,
+                                    file_path: args?.icon?.url ?? '',
+                                    file_name: args?.icon?.url?.split('/').pop(),
+                                    extension: args?.icon?.content_type?.split('/')[1] ?? '',
+                                }
+                            ],
+                        },
+                    },
                 },
             })
         },

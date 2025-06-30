@@ -8,6 +8,7 @@ const config: CodegenConfig = {
   documents: [
     'src/pages/api/graphql/mutations/*.graphql',
     'src/pages/api/graphql/queries/*.graphql',
+    'src/pages/api/graphql/inputs.graphql',
   ],
   emitLegacyCommonJSImports: false,
   generates: {

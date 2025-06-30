@@ -18,9 +18,21 @@ export const User = builder.prismaObject('User', {
         birthday: t.expose('birthday', {type: 'Date', nullable: true}),
         address: t.exposeString('address'),
         created_at: t.expose('created_at', {type: 'Date'}),
+        user_files: t.relation('user_files'),
         artworks: t.relation('artworks'),
         comments: t.relation('comments'),
         following: t.relation('following'),
+    }),
+});
+
+export const UserFile = builder.prismaObject('UserFiles', {
+    fields: (t) => ({
+        id: t.exposeID('id'),
+        user_id: t.exposeID('user_id'),
+        purpose_id: t.exposeID('purpose_id'),
+        file_path: t.exposeString('file_path'),
+        created_at: t.expose('created_at', { type: 'Date' }),
+        user: t.relation('user'),
     }),
 });
   
@@ -88,6 +100,14 @@ export const Comment = builder.prismaObject('Comment', {
         artwork: t.relation('artwork'),
     }),
 });
+
+export const ImageInput = builder.inputType('ImageInput', {
+    fields: (t) => ({
+        is_image_deleted: t.boolean({defaultValue: false,}),
+        url: t.string(),
+        content_type: t.string(),
+    }),
+})
 
 export const cookieModule: {
     token: object;

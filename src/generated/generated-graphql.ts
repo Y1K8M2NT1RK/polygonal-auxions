@@ -82,6 +82,12 @@ export type Follow = {
   following_id: Scalars['ID']['output'];
 };
 
+export type ImageInput = {
+  content_type?: InputMaybe<Scalars['String']['input']>;
+  is_image_deleted?: InputMaybe<Scalars['Boolean']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addArtworkRank: ArtworkRanks;
@@ -134,7 +140,9 @@ export type MutationRemoveCommentArgs = {
 
 export type MutationUpdateMyProfileArgs = {
   address?: InputMaybe<Scalars['String']['input']>;
+  bg?: InputMaybe<ImageInput>;
   birthday?: InputMaybe<Scalars['String']['input']>;
+  icon?: InputMaybe<ImageInput>;
   introduction?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   name_kana?: InputMaybe<Scalars['String']['input']>;
@@ -248,6 +256,17 @@ export type User = {
   name_kana?: Maybe<Scalars['String']['output']>;
   phone_number?: Maybe<Scalars['String']['output']>;
   slug_id: Scalars['String']['output'];
+  user_files: Array<UserFiles>;
+};
+
+export type UserFiles = {
+  __typename?: 'UserFiles';
+  created_at: Scalars['Date']['output'];
+  file_path: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  purpose_id: Scalars['ID']['output'];
+  user: User;
+  user_id: Scalars['ID']['output'];
 };
 
 export type ZodError = Error & {
@@ -334,10 +353,12 @@ export type UpdateMyProfileMutationVariables = Exact<{
   introduction?: InputMaybe<Scalars['String']['input']>;
   phone_number?: InputMaybe<Scalars['String']['input']>;
   address?: InputMaybe<Scalars['String']['input']>;
+  bg?: InputMaybe<ImageInput>;
+  icon?: InputMaybe<ImageInput>;
 }>;
 
 
-export type UpdateMyProfileMutation = { __typename?: 'Mutation', updateMyProfile: { __typename: 'MutationUpdateMyProfileSuccess', data: { __typename?: 'User', id: string, name: string, name_kana?: string | null, birthday?: any | null, introduction: string, phone_number?: string | null, address: string } } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
+export type UpdateMyProfileMutation = { __typename?: 'Mutation', updateMyProfile: { __typename: 'MutationUpdateMyProfileSuccess' } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -390,7 +411,7 @@ export type UserQueryVariables = Exact<{
 }>;
 
 
-export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', id: string, name: string, name_kana?: string | null, handle_name: string, introduction: string, birthday?: any | null, phone_number?: string | null, address: string, email: string, created_at: any, artworks: Array<{ __typename?: 'Artwork', slug_id: string, title: string, likes: number, bads: number, created_at: any, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }> }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, artwork: { __typename?: 'Artwork', slug_id: string, title: string } }>, following: Array<{ __typename?: 'Follow', followed_by_id: string }> } };
+export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', id: string, name: string, name_kana?: string | null, handle_name: string, introduction: string, birthday?: any | null, phone_number?: string | null, address: string, email: string, created_at: any, user_files: Array<{ __typename?: 'UserFiles', purpose_id: string, file_path: string }>, artworks: Array<{ __typename?: 'Artwork', slug_id: string, title: string, likes: number, bads: number, created_at: any, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }> }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, artwork: { __typename?: 'Artwork', slug_id: string, title: string } }>, following: Array<{ __typename?: 'Follow', followed_by_id: string }> } };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -549,7 +570,7 @@ export function useRefreshMutation() {
   return Urql.useMutation<RefreshMutation, RefreshMutationVariables>(RefreshDocument);
 };
 export const UpdateMyProfileDocument = gql`
-    mutation UpdateMyProfile($name: String, $name_kana: String, $birthday: String, $introduction: String, $phone_number: String, $address: String) {
+    mutation UpdateMyProfile($name: String, $name_kana: String, $birthday: String, $introduction: String, $phone_number: String, $address: String, $bg: ImageInput, $icon: ImageInput) {
   updateMyProfile(
     name: $name
     name_kana: $name_kana
@@ -557,18 +578,11 @@ export const UpdateMyProfileDocument = gql`
     introduction: $introduction
     phone_number: $phone_number
     address: $address
+    bg: $bg
+    icon: $icon
   ) {
     ... on MutationUpdateMyProfileSuccess {
       __typename
-      data {
-        id
-        name
-        name_kana
-        birthday
-        introduction
-        phone_number
-        address
-      }
     }
     ... on ZodError {
       __typename
@@ -712,6 +726,10 @@ export const UserDocument = gql`
     address
     email
     created_at
+    user_files {
+      purpose_id
+      file_path
+    }
     artworks {
       slug_id
       title

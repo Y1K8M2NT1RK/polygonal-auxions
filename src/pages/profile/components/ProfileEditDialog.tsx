@@ -11,41 +11,102 @@ import {
     FormControl,
     Button,
     Fab,
+    Input,
+    Paper,
 } from '@mui/material';
 import DefaultUserIcon from '@/components/DefaultUserIcon';
 import { useForm, Controller } from 'react-hook-form';
 import CloseIcon from '@mui/icons-material/Close';
-import { User } from '@/generated/generated-graphql';
+import { User, UserFiles } from '@/generated/generated-graphql';
 import { DateTime } from 'luxon';
 import { DateField } from '@mui/x-date-pickers';
-// import Image from 'next/image';
+import Image from 'next/image';
 import { useMutation } from 'urql';
 import { UpdateMyProfileDocument } from '@/generated/generated-graphql';
 import { toast } from 'react-toastify';
+import { useState, type ChangeEvent } from 'react';
+import { upload } from "@vercel/blob/client";
+import { BLOB_BASE_DIR } from '@/constants/blob';
 
 type ProfileEditDialogProps = {
     isDialogOpen: boolean;
     onClose: () => void;
-    user: User
+    user: User;
+    userImages: {
+        bg: UserFiles | null;
+        icon: UserFiles | null;
+    }
 };
 
-export default function ProfileEditDialog({isDialogOpen, onClose, user}: ProfileEditDialogProps) {
-    const {isSmallScreen} = useResponsive();
+type FormData = {
+    name: string;
+    name_kana: string;
+    birthday: DateTime | null;
+    address: string;
+    phone_number: string;
+    introduction: string;
+    bg: {
+        is_image_deleted: boolean;
+        url: string;
+        content_type: string;
+    }
+    icon: {
+        is_image_deleted: boolean;
+        url: string;
+        content_type: string;
+    };
+};
 
-    const { register, handleSubmit, formState: { errors }, setError, reset, control } = useForm({
+const getBlobDatasetUrl = async (file: File, dirname: string): Promise<{ url: string; content_type: string; }> => {
+    const { url, contentType } = await upload(
+        `/${BLOB_BASE_DIR}/users/${dirname}/${file.name}`,
+        file,
+        { access: 'public', handleUploadUrl: '/api/upload' }
+    );
+    return { url, content_type: contentType };
+}
+
+export default function ProfileEditDialog({isDialogOpen, onClose, user, userImages}: ProfileEditDialogProps) {
+    const { register, handleSubmit, formState: { errors }, setError, reset, control, watch, setValue } = useForm<FormData>({
         mode: 'onSubmit',
         defaultValues: {
             name: user?.name,
-            name_kana: user?.name_kana,
+            name_kana: user?.name_kana ?? '',
             birthday: DateTime.fromISO(user?.birthday),
             address: user?.address,
-            phone_number: user?.phone_number,
+            phone_number: user?.phone_number ?? '',
             introduction: user?.introduction,
+            bg: { is_image_deleted: false, url: undefined, content_type: undefined },
+            icon: { is_image_deleted: false, url: undefined, content_type: undefined },
         },
     });
 
+    const [imageUpload, setImageUpload] = useState<{ bg: File | null; icon: File | null }>({ bg: null, icon: null });
+    const isImageDeleted = {
+        bg: watch('bg.is_image_deleted'),
+        icon: watch('icon.is_image_deleted'),
+    };
+
+    const {isSmallScreen} = useResponsive();
+
     const [, updateMyProfile] = useMutation(UpdateMyProfileDocument);
     const onSubmit = handleSubmit(async (data) => {
+        // アップロードが必要な場合のみ
+        if (imageUpload.bg || imageUpload.icon) {
+            const uploadTasks: Promise<{ url: string; content_type: string } | null>[] = [
+                imageUpload.bg ? getBlobDatasetUrl(imageUpload.bg, "bg") : Promise.resolve(null),
+                imageUpload.icon ? getBlobDatasetUrl(imageUpload.icon, "icon") : Promise.resolve(null),
+            ];
+            const [bgResult, iconResult] = await Promise.all(uploadTasks);
+            if (bgResult) {
+                data.bg.url = bgResult.url;
+                data.bg.content_type = bgResult.content_type;
+            }
+            if (iconResult) {
+                data.icon.url = iconResult.url;
+                data.icon.content_type = iconResult.content_type;
+            }
+        }
         return updateMyProfile(data).then(result => {
             if(result.error){
                 const gqlErrors:string[] = result.error?.graphQLErrors[0].extensions.messages as string[];
@@ -59,7 +120,12 @@ export default function ProfileEditDialog({isDialogOpen, onClose, user}: Profile
         });
     });
     
-    const handleClose = () => {onClose(); reset(); toast.info('編集をキャンセルしました');};
+    const handleClose = () => {
+        onClose();
+        setImageUpload({ bg: null, icon: null });
+        reset();
+        toast.info('編集をキャンセルしました');
+    };
 
     return (
         <Box>
@@ -82,19 +148,67 @@ export default function ProfileEditDialog({isDialogOpen, onClose, user}: Profile
                             component="form"
                             onSubmit={onSubmit}
                         >
-                            {/* <Image
-                                src=""
-                                width={700}
-                                height={200}
-                                style={{
-                                    maxWidth: '100%',
-                                    maxHeight: '100%',
-                                    objectFit: 'cover',
-                                    opacity: 0.3,
-                                }}
-                                priority
-                            /> */}
-                            <DefaultUserIcon name={user?.handle_name} furtherProp={{ width: 60, height: 60, fontSize: 30, my: 2 }} />
+                            <FormControl sx={{ my: 2 }}>
+                                <Box component="label" sx={{
+                                    overflow: 'hidden',
+                                    cursor: 'pointer'
+                                }}>
+                                    {
+                                        isImageDeleted.bg==false && ((!!(userImages?.bg?.file_path) && userImages?.bg?.file_path.length > 0) || !!imageUpload.bg)
+                                        ?   <Image
+                                            src={imageUpload?.bg ? URL.createObjectURL(imageUpload?.bg as Blob) : `${userImages?.bg?.file_path}`}
+                                            alt="背景"
+                                            width={800}
+                                            height={200}
+                                            style={{maxWidth: '100%', maxHeight: '150px', objectFit: 'cover'}}
+                                            priority
+                                        />
+                                        :   <Paper sx={{ height: '150px', width: `${isSmallScreen==true ? '90vw': '500px'}`, objectFit: 'cover'}}>
+                                            <Typography variant="h3" sx={{
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                height: '100%',
+                                                opacity: 0.3,
+                                            }}>NO IMAGE</Typography>
+                                        </ Paper>
+                                    }
+                                    <Input
+                                        type="file"
+                                        inputProps={{ multiple: false, }}
+                                        sx={{ display: 'none' }}
+                                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                                            setValue("bg.is_image_deleted", false);
+                                            setImageUpload(prev => ({
+                                                bg: e.target.files ? e.target.files[0] : null,
+                                                icon: prev.icon
+                                            }));
+                                        }}
+                                    />
+                                </Box>
+                            </FormControl>
+                            <FormControl sx={{ my: 2 }}>
+                                <Box component="label" sx={{ borderRadius: '50%', overflow: 'hidden', cursor: 'pointer'}}>
+                                    <DefaultUserIcon
+                                        name={user?.handle_name}
+                                        furtherProp={{ width: 60, height: 60, fontSize: 30, }}
+                                        isImageDeleted={isImageDeleted.icon==false && ((!!(userImages?.icon?.file_path) && userImages?.icon?.file_path.length > 0) || !!imageUpload.icon)}
+                                        imagePath={imageUpload?.icon ? URL.createObjectURL(imageUpload?.icon as Blob) : `${userImages?.icon?.file_path}`}
+                                    />
+                                    <Input
+                                        type="file"
+                                        inputProps={{ multiple: false, }}
+                                        sx={{ display: 'none' }}
+                                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                                            setValue("icon.is_image_deleted", false);
+                                            setImageUpload(prev => ({
+                                                bg: prev.bg,
+                                                icon: e.target.files ? e.target.files[0] : null
+                                            }));
+                                        }}
+                                    />
+                                </Box>
+                            </FormControl>
                             <FormControl fullWidth sx={{my: 2}}>
                                 <TextField
                                     size="small"

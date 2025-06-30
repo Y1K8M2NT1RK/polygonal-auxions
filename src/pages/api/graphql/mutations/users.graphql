@@ -44,6 +44,8 @@ mutation UpdateMyProfile(
   $introduction: String,
   $phone_number: String,
   $address: String,
+  $bg: ImageInput,
+  $icon: ImageInput
 ) {
   updateMyProfile(
     name: $name,
@@ -52,18 +54,11 @@ mutation UpdateMyProfile(
     introduction: $introduction,
     phone_number: $phone_number,
     address: $address,
+    bg: $bg,
+    icon: $icon,
   ) {
     ... on MutationUpdateMyProfileSuccess {
       __typename
-      data {
-        id
-        name
-        name_kana
-        birthday
-        introduction
-        phone_number
-        address
-      }
     }
     ... on ZodError {
       __typename

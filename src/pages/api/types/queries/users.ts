@@ -7,18 +7,28 @@ builder.queryField("user", (t) =>
   t.prismaField({
     type: User,
     args: { handle_name: t.arg.string({ required: true }), },
-    resolve: (query, _parent, args, _ctx, _info) => 
-      prisma.user.findUniqueOrThrow({
+    resolve: (query, _parent, args, _ctx, _info) => {
+      return prisma.user.findUniqueOrThrow({
         ...query,
         where: { handle_name: args.handle_name },
         include: {
+          user_files: {
+            where: {
+              OR: [
+                { purpose_id: 1 }, // 1: アイコン
+                { purpose_id: 2 }, // 2: 背景
+              ]
+            },
+            orderBy: { created_at: 'desc' },
+          },
           artworks: {
             orderBy: { created_at : 'desc' },
             include: { artwork_file: true }
           },
           comments: { orderBy: { created_at : 'desc' }}
         }
-      }),
+      });
+    }
   })
 );
 

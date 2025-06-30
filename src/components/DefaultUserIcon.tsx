@@ -1,6 +1,13 @@
-import Avatar from '@mui/material/Avatar';
+import { Avatar } from '@mui/material';
 
-export default function DefaultUserIcon({name, furtherProp}: {name: string, furtherProp?: Object}) {
+type DefaultUserIconProps = {
+    name: string;
+    furtherProp?: Object;
+    isImageDeleted?: boolean;
+    imagePath?: string;
+};
+
+export default function DefaultUserIcon({name, furtherProp, isImageDeleted, imagePath}: DefaultUserIconProps) {
 
     let hash = 0;
     let i;
@@ -19,7 +26,7 @@ export default function DefaultUserIcon({name, furtherProp}: {name: string, furt
     /* eslint-enable no-bitwise */
 
     return (
-        <Avatar sx={{color: '#ffffff', bgcolor: userIconBgColor, ...furtherProp}}>
+        <Avatar src={imagePath || ''} sx={{color: '#ffffff', bgcolor: userIconBgColor, ...furtherProp}}>
             {typeof name === 'string' ? name?.split(' ')[0][0] : ''}
         </Avatar>
     )

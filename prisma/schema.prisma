@@ -59,7 +59,7 @@ model UserFiles { // アイコンの他背景画像にも使用
   updated_at    DateTime  @default(now()) @db.Timestamp() @updatedAt
 
   user          User      @relation("user_files_fk", fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  purpose       Purpose   @relation("user_files_fk", fields: [purpose_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  purpose       Purpose   @relation("purposes_fk", fields: [purpose_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@map(name: "user_files")
 }
@@ -68,7 +68,7 @@ model Purpose { // 1: アイコン, 2: 背景
   id            Int       @id @default(autoincrement())
   name          String    @unique @db.VarChar(50)
 
-  user_files    UserFiles[] @relation("user_files_fk")
+  user_files    UserFiles[] @relation("purposes_fk")
 
   @@map(name: "purposes")
 }

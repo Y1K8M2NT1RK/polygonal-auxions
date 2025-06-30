@@ -10,6 +10,10 @@ query User($handle_name: String!) {
         address
         email
         created_at
+        user_files {
+            purpose_id
+            file_path
+        }
         artworks {
             slug_id
             title

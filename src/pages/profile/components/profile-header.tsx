@@ -50,6 +50,11 @@ export default function ProfileHeader({viewing_user}: Props){
 
     const isAuthFollowed = viewing_user?.following.filter((val) => val.followed_by_id == auth?.id)[0] ? true : false;
 
+    const user_images = {
+        bg: viewing_user?.user_files.filter((val) => val.purpose_id=='1')[0],
+        icon: viewing_user?.user_files.filter((val) => val.purpose_id=='2')[0],
+    }
+
     const [, FollowOrUnfollow] = useMutation(FollowOrUnfollowDocument);
 
     const [following, reExecuteGetFollowing] = useQuery({query: GetFollowingDocument});
@@ -86,9 +91,15 @@ export default function ProfileHeader({viewing_user}: Props){
 
     return (
         <Card>
-            <CardMedia component="img" style={{height:"200px"}} />
+            <CardMedia component="img" sx={{height:"200px"}} src={user_images.bg?.file_path} />
             <CardHeader
-                avatar={<DefaultUserIcon name={viewing_user?.handle_name} furtherProp={{ width: 60, height: 60, fontSize: 30 }} />}
+                avatar={
+                    <DefaultUserIcon
+                        name={viewing_user?.handle_name}
+                        furtherProp={{ width: 60, height: 60, fontSize: 30 }}
+                        imagePath={user_images.icon?.file_path}
+                    />
+                }
                 title={<Typography variant="h5">{viewing_user?.handle_name}</Typography>}
                 subheader={<Typography>{viewing_user?.introduction}</Typography>}
             />
@@ -105,6 +116,7 @@ export default function ProfileHeader({viewing_user}: Props){
                                     isDialogOpen={openDialog.dialog_name === 'profile'}
                                     onClose={handleDialogClose}
                                     user={viewing_user}
+                                    userImages={user_images}
                                 />
                                 <ListDialog
                                     isDialogOpen={openDialog.dialog_name === 'follow'}
