@@ -15,11 +15,10 @@ import {
     Paper,
 } from '@mui/material';
 import DefaultUserIcon from '@/components/DefaultUserIcon';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import CloseIcon from '@mui/icons-material/Close';
 import { User, UserFiles } from '@/generated/generated-graphql';
 import { DateTime } from 'luxon';
-import { DateField } from '@mui/x-date-pickers';
 import Image from 'next/image';
 import { useMutation } from 'urql';
 import { UpdateMyProfileDocument } from '@/generated/generated-graphql';
@@ -27,6 +26,8 @@ import { toast } from 'react-toastify';
 import { useState, type ChangeEvent } from 'react';
 import { upload } from "@vercel/blob/client";
 import { BLOB_BASE_DIR } from '@/constants/blob';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import { useUserProfile } from '@/contexts/Profile/ProfileContext';
 
 type ProfileEditDialogProps = {
     isDialogOpen: boolean;
@@ -38,6 +39,13 @@ type ProfileEditDialogProps = {
     }
 };
 
+type UserImages = {
+    is_image_deleted: boolean;
+    current_image_url?: string;
+    image_url: string;
+    content_type: string;
+};
+
 type FormData = {
     name: string;
     name_kana: string;
@@ -45,39 +53,33 @@ type FormData = {
     address: string;
     phone_number: string;
     introduction: string;
-    bg: {
-        is_image_deleted: boolean;
-        url: string;
-        content_type: string;
-    }
-    icon: {
-        is_image_deleted: boolean;
-        url: string;
-        content_type: string;
-    };
+    bg: UserImages;
+    icon: UserImages;
 };
 
-const getBlobDatasetUrl = async (file: File, dirname: string): Promise<{ url: string; content_type: string; }> => {
+const getBlobDatasetUrl = async (file: File, dirname: string): Promise<{ image_url: string; content_type: string; }> => {
     const { url, contentType } = await upload(
         `/${BLOB_BASE_DIR}/users/${dirname}/${file.name}`,
         file,
         { access: 'public', handleUploadUrl: '/api/upload' }
     );
-    return { url, content_type: contentType };
+    return { image_url: url, content_type: contentType };
 }
 
-export default function ProfileEditDialog({isDialogOpen, onClose, user, userImages}: ProfileEditDialogProps) {
+export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDialogProps) {
+    const {profile, reExecuteProfile} = useUserProfile();
+
+    const userForEdit: User = profile;
+    const userImages = {
+        bg: userForEdit?.user_files.filter((val) => val.purpose_id=='1')[0],
+        icon: userForEdit?.user_files.filter((val) => val.purpose_id=='2')[0],
+    };
+
     const { register, handleSubmit, formState: { errors }, setError, reset, control, watch, setValue } = useForm<FormData>({
         mode: 'onSubmit',
         defaultValues: {
-            name: user?.name,
-            name_kana: user?.name_kana ?? '',
-            birthday: DateTime.fromISO(user?.birthday),
-            address: user?.address,
-            phone_number: user?.phone_number ?? '',
-            introduction: user?.introduction,
-            bg: { is_image_deleted: false, url: undefined, content_type: undefined },
-            icon: { is_image_deleted: false, url: undefined, content_type: undefined },
+            bg: { is_image_deleted: false, image_url: undefined, content_type: undefined },
+            icon: { is_image_deleted: false, image_url: undefined, content_type: undefined },
         },
     });
 
@@ -90,33 +92,41 @@ export default function ProfileEditDialog({isDialogOpen, onClose, user, userImag
     const {isSmallScreen} = useResponsive();
 
     const [, updateMyProfile] = useMutation(UpdateMyProfileDocument);
+
     const onSubmit = handleSubmit(async (data) => {
         // アップロードが必要な場合のみ
         if (imageUpload.bg || imageUpload.icon) {
-            const uploadTasks: Promise<{ url: string; content_type: string } | null>[] = [
+            const uploadDatas: Promise<{ image_url: string; content_type: string } | null>[] = [
                 imageUpload.bg ? getBlobDatasetUrl(imageUpload.bg, "bg") : Promise.resolve(null),
                 imageUpload.icon ? getBlobDatasetUrl(imageUpload.icon, "icon") : Promise.resolve(null),
             ];
-            const [bgResult, iconResult] = await Promise.all(uploadTasks);
+            const [bgResult, iconResult] = await Promise.all(uploadDatas);
             if (bgResult) {
-                data.bg.url = bgResult.url;
+                data.bg.image_url = bgResult.image_url;
                 data.bg.content_type = bgResult.content_type;
             }
             if (iconResult) {
-                data.icon.url = iconResult.url;
+                data.icon.image_url = iconResult.image_url;
                 data.icon.content_type = iconResult.content_type;
             }
         }
         return updateMyProfile(data).then(result => {
             if(result.error){
-                const gqlErrors:string[] = result.error?.graphQLErrors[0].extensions.messages as string[];
+                const gqlErrors:string[] = result.error ?.graphQLErrors[0].extensions.messages as string[];
                 for( const [key, val] of Object.entries(gqlErrors) ) setError(`root.${key}`, {type: 'server', message: val[0]});
                 toast.error('更新できません。入力内容をお確かめください。');
                 return;
             }
+            reExecuteProfile();
+            setImageUpload({ bg: null, icon: null });
+            reset({
+                birthday: data.birthday,
+                bg: { current_image_url: userImages?.bg?.file_path, is_image_deleted: false, image_url: undefined, content_type: undefined },
+                icon: { current_image_url: userImages?.icon?.file_path, is_image_deleted: false, image_url: undefined, content_type: undefined },
+            });
+            console.log(userImages);
             toast.success('更新できました。');
             onClose();
-            return;
         });
     });
     
@@ -148,11 +158,12 @@ export default function ProfileEditDialog({isDialogOpen, onClose, user, userImag
                             component="form"
                             onSubmit={onSubmit}
                         >
+                            <FormControl><TextField hidden {...register("bg.current_image_url")} defaultValue={userImages?.bg?.file_path} /></FormControl>
+                            <FormControl><TextField hidden {...register("bg.is_image_deleted")} /></FormControl>
+                            <FormControl><TextField hidden {...register("icon.current_image_url")} defaultValue={userImages?.icon?.file_path} /></FormControl>
+                            <FormControl><TextField hidden {...register("icon.is_image_deleted")} /></FormControl>
                             <FormControl sx={{ my: 2 }}>
-                                <Box component="label" sx={{
-                                    overflow: 'hidden',
-                                    cursor: 'pointer'
-                                }}>
+                                <Box component="label" sx={{overflow: 'hidden', cursor: 'pointer', position: 'relative',}}>
                                     {
                                         isImageDeleted.bg==false && ((!!(userImages?.bg?.file_path) && userImages?.bg?.file_path.length > 0) || !!imageUpload.bg)
                                         ?   <Image
@@ -160,7 +171,7 @@ export default function ProfileEditDialog({isDialogOpen, onClose, user, userImag
                                             alt="背景"
                                             width={800}
                                             height={200}
-                                            style={{maxWidth: '100%', maxHeight: '150px', objectFit: 'cover'}}
+                                            style={{maxWidth: '100%', maxHeight: '150px', objectFit: 'cover', opacity: 0.3,}}
                                             priority
                                         />
                                         :   <Paper sx={{ height: '150px', width: `${isSmallScreen==true ? '90vw': '500px'}`, objectFit: 'cover'}}>
@@ -185,37 +196,89 @@ export default function ProfileEditDialog({isDialogOpen, onClose, user, userImag
                                             }));
                                         }}
                                     />
+                                    <Box sx={{
+                                        position: 'absolute',
+                                        top: '50%',
+                                        left: '50%',
+                                        transform: 'translate(-50%, -50%)',
+                                    }}>
+                                        <Box sx={{width: 'max-content', display: 'flex', justifyContent: 'center', flexDirection: 'column'}}>
+                                            <Typography>クリックして背景画像を変更</Typography>
+                                            {
+                                                ((
+                                                        isImageDeleted.bg==false
+                                                    &&  (!!(userImages?.bg?.file_path) && userImages?.bg?.file_path.length > 0)
+                                                )   ||  !!imageUpload.bg
+                                                ) && <Button onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setValue("bg.is_image_deleted", true);
+                                                    setImageUpload(prev => ({bg: null, icon: prev.icon}));
+                                                }}>背景画像を削除</Button>
+                                            }
+                                        </Box>
+                                    </Box>
                                 </Box>
                             </FormControl>
-                            <FormControl sx={{ my: 2 }}>
-                                <Box component="label" sx={{ borderRadius: '50%', overflow: 'hidden', cursor: 'pointer'}}>
-                                    <DefaultUserIcon
-                                        name={user?.handle_name}
-                                        furtherProp={{ width: 60, height: 60, fontSize: 30, }}
-                                        isImageDeleted={isImageDeleted.icon==false && ((!!(userImages?.icon?.file_path) && userImages?.icon?.file_path.length > 0) || !!imageUpload.icon)}
-                                        imagePath={imageUpload?.icon ? URL.createObjectURL(imageUpload?.icon as Blob) : `${userImages?.icon?.file_path}`}
-                                    />
-                                    <Input
-                                        type="file"
-                                        inputProps={{ multiple: false, }}
-                                        sx={{ display: 'none' }}
-                                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                                            setValue("icon.is_image_deleted", false);
-                                            setImageUpload(prev => ({
-                                                bg: prev.bg,
-                                                icon: e.target.files ? e.target.files[0] : null
-                                            }));
-                                        }}
-                                    />
+                            <Box sx={{ my: 2,}}>
+                                <FormControl sx={{ display: 'flex', alignItems: 'center',}}>
+                                    <Box component="label" sx={{ borderRadius: '50%', overflow: 'hidden', cursor: 'pointer'}}>
+                                        <DefaultUserIcon
+                                            name={userForEdit?.handle_name}
+                                            furtherProp={{ width: 60, height: 60, fontSize: 30}}
+                                            isImageDeleted={isImageDeleted.icon==true && !(!!(userImages?.icon?.file_path) && userImages?.icon?.file_path.length <= 0) && !imageUpload.icon}
+                                            imagePath={imageUpload?.icon ? URL.createObjectURL(imageUpload?.icon as Blob) : `${userImages?.icon?.file_path}`}
+                                        />
+                                    </Box>
+                                </FormControl>
+                                <Box sx={{ width: '300px' }}>
+                                    {
+                                       (isImageDeleted.icon==false && ((!!(userImages?.icon?.file_path) && userImages?.icon?.file_path.length > 0) || !!imageUpload.icon)) && (
+                                            <Fab
+                                                color="error"
+                                                variant="extended"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setValue("icon.is_image_deleted", true);
+                                                    setImageUpload(prev => ({bg: prev.bg, icon: null}));
+                                                }}
+                                                sx={{mt: 2, width: '100%'}}
+                                            >
+                                                <HighlightOffIcon />
+                                                アイコン画像を削除
+                                            </Fab>
+                                        )
+                                    }
+                                    <Fab
+                                        component="label"
+                                        color="inherit"
+                                        variant="extended"
+                                        sx={{ mt: 2, backgroundColor: '#444444', width: '100%'}}
+                                    >
+                                        アイコン画像を{(
+                                            isImageDeleted.icon==false
+                                            && (
+                                                (!!(userImages?.icon?.file_path) && userImages?.icon?.file_path.length > 0)
+                                                || !!imageUpload.icon
+                                            )) ? '変更' : 'アップロード'}
+                                        <Input
+                                            type="file"
+                                            inputProps={{ multiple: false, }}
+                                            sx={{ display: 'none' }}
+                                            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                                                setValue("icon.is_image_deleted", false);
+                                                setImageUpload((prev => ({bg: prev.bg, icon: e.target.files ? e.target.files[0] : null})));
+                                            }}
+                                        />
+                                    </Fab>
                                 </Box>
-                            </FormControl>
+                            </Box>
                             <FormControl fullWidth sx={{my: 2}}>
                                 <TextField
                                     size="small"
                                     label="ユーザーハンドル名"
                                     InputLabelProps={{ style: { fontSize: 20 } }}
                                     InputProps={{ style: { fontSize: 20 } }}
-                                    defaultValue={user?.handle_name}
+                                    defaultValue={userForEdit?.handle_name}
                                     disabled
                                 />
                             </FormControl>
@@ -225,7 +288,7 @@ export default function ProfileEditDialog({isDialogOpen, onClose, user, userImag
                                     label="メールアドレス"
                                     InputLabelProps={{ style: { fontSize: 20 } }}
                                     InputProps={{ style: { fontSize: 20 } }}
-                                    defaultValue={user?.email}
+                                    defaultValue={userForEdit?.email}
                                     disabled
                                 />
                             </FormControl>
@@ -235,7 +298,7 @@ export default function ProfileEditDialog({isDialogOpen, onClose, user, userImag
                                     label="名前"
                                     InputLabelProps={{ style: { fontSize: 20 } }}
                                     InputProps={{ style: { fontSize: 20 } }}
-                                    defaultValue={user?.name}
+                                    defaultValue={userForEdit?.name}
                                     {...register("name")}
                                     error={!!errors?.root?.name?.message}
                                     helperText={errors?.root?.name?.message ? errors?.root?.name?.message : null}
@@ -247,31 +310,23 @@ export default function ProfileEditDialog({isDialogOpen, onClose, user, userImag
                                     label="名前（かな）"
                                     InputLabelProps={{ style: { fontSize: 20 } }}
                                     InputProps={{ style: { fontSize: 20 } }}
-                                    defaultValue={user?.name_kana}
+                                    defaultValue={userForEdit?.name_kana}
                                     {...register("name_kana")}
                                     error={!!errors?.root?.name_kana?.message}
                                     helperText={errors?.root?.name_kana?.message ? errors?.root?.name_kana?.message : null}
                                 />
                             </FormControl>
                             <FormControl fullWidth sx={{my: 2}}>
-                                <Controller
-                                    name="birthday"
-                                    control={control}
-                                    render={({ field, fieldState }) => (
-                                        <DateField
-                                            size="small"
-                                            label="生年月日"
-                                            format="yyyy-MM-dd"
-                                            value={field.value}
-                                            onChange={field.onChange}
-                                            slotProps={{
-                                                textField: {
-                                                    error: !!fieldState.error,
-                                                    helperText: fieldState.error?.message,
-                                                }
-                                            }}
-                                        />
-                                    )}
+                                <TextField
+                                    size="small"
+                                    type="date"
+                                    label="生年月日"
+                                    InputLabelProps={{ style: { fontSize: 20 } }}
+                                    InputProps={{ style: { fontSize: 20 } }}
+                                    defaultValue={DateTime.fromISO(userForEdit?.birthday).toFormat('yyyy-MM-dd')}
+                                    {...register("birthday")}
+                                    error={!!errors?.root?.birthday?.message}
+                                    helperText={errors?.root?.birthday?.message ? errors?.root?.birthday?.message : null}
                                 />
                             </FormControl>
                             <FormControl fullWidth sx={{my: 2}}>
@@ -280,7 +335,7 @@ export default function ProfileEditDialog({isDialogOpen, onClose, user, userImag
                                     label="住所"
                                     InputLabelProps={{ style: { fontSize: 20 } }}
                                     InputProps={{ style: { fontSize: 20 } }}
-                                    defaultValue={user?.address}
+                                    defaultValue={userForEdit?.address}
                                     {...register("address")}
                                     error={!!errors?.root?.address?.message}
                                     helperText={errors?.root?.address?.message ? errors?.root?.address?.message : null}
@@ -292,7 +347,7 @@ export default function ProfileEditDialog({isDialogOpen, onClose, user, userImag
                                     label="電話番号"
                                     InputLabelProps={{ style: { fontSize: 20 } }}
                                     InputProps={{ style: { fontSize: 20 } }}
-                                    defaultValue={user?.phone_number}
+                                    defaultValue={userForEdit?.phone_number}
                                     {...register("phone_number")}
                                     error={!!errors?.root?.phone_number?.message}
                                     helperText={errors?.root?.phone_number?.message ? errors?.root?.phone_number?.message : null}
@@ -304,7 +359,7 @@ export default function ProfileEditDialog({isDialogOpen, onClose, user, userImag
                                     label="自己紹介"
                                     InputLabelProps={{ style: { fontSize: 20 } }}
                                     InputProps={{ style: { fontSize: 20 } }}
-                                    defaultValue={user?.introduction}
+                                    defaultValue={userForEdit?.introduction}
                                     multiline
                                     rows={4}
                                     {...register("introduction")}

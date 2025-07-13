@@ -5,6 +5,7 @@ import { compareSync, genSaltSync, hashSync } from 'bcrypt';
 import { AuthPayload, Follows, User } from '../consts';
 import { cookieModule } from '../consts';
 import { ImageInput } from '../consts';
+import { del } from '@vercel/blob';
 
 builder.mutationField("login", (t) => 
     t.prismaField({
@@ -119,6 +120,33 @@ builder.mutationField("updateMyProfile", (t) =>
             icon: t.arg({ type: ImageInput, required: false, })
         },
         resolve: async (_query, _parent, args, ctx) => {
+            let targetExistedFile = null;
+            let updateData: { createMany: { data: any[] } } = { createMany: { data: [] } };
+            let userFiles = null;
+            for(const val of [{key: 1, files: args.bg,}, {key: 2, files: args.icon,}]) {
+                userFiles = val.files;
+                if (!userFiles) continue;
+                if( userFiles.current_image_url && userFiles.image_url && userFiles.content_type ){
+                    await del(userFiles.current_image_url as string, {token: process.env.BLOB_READ_WRITE_TOKEN});
+                }
+                targetExistedFile = await prisma.userFiles.findFirst({
+                    where: { file_path: userFiles.current_image_url as string, },
+                });
+                if ((
+                        (!!userFiles?.image_url && !!userFiles?.content_type)
+                    ||  userFiles.is_image_deleted==true
+                ) && !!targetExistedFile ) {
+                    await prisma.userFiles.delete({where: {id: targetExistedFile?.id}});
+                }
+                if(!!userFiles?.image_url && !!userFiles?.content_type && userFiles?.is_image_deleted != true) {
+                    updateData.createMany.data.push({
+                        purpose_id: val.key,
+                        file_path: userFiles.image_url,
+                        file_name: userFiles.image_url.split('/').pop(),
+                        extension: userFiles.content_type.split('/')[1] ?? '',
+                    });
+                }
+            }
             return prisma.user.update({
                 where: { id: ctx.auth?.id as number },
                 data: {
@@ -128,24 +156,7 @@ builder.mutationField("updateMyProfile", (t) =>
                     introduction: args?.introduction ?? '',
                     phone_number: args?.phone_number ?? '',
                     address: args?.address ?? '',
-                    user_files: {
-                        createMany: {
-                            data: [
-                                {
-                                    purpose_id: 1,
-                                    file_path: args?.bg?.url ?? '',
-                                    file_name: args?.bg?.url?.split('/').pop(),
-                                    extension: args?.bg?.content_type?.split('/')[1] ?? '',
-                                },
-                                {
-                                    purpose_id: 2,
-                                    file_path: args?.icon?.url ?? '',
-                                    file_name: args?.icon?.url?.split('/').pop(),
-                                    extension: args?.icon?.content_type?.split('/')[1] ?? '',
-                                }
-                            ],
-                        },
-                    },
+                    user_files: updateData,
                 },
             })
         },

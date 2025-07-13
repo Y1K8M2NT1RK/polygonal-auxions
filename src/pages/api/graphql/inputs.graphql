@@ -1,5 +1,6 @@
 input ImageInput {
   is_image_deleted: Boolean
-  url: String
+  current_image_url: String
+  image_url: String
   content_type: String
 }

@@ -22,6 +22,7 @@ import Footer from '@/components/Footer';
 import { ToastContainer, Bounce } from 'react-toastify';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { ProfileProvider } from '@/contexts/Profile/ProfileContext';
 
 interface AppContentProps extends Omit<AppProps, 'router'> {
   router: NextRouter;
@@ -64,14 +65,16 @@ export default function App(
           <UrqlProvider value={urqlClient}>
             <AuthProvider>
               <PauseProvider initialPaused={false}>
-                <NextTopLoader
-                  color={theme.palette.mode=="dark"?"#AAAAAA":"666666"}
-                  initialPosition={0.08}
-                  crawlSpeed={200}
-                  height={5}
-                  showSpinner={false}
-                />
-                <AppContent Component={Component} pageProps={pageProps} router={useRouter()} />
+                <ProfileProvider>
+                  <NextTopLoader
+                    color={theme.palette.mode=="dark"?"#AAAAAA":"666666"}
+                    initialPosition={0.08}
+                    crawlSpeed={200}
+                    height={5}
+                    showSpinner={false}
+                  />
+                  <AppContent Component={Component} pageProps={pageProps} router={useRouter()} />
+                </ProfileProvider>
               </PauseProvider>
             </AuthProvider>
           </UrqlProvider>

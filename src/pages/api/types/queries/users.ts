@@ -3,7 +3,7 @@ import { prisma } from '../../db';
 import { User } from '../consts';
 
 // ユーザープロフィール
-builder.queryField("user", (t) =>
+builder.queryField("UserProfile", (t) =>
   t.prismaField({
     type: User,
     args: { handle_name: t.arg.string({ required: true }), },

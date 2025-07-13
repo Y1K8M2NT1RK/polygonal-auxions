@@ -64,7 +64,7 @@ model UserFiles { // アイコンの他背景画像にも使用
   @@map(name: "user_files")
 }
 
-model Purpose { // 1: アイコン, 2: 背景
+model Purpose { // 1: 背景, 2: アイコン
   id            Int       @id @default(autoincrement())
   name          String    @unique @db.VarChar(50)
 

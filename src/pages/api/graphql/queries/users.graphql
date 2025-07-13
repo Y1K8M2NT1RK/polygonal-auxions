@@ -1,5 +1,5 @@
-query User($handle_name: String!) {
-    user(handle_name: $handle_name) {
+query UserProfile($handle_name: String!) {
+    UserProfile(handle_name: $handle_name) {
         id
         name
         name_kana

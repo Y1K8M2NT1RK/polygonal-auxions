@@ -104,7 +104,8 @@ export const Comment = builder.prismaObject('Comment', {
 export const ImageInput = builder.inputType('ImageInput', {
     fields: (t) => ({
         is_image_deleted: t.boolean({defaultValue: false,}),
-        url: t.string(),
+        current_image_url: t.string({defaultValue: ''}),
+        image_url: t.string(),
         content_type: t.string(),
     }),
 })

@@ -26,7 +26,7 @@ export default function DefaultUserIcon({name, furtherProp, isImageDeleted, imag
     /* eslint-enable no-bitwise */
 
     return (
-        <Avatar src={imagePath || ''} sx={{color: '#ffffff', bgcolor: userIconBgColor, ...furtherProp}}>
+        <Avatar src={isImageDeleted==true ? '' : imagePath} sx={{color: '#ffffff', bgcolor: userIconBgColor, ...furtherProp}}>
             {typeof name === 'string' ? name?.split(' ')[0][0] : ''}
         </Avatar>
     )

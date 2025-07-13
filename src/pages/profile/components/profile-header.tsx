@@ -91,7 +91,7 @@ export default function ProfileHeader({viewing_user}: Props){
 
     return (
         <Card>
-            <CardMedia component="img" sx={{height:"200px"}} src={user_images.bg?.file_path} />
+            <CardMedia component="img" sx={{height:"200px"}} src={user_images?.bg?.file_path || undefined} />
             <CardHeader
                 avatar={
                     <DefaultUserIcon

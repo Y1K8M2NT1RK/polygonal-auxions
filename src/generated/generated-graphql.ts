@@ -84,8 +84,9 @@ export type Follow = {
 
 export type ImageInput = {
   content_type?: InputMaybe<Scalars['String']['input']>;
+  current_image_url?: InputMaybe<Scalars['String']['input']>;
+  image_url?: InputMaybe<Scalars['String']['input']>;
   is_image_deleted?: InputMaybe<Scalars['Boolean']['input']>;
-  url?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Mutation = {
@@ -204,6 +205,7 @@ export type MutationUpsertCommentSuccess = {
 
 export type Query = {
   __typename?: 'Query';
+  UserProfile: User;
   artwork: Artwork;
   artworks: Array<Artwork>;
   getArtworkComments: Array<Comment>;
@@ -212,7 +214,11 @@ export type Query = {
   getFollowedByUser: Array<User>;
   getFollowingUser: Array<User>;
   me: User;
-  user: User;
+};
+
+
+export type QueryUserProfileArgs = {
+  handle_name: Scalars['String']['input'];
 };
 
 
@@ -233,11 +239,6 @@ export type QueryGetArtworkRanksArgs = {
 
 export type QueryGetAuthArtworkRanksArgs = {
   artwork_id?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryUserArgs = {
-  handle_name: Scalars['String']['input'];
 };
 
 export type User = {
@@ -406,12 +407,12 @@ export type GetArtworkCommentsQueryVariables = Exact<{
 
 export type GetArtworkCommentsQuery = { __typename?: 'Query', getArtworkComments: Array<{ __typename?: 'Comment', body: string, artwork_id: string, slug_id: string, created_at: any, user: { __typename?: 'User', handle_name: string } }> };
 
-export type UserQueryVariables = Exact<{
+export type UserProfileQueryVariables = Exact<{
   handle_name: Scalars['String']['input'];
 }>;
 
 
-export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', id: string, name: string, name_kana?: string | null, handle_name: string, introduction: string, birthday?: any | null, phone_number?: string | null, address: string, email: string, created_at: any, user_files: Array<{ __typename?: 'UserFiles', purpose_id: string, file_path: string }>, artworks: Array<{ __typename?: 'Artwork', slug_id: string, title: string, likes: number, bads: number, created_at: any, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }> }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, artwork: { __typename?: 'Artwork', slug_id: string, title: string } }>, following: Array<{ __typename?: 'Follow', followed_by_id: string }> } };
+export type UserProfileQuery = { __typename?: 'Query', UserProfile: { __typename?: 'User', id: string, name: string, name_kana?: string | null, handle_name: string, introduction: string, birthday?: any | null, phone_number?: string | null, address: string, email: string, created_at: any, user_files: Array<{ __typename?: 'UserFiles', purpose_id: string, file_path: string }>, artworks: Array<{ __typename?: 'Artwork', slug_id: string, title: string, likes: number, bads: number, created_at: any, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }> }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, artwork: { __typename?: 'Artwork', slug_id: string, title: string } }>, following: Array<{ __typename?: 'Follow', followed_by_id: string }> } };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -713,9 +714,9 @@ export const GetArtworkCommentsDocument = gql`
 export function useGetArtworkCommentsQuery(options: Omit<Urql.UseQueryArgs<GetArtworkCommentsQueryVariables>, 'query'>) {
   return Urql.useQuery<GetArtworkCommentsQuery, GetArtworkCommentsQueryVariables>({ query: GetArtworkCommentsDocument, ...options });
 };
-export const UserDocument = gql`
-    query User($handle_name: String!) {
-  user(handle_name: $handle_name) {
+export const UserProfileDocument = gql`
+    query UserProfile($handle_name: String!) {
+  UserProfile(handle_name: $handle_name) {
     id
     name
     name_kana
@@ -755,8 +756,8 @@ export const UserDocument = gql`
 }
     `;
 
-export function useUserQuery(options: Omit<Urql.UseQueryArgs<UserQueryVariables>, 'query'>) {
-  return Urql.useQuery<UserQuery, UserQueryVariables>({ query: UserDocument, ...options });
+export function useUserProfileQuery(options: Omit<Urql.UseQueryArgs<UserProfileQueryVariables>, 'query'>) {
+  return Urql.useQuery<UserProfileQuery, UserProfileQueryVariables>({ query: UserProfileDocument, ...options });
 };
 export const MeDocument = gql`
     query me {
