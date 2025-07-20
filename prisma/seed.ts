@@ -3,6 +3,15 @@ import { prisma } from '../src/pages/api/db'
 const main = async () => {
     // 途中で止まった場合に備えて、その時点まで作成したデータを全て削除
     await prisma.$transaction(async (prisma) => {
+        if( process.env.NODE_ENV === 'production' ) return;
+
+        console.log('データの削除を開始します。');
+
+        await prisma.artworkRanks.deleteMany(); console.log('artworkRanksの削除が完了しました。');
+        await prisma.$executeRaw`ALTER SEQUENCE artwork_ranks_id_seq RESTART WITH 1;`;
+        await prisma.userFiles.deleteMany(); console.log('userFilesの削除が完了しました。');
+        await prisma.$executeRaw`ALTER SEQUENCE user_files_id_seq RESTART WITH 1;`;
+
         await prisma.ranks.deleteMany(); console.log('ranksの削除が完了しました。');
         await prisma.$executeRaw`ALTER SEQUENCE ranks_id_seq RESTART WITH 1;`;
         await prisma.rankTypes.deleteMany(); console.log('rankTypesの削除が完了しました。');
@@ -27,8 +36,6 @@ const main = async () => {
         await prisma.purpose.createMany({
             data: [{name: 'アイコン'}, {name: '背景'},]
         }); console.log('purposesの作成が完了しました。');
-
-        if( process.env.NODE_ENV === 'production' ) return;
 
         await prisma.artworkRanks.deleteMany(); console.log('artworkRanksの削除が完了しました。');
         await prisma.$executeRaw`ALTER SEQUENCE artwork_ranks_id_seq RESTART WITH 1;`;
