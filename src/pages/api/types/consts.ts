@@ -148,3 +148,5 @@ export const cookieModule: {
         return true;
     },
 }
+
+export const userIncludeFile = { include: { user_files: { where: { purpose_id: 2 } } } };

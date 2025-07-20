@@ -126,7 +126,11 @@ export default function ArtworkDetail({artwork, handleIsEditing, isEditing, feat
                         <CardHeader
                             sx={{bgcolor: isDarkMode?'#333333':'#DDDDDD'}}
                             avatar={
-                                <DefaultUserIcon name={artwork?.user.handle_name} furtherProp={{ width: 40, height: 40, fontSize: 20, }} />
+                                <DefaultUserIcon
+                                    name={artwork?.user.handle_name}
+                                    furtherProp={{ width: 40, height: 40, fontSize: 20, }}
+                                    imagePath={artwork?.user.user_files[0]?.file_path}
+                                />
                             }
                             title={
                                 <Typography variant="h5">

@@ -6,7 +6,11 @@ query Artworks {
         feature,
         created_at,
         user {
+            id
             handle_name
+            user_files {
+                file_path
+            }
         }
         artwork_file {
             file_path
@@ -34,7 +38,11 @@ query Artwork($slug_id: String!) {
         deleted
         created_at
         user {
+            id
             handle_name
+            user_files {
+                file_path
+            }
         }
         artwork_file {
             file_path
@@ -43,7 +51,11 @@ query Artwork($slug_id: String!) {
             body
             created_at
             user {
+                id
                 handle_name
+                user_files {
+                    file_path
+                }
             }
         }
     }

@@ -282,6 +282,8 @@ export type ZodFieldError = {
   path: Array<Scalars['String']['output']>;
 };
 
+export type UserFragmentFragment = { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> };
+
 export type UpsertArtworkMutationVariables = Exact<{
   title: Scalars['String']['input'];
   feature: Scalars['String']['input'];
@@ -377,7 +379,7 @@ export type FollowOrUnfollowMutation = { __typename?: 'Mutation', followOrUnfoll
 export type ArtworksQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ArtworksQuery = { __typename?: 'Query', artworks: Array<{ __typename?: 'Artwork', id: string, title: string, slug_id: string, feature: string, created_at: any, user: { __typename?: 'User', handle_name: string }, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }> }> };
+export type ArtworksQuery = { __typename?: 'Query', artworks: Array<{ __typename?: 'Artwork', id: string, title: string, slug_id: string, feature: string, created_at: any, user: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> }, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }> }> };
 
 export type GetAuthArtworkRanksQueryVariables = Exact<{
   artwork_id?: InputMaybe<Scalars['String']['input']>;
@@ -391,7 +393,7 @@ export type ArtworkQueryVariables = Exact<{
 }>;
 
 
-export type ArtworkQuery = { __typename?: 'Query', artwork: { __typename?: 'Artwork', id: string, slug_id: string, title: string, likes: number, bads: number, feature: string, deleted: boolean, created_at: any, user: { __typename?: 'User', handle_name: string }, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, user: { __typename?: 'User', handle_name: string } }> } };
+export type ArtworkQuery = { __typename?: 'Query', artwork: { __typename?: 'Artwork', id: string, slug_id: string, title: string, likes: number, bads: number, feature: string, deleted: boolean, created_at: any, user: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> }, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, user: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> } }> } };
 
 export type GetArtworkRanksQueryVariables = Exact<{
   artwork_id: Scalars['String']['input'];
@@ -405,7 +407,7 @@ export type GetArtworkCommentsQueryVariables = Exact<{
 }>;
 
 
-export type GetArtworkCommentsQuery = { __typename?: 'Query', getArtworkComments: Array<{ __typename?: 'Comment', body: string, artwork_id: string, slug_id: string, created_at: any, user: { __typename?: 'User', handle_name: string } }> };
+export type GetArtworkCommentsQuery = { __typename?: 'Query', getArtworkComments: Array<{ __typename?: 'Comment', body: string, artwork_id: string, slug_id: string, created_at: any, user: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> } }> };
 
 export type UserProfileQueryVariables = Exact<{
   handle_name: Scalars['String']['input'];
@@ -417,19 +419,27 @@ export type UserProfileQuery = { __typename?: 'Query', UserProfile: { __typename
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, handle_name: string } };
+export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> } };
 
 export type GetFollowingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetFollowingQuery = { __typename?: 'Query', getFollowingUser: Array<{ __typename?: 'User', handle_name: string, introduction: string }> };
+export type GetFollowingQuery = { __typename?: 'Query', getFollowingUser: Array<{ __typename?: 'User', handle_name: string, introduction: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> }> };
 
 export type GetFollowedByQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetFollowedByQuery = { __typename?: 'Query', getFollowedByUser: Array<{ __typename?: 'User', handle_name: string, introduction: string }> };
+export type GetFollowedByQuery = { __typename?: 'Query', getFollowedByUser: Array<{ __typename?: 'User', handle_name: string, introduction: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> }> };
 
-
+export const UserFragmentFragmentDoc = gql`
+    fragment UserFragment on User {
+  id
+  handle_name
+  user_files {
+    file_path
+  }
+}
+    `;
 export const UpsertArtworkDocument = gql`
     mutation UpsertArtwork($title: String!, $feature: String!, $artwork_slug_id: String, $current_image_url: String, $image_url: String, $content_type: String, $is_image_deleted: Boolean) {
   upsertArtwork(
@@ -628,7 +638,11 @@ export const ArtworksDocument = gql`
     feature
     created_at
     user {
+      id
       handle_name
+      user_files {
+        file_path
+      }
     }
     artwork_file {
       file_path
@@ -666,7 +680,11 @@ export const ArtworkDocument = gql`
     deleted
     created_at
     user {
+      id
       handle_name
+      user_files {
+        file_path
+      }
     }
     artwork_file {
       file_path
@@ -675,7 +693,11 @@ export const ArtworkDocument = gql`
       body
       created_at
       user {
+        id
         handle_name
+        user_files {
+          file_path
+        }
       }
     }
   }
@@ -705,7 +727,11 @@ export const GetArtworkCommentsDocument = gql`
     slug_id
     created_at
     user {
+      id
       handle_name
+      user_files {
+        file_path
+      }
     }
   }
 }
@@ -764,6 +790,9 @@ export const MeDocument = gql`
   me {
     id
     handle_name
+    user_files {
+      file_path
+    }
   }
 }
     `;
@@ -776,6 +805,9 @@ export const GetFollowingDocument = gql`
   getFollowingUser {
     handle_name
     introduction
+    user_files {
+      file_path
+    }
   }
 }
     `;
@@ -788,6 +820,9 @@ export const GetFollowedByDocument = gql`
   getFollowedByUser {
     handle_name
     introduction
+    user_files {
+      file_path
+    }
   }
 }
     `;

@@ -1,6 +1,6 @@
 import { builder } from '../../builder';
 import { prisma } from '../../db';
-import { Artwork, ArtworkRanks } from '../consts';
+import { Artwork, ArtworkRanks, userIncludeFile } from '../consts';
 
 // 作品一覧
 builder.queryField("artworks", (t) =>
@@ -10,7 +10,7 @@ builder.queryField("artworks", (t) =>
       prisma.artwork.findMany({
         ...query,
         orderBy: { created_at: 'desc' },
-        include: { artwork_file: true }
+        include: { artwork_file: true, user: userIncludeFile }
     }),
   })
 );
@@ -39,7 +39,11 @@ builder.queryField("artwork", (t) =>
       prisma.artwork.findUniqueOrThrow({
         ...query,
         where: { slug_id: args.slug_id },
-        include: { comments: { orderBy: { created_at : 'desc' }},  artwork_file: true }
+        include: {
+          comments: { orderBy: { created_at : 'desc' }},
+          artwork_file: true,
+          user: userIncludeFile
+        }
       }),
   })
 );

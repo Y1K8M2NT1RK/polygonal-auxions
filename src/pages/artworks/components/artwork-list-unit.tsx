@@ -40,7 +40,11 @@ export default function ArtworkListUnit({ artwork, deletedArtworksInFront, child
                 : <Paper sx={{p: '10px', width: '100%', height: '100%',}} elevation={9}>
                     <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                         <Link href={`/profile/${artwork?.user.handle_name}`} style={{display: 'flex', alignItems: 'center'}} passHref>
-                            <DefaultUserIcon name={artwork?.user.handle_name} furtherProp={{ mr: '10px', mt: '10px', mb: '10px' }} />
+                            <DefaultUserIcon
+                                name={artwork?.user.handle_name}
+                                furtherProp={{ mr: '10px', mt: '10px', mb: '10px' }}
+                                imagePath={artwork?.user.user_files[0]?.file_path}
+                            />
                             <Typography>{artwork?.user.handle_name}</Typography>
                         </Link>
                         {children}

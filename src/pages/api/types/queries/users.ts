@@ -1,6 +1,6 @@
 import { builder } from '../../builder';
 import { prisma } from '../../db';
-import { User } from '../consts';
+import { User, userIncludeFile } from '../consts';
 
 // ユーザープロフィール
 builder.queryField("UserProfile", (t) =>
@@ -41,6 +41,7 @@ builder.queryField("me", (t) =>
       return prisma.user.findUniqueOrThrow({
         ...query,
         where: {id: ctx.auth?.id},
+        ...userIncludeFile,
       })},
   })
 );

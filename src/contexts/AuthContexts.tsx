@@ -1,6 +1,6 @@
 import { FC, createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useQuery, useMutation } from 'urql';
-import { MeDocument, LoginDocument, RefreshDocument, LogoutDocument, User } from '@/generated/generated-graphql';
+import { MeDocument, LoginDocument, RefreshDocument, LogoutDocument, UserProfileDocument, User } from '@/generated/generated-graphql';
 import { toast } from 'react-toastify';
 
 type AuthContextType = {
@@ -21,6 +21,11 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
   const [auth, setAuth] = useState<User | null>(null);
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [{ data, fetching }, reexecuteQuery] = useQuery({query: MeDocument});
+  const [reExecuteProfile] = useQuery({
+    query: UserProfileDocument,
+    variables: { handle_name: data?.me?.handle_name || '' },
+    requestPolicy: 'network-only'
+  });
 
   useEffect(() => {
     setIsLoggedIn(!!data?.me);
@@ -70,13 +75,13 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
     }, 14 * 60 * 1000); // 14分ごとにリフレッシュ
 
     return () => clearInterval(interval);
-  }, [refreshToken, reexecuteQuery]);
+  }, [refreshToken, reexecuteQuery, reExecuteProfile]);
 
   useEffect(() => {
     if (isLoggedIn) {
       reexecuteQuery({ requestPolicy: 'network-only' });
     }
-  }, [isLoggedIn, reexecuteQuery]);
+  }, [isLoggedIn, reexecuteQuery, reExecuteProfile]);
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, user: auth, fetching, handleLogin, handleLogout, formErrors }}>

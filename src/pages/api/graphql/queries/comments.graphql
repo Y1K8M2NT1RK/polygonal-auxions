@@ -5,7 +5,11 @@ query getArtworkComments($artwork_id: String!) {
         slug_id
         created_at
         user {
+            id
             handle_name
+            user_files {
+                file_path
+            }
         }
     }
 }

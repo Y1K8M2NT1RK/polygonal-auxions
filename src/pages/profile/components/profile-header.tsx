@@ -142,7 +142,11 @@ export default function ProfileHeader({viewing_user}: Props){
                                                                 <ListItem key={val.handle_name}>
                                                                     <ListItemAvatar>
                                                                         <Link href={`/profile/${val?.handle_name}`}>
-                                                                            <DefaultUserIcon name={val?.handle_name} furtherProp={{mr: '10px',}} />
+                                                                            <DefaultUserIcon
+                                                                                name={val?.handle_name}
+                                                                                furtherProp={{mr: '10px',}}
+                                                                                imagePath={val?.user_files[0]?.file_path}
+                                                                            />
                                                                         </Link>
                                                                     </ListItemAvatar>
                                                                     <ListItemText
@@ -172,7 +176,11 @@ export default function ProfileHeader({viewing_user}: Props){
                                                                 <ListItem key={val.handle_name}>
                                                                     <ListItemAvatar>
                                                                         <Link href={`/profile/${val?.handle_name}`}>
-                                                                            <DefaultUserIcon name={val?.handle_name} furtherProp={{mr: '10px',}} />
+                                                                            <DefaultUserIcon
+                                                                                name={val?.handle_name}
+                                                                                furtherProp={{mr: '10px',}}
+                                                                                imagePath={val?.user_files[0]?.file_path}
+                                                                            />
                                                                         </Link>
                                                                     </ListItemAvatar>
                                                                     <ListItemText

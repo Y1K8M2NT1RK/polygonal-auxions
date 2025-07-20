@@ -53,7 +53,11 @@ export default function ArtworkComments({comment, deletedCommentsInFront, setDel
         : <ListItem alignItems="flex-start">
             <ListItemAvatar>
                 <Link href={`/profile/${comment?.user.handle_name}`} passHref>
-                    <DefaultUserIcon name={comment?.user.handle_name} furtherProp={{mr: '10px',}} />
+                    <DefaultUserIcon
+                        name={comment?.user.handle_name}
+                        furtherProp={{mr: '10px',}}
+                        imagePath={comment?.user.user_files[0]?.file_path}
+                    />
                 </Link>
             </ListItemAvatar>
             <ListItemText

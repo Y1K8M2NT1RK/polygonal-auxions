@@ -78,7 +78,11 @@ export default function ArtworkComments({artwork}: Props){
                     <ListItem alignItems="flex-start">
                         <ListItemAvatar>
                             <Link href={`/profile/${user?.handle_name}`} passHref>
-                                <DefaultUserIcon name={user?.handle_name || ''} furtherProp={{mr: '10px',}} />
+                                <DefaultUserIcon
+                                    name={user?.handle_name || ''}
+                                    furtherProp={{mr: '10px',}}
+                                    imagePath={user?.user_files[0]?.file_path}
+                                />
                             </Link>
                         </ListItemAvatar>
                         <ListItemText

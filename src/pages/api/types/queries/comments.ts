@@ -1,6 +1,6 @@
 import { builder } from "../../builder";
 import { prisma } from '../../db';
-import { Comment } from '../consts';
+import { Comment, userIncludeFile } from '../consts';
 
 builder.queryField("getArtworkComments", (t) => t.prismaField({
     type: [Comment],
@@ -10,6 +10,6 @@ builder.queryField("getArtworkComments", (t) => t.prismaField({
             ...query,
             where: { artwork_id: parseInt(args.artwork_id) },
             orderBy: { created_at: 'desc' },
-            include: { user: true, }
+            include: { user: userIncludeFile }
         }),
 }));

@@ -10,13 +10,13 @@
    "UpdateMyProfile": "4b79a0ad72249eb9cfb79e660c7e9e6c145da7d09618b200ee27a5ec9947f34b",
    "Logout": "d33294c28ffdaff741dcadc2dba75b4013cdc29cd5f9e8f61d3ac85d57868a04",
    "followOrUnfollow": "d0315ca0769be8e73ff9858e0b3ab82625280e37c4d7e909b9d87b8490cb9391",
-   "Artworks": "6e473e6985774f4c51b7e647539d4a2b1ece1ff216b5727b596888c0c58a5cad",
+   "Artworks": "9804dc9a080b948528b9b9f1ee70448bae98098890c228d1db014b44a75aad55",
    "getAuthArtworkRanks": "a5831550f26dbdcbcb9d561fc2fb17e320c2fbcc0885f50200e91e5cf966bd00",
-   "Artwork": "252ad3dd838d70e8c456eb27631401adf7bbc05abd360c7dc426423a08a5cc5f",
+   "Artwork": "80ca2514c205115396127d17bc5ba9c0bda22acae7180613cf233ba7af774446",
    "getArtworkRanks": "758def72e4cea5f9348dc8997f4fbf66cf31ed25a6b9536836d04ccbaf8b224a",
-   "getArtworkComments": "99ef8cfba9532a09dbb760afa148cf244f1ea903a9477c3f3b3098c694a5b324",
+   "getArtworkComments": "bc6ff2b536778f048e5dbd0798641418df287615abe7dafa89fef7fad868c458",
    "UserProfile": "276ffc63d44ab0a8811a2ccf8bccd598aba24ec60099f03dee4141666e8113f8",
-   "me": "9aad1f6c21b353b7eee40946f2962ca90fcd9ed488b03f83aba38e5345492ab7",
-   "getFollowing": "3c21079933ef9313aebb61f8de3e5c317a29dee1617dc94c0a4c85d10d78515c",
-   "getFollowedBy": "9ad4f281a37dfe2ff0ebae1f75c2c70fd81fbe71362eecbf4889903fdf3c1492"
+   "me": "ac7b662d3b717a44ecdaec52f941178bf6b660ce627aa3cacb69ce2281a803eb",
+   "getFollowing": "97de0c12cecea5977327036b7ad8f574aacca8608998fb607945d3825491526c",
+   "getFollowedBy": "a03fbed2bb8981b3aae3c204521561964fc015d5dbf9d69409ff09424a9e4928"
 }

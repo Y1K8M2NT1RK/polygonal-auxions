@@ -46,7 +46,11 @@ export default function AvatorPopover({auth}: Props){
                 <AddIcon sx={{fontSize: 40,}} />
             </IconButton>
             <IconButton sx={{height:'fit-content'}} onClick={handleClick}>
-                <DefaultUserIcon name={auth?.handle_name} furtherProp={{ width: 40, height: 40, fontSize: 20,}} />
+                <DefaultUserIcon
+                    name={auth?.handle_name}
+                    furtherProp={{ width: 40, height: 40, fontSize: 20,}}
+                    imagePath={auth?.user_files[0]?.file_path}
+                />
             </IconButton>
             <Popover
                 open={open}
