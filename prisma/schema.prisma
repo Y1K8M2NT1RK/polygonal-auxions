@@ -59,7 +59,7 @@ model UserFiles { // アイコンの他背景画像にも使用
   updated_at    DateTime  @default(now()) @db.Timestamp() @updatedAt
 
   user          User      @relation("user_files_fk", fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  purpose       Purpose   @relation("purposes_fk", fields: [purpose_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  purpose       Purpose   @relation("purposes_fk", fields: [purpose_id], references: [id])
 
   @@map(name: "user_files")
 }
@@ -174,7 +174,7 @@ model ArtworkRanks { // このテーブルは、評価機能のみならず報�
 
   user          User            @relation("artwork_ranks_fk", fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   artwork       Artwork         @relation("artworks_fk_from_artwork_ranks", fields: [artwork_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  ranks         Ranks           @relation("artwork_ranks_fk_from_ranks", fields: [rank_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  ranks         Ranks           @relation("artwork_ranks_fk_from_ranks", fields: [rank_id], references: [id])
 
   @@unique([artwork_id, rank_id, user_id]) // 複合一意キーの設定
   @@map(name: "artwork_ranks")
@@ -186,7 +186,7 @@ model Ranks { // このテーブルは、評価機能のみならず報告/お�
   rank_type_id  Int
 
   artwork_ranks ArtworkRanks[]  @relation("artwork_ranks_fk_from_ranks")
-  rank_type     RankTypes       @relation("ranks_fk", fields: [rank_type_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  rank_type     RankTypes       @relation("ranks_fk", fields: [rank_type_id], references: [id])
 
   @@map(name: "ranks")
 }
