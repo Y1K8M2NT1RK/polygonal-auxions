@@ -35,6 +35,7 @@ import { useAuth } from '@/contexts/AuthContexts';
 import ListDialog from '@/components/ListDialog';
 import ProfileEditDialog from '@/pages/profile/components/ProfileEditDialog';
 import { useState, useReducer } from 'react';
+import useResponsive from '@/hooks/useResponsive';
 
 type Props = {
     viewing_user: User
@@ -47,6 +48,8 @@ type DialogState = {
 export default function ProfileHeader({viewing_user}: Props){
 
     const { user: auth } = useAuth();
+
+    const {isLargeScreen} = useResponsive();
 
     const isAuthFollowed = viewing_user?.following.filter((val) => val.followed_by_id == auth?.id)[0] ? true : false;
 
@@ -90,28 +93,37 @@ export default function ProfileHeader({viewing_user}: Props){
     }, 'following');
 
     return (
-        <Card>
+        <Card sx={{ pb: 0 }}>
             <CardMedia component="img" sx={{height:"200px"}} src={user_images?.bg?.file_path || undefined} />
-            <CardHeader
-                avatar={
-                    <DefaultUserIcon
-                        name={viewing_user?.handle_name}
-                        furtherProp={{ width: 60, height: 60, fontSize: 30 }}
-                        imagePath={user_images.icon?.file_path}
-                    />
-                }
-                title={<Typography variant="h5">{viewing_user?.handle_name}</Typography>}
-                subheader={<Typography>{viewing_user?.introduction}</Typography>}
-            />
-            <CardContent>
-                <Grid container sx={{ flexGrow: 1, }} spacing={2}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pr: '10px'}}>
+                <CardHeader
+                    sx={{ pl: '10px', pt: '10px', pb: 0}}
+                    avatar={
+                        <DefaultUserIcon
+                            name={viewing_user?.handle_name}
+                            furtherProp={{ width: 60, height: 60, fontSize: 30 }}
+                            imagePath={user_images.icon?.file_path}
+                        />
+                    }
+                    title={<Typography variant="h5">{viewing_user?.handle_name}</Typography>}
+                    subheader={<Typography>{viewing_user?.introduction}</Typography>}
+                />
+                {auth?.handle_name == viewing_user?.handle_name ? (
+                    <Fab onClick={() => {setOpenDialog({dialog_name: 'profile'})}} size="medium" variant={isLargeScreen ? 'extended' : 'circular'}>
+                        <EditIcon />{isLargeScreen ? 'プロフィールを編集' : ''}
+                    </Fab>
+                ) : (
+                    <Fab variant="extended" size="medium"><FlagIcon />報告</Fab>
+                )}
+            </Box>
+            <CardContent sx={{ p: '10px'}}>
+                <Grid container sx={{ flexGrow: 1, }} spacing={1}>
                     {
                         auth?.handle_name == viewing_user?.handle_name 
                         ?   (
                             <>
-                                <Grid><Fab onClick={() => {setOpenDialog({dialog_name: 'profile'})}} variant="extended"><EditIcon />編集</Fab></Grid>
-                                <Grid><Fab onClick={() => {dispatch('following');}} variant="extended">フォロー中({followingUsers?.length})</Fab></Grid>
-                                <Grid><Fab onClick={() => {dispatch('followedBy');}} variant="extended">フォロワー({followedByUsers?.length})</Fab></Grid>
+                                <Grid><Fab onClick={() => {dispatch('following');}} variant="extended" size="medium">フォロー中({followingUsers?.length})</Fab></Grid>
+                                <Grid><Fab onClick={() => {dispatch('followedBy');}} variant="extended" size="medium">フォロワー({followedByUsers?.length})</Fab></Grid>
                                 <ProfileEditDialog
                                     isDialogOpen={openDialog.dialog_name === 'profile'}
                                     onClose={handleDialogClose}
@@ -213,7 +225,7 @@ export default function ProfileHeader({viewing_user}: Props){
                                         isAuthFollowed
                                         ?   (
                                             <Fab
-                                                variant="extended" component="button"
+                                                variant="extended" component="button" size="medium"
                                                 onClick={() => {
                                                     if(!auth) return toast.error('ログインが必要です。');
                                                     FollowOrUnfollow({following_id: viewing_user.id, mode: 'unfollow'})
@@ -223,7 +235,7 @@ export default function ProfileHeader({viewing_user}: Props){
                                             ><PersonAddDisabledIcon />フォローを解除</Fab>
                                         )
                                         :   (<Fab
-                                                variant="extended" component="button"
+                                                variant="extended" component="button" size="medium"
                                                 onClick={() => {
                                                     if(!auth) return toast.error('ログインが必要です。');
                                                     FollowOrUnfollow({following_id: viewing_user.id, mode: 'follow'})   
@@ -234,7 +246,6 @@ export default function ProfileHeader({viewing_user}: Props){
                                         )
                                     }
                                 </Grid>
-                                <Grid><Fab variant="extended"><FlagIcon />報告</Fab></Grid>
                             </>
                         )
                     }

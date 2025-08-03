@@ -240,8 +240,8 @@ export default function Artwork(){
                                         />
                                     </FormControl>
                                     <Box sx={{display: 'flex',}}>
-                                        <Fab color="primary" variant="extended" sx={{mt: 1, mr: 2}} type="submit">更新</Fab>
-                                        <Fab variant="extended" sx={{mt: 1,}} onClick={() => {
+                                        <Fab color="primary" variant="extended" sx={{mt: 1, mr: 1}} type="submit" size='medium'>更新</Fab>
+                                        <Fab variant="extended" sx={{mt: 1,}} size='medium' onClick={() => {
                                             handleCancelEditing();
                                             reset({
                                                 artwork_slug_id: artwork.slug_id,

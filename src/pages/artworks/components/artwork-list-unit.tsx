@@ -22,7 +22,10 @@ interface ArtworkListUnitProps {
 
 export default function ArtworkListUnit({ artwork, deletedArtworksInFront, children }: ArtworkListUnitProps) {
     return (
-        <Grid size={{xs: 12, md: 6, lg: 4}} sx={{ height: '25em', }}>
+        <Grid
+            size={{xs: 12, md: 6, lg: 4}}
+            sx={{  ...deletedArtworksInFront?.some(val => val.artwork_id == parseInt(artwork.id)) ? { height: '21em' } : {} }}
+        >
             {
                 !!deletedArtworksInFront?.some(val => val.artwork_id == parseInt(artwork.id))
                 ? <Paper sx={{
@@ -37,12 +40,12 @@ export default function ArtworkListUnit({ artwork, deletedArtworksInFront, child
                 }} elevation={9}>
                     <Typography>この作品は削除されました</Typography>
                 </Paper>
-                : <Paper sx={{p: '10px', width: '100%', height: '100%',}} elevation={9}>
-                    <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                : <Paper sx={{width: '100%', }} elevation={9}>
+                    <Box sx={{p: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                         <Link href={`/profile/${artwork?.user.handle_name}`} style={{display: 'flex', alignItems: 'center'}} passHref>
                             <DefaultUserIcon
                                 name={artwork?.user.handle_name}
-                                furtherProp={{ mr: '10px', mt: '10px', mb: '10px' }}
+                                furtherProp={{ mr: '10px', }}
                                 imagePath={artwork?.user.user_files[0]?.file_path}
                             />
                             <Typography>{artwork?.user.handle_name}</Typography>
@@ -69,19 +72,21 @@ export default function ArtworkListUnit({ artwork, deletedArtworksInFront, child
                             </CardActionArea>
                         </Link>
                     </Card>
-                    <Typography
-                        variant="subtitle1"
-                        sx={{
-                            textOverflow: "ellipsis",
-                            overflow: "hidden",
-                            whiteSpace: "nowrap",
-                            width: {
-                                xs: '80vw',
-                                md: '100%',
-                            }
-                        }}
-                    >{artwork?.title}</Typography>
-                    <Typography variant="subtitle2">{DateTime.fromISO(artwork?.created_at).toFormat('yyyy年MM月dd日')}にアップロード</Typography>
+                    <Box sx={{px: '10px', py: '5px'}}>
+                        <Typography
+                            variant="subtitle1"
+                            sx={{
+                                textOverflow: "ellipsis",
+                                overflow: "hidden",
+                                whiteSpace: "nowrap",
+                                width: {
+                                    xs: '80vw',
+                                    md: '100%',
+                                }
+                            }}
+                        >{artwork?.title}</Typography>
+                        <Typography variant="subtitle2">{DateTime.fromISO(artwork?.created_at).toFormat('yyyy年MM月dd日')}にアップロード</Typography>
+                    </Box>
                 </Paper>
             }
         </Grid>

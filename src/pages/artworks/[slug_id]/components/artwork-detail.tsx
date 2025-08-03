@@ -124,7 +124,7 @@ export default function ArtworkDetail({artwork, handleIsEditing, isEditing, feat
                 <Card>
                     <Link href={`/profile/${artwork?.user.handle_name}`} passHref>
                         <CardHeader
-                            sx={{bgcolor: isDarkMode?'#333333':'#DDDDDD'}}
+                            sx={{bgcolor: isDarkMode?'#333333':'#DDDDDD', p: '10px'}}
                             avatar={
                                 <DefaultUserIcon
                                     name={artwork?.user.handle_name}
@@ -133,15 +133,13 @@ export default function ArtworkDetail({artwork, handleIsEditing, isEditing, feat
                                 />
                             }
                             title={
-                                <Typography variant="h5">
-                                    {artwork?.user.handle_name}
-                                </Typography>
+                                <Typography variant="h6">{artwork?.user.handle_name}</Typography>
                             }
                         />
                     </Link>
                 </Card>
             </CardActionArea>
-            <Grid container sx={{ flexGrow: 1, pt: '10px' }} spacing={2}>
+            <Grid container sx={{ flexGrow: 1, pt: '10px' }} spacing={1}>
                 {
                     isOwner
                     ? <Grid>
@@ -149,18 +147,19 @@ export default function ArtworkDetail({artwork, handleIsEditing, isEditing, feat
                             variant="extended"
                             onClick={() => handleIsEditing && handleIsEditing(!isEditing)}
                             disabled={!!isEditing}
+                            size='medium'
                         >
                             <EditIcon />{!!isEditing? '編集中...' : '編集'}
                         </Fab>
                     </Grid>
                     : null
                 }
-                <Grid><Fab variant="extended"><FlagIcon />報告</Fab></Grid>
+                <Grid><Fab variant="extended" size='medium'><FlagIcon />報告</Fab></Grid>
                 {
                     isOwner
                     ? <Grid>
                         <AlertDialog
-                            button={<Fab variant="extended" color="error" onClick={handleDialogOpen}><DeleteForeverIcon />削除</Fab>}
+                            button={<Fab variant="extended" color="error" onClick={handleDialogOpen} size='medium'><DeleteForeverIcon />削除</Fab>}
                             isDialogOpen={openDialog}
                             content={
                                 <Box>
