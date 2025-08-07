@@ -1,4 +1,10 @@
-import { BottomNavigation, BottomNavigationAction, Drawer, Paper} from '@mui/material'
+import {
+    BottomNavigation,
+    BottomNavigationAction,
+    Drawer,
+    Paper,
+    Box
+} from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
 import List from '@mui/material/List';
@@ -6,7 +12,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import AddIcon from '@mui/icons-material/Add';
-import React, { useState } from 'react'
+import React, { useReducer, useState } from 'react'
 import { useAuth } from '@/contexts/AuthContexts';
 import DefaultUserIcon from '@/components/DefaultUserIcon';
 import LoginIcon from '@mui/icons-material/Login';
@@ -16,14 +22,27 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import LoginDialog from './LoginDialog';
 import Link from 'next/link';
+import SearchInput from './SearchInput';
+
+type DrawerState = {
+    drawer_name: 'search' | 'user_menu' | null;
+}
 
 export default function Footer() {
 
     const { user, isLoggedIn, handleLogout, fetching } = useAuth();
 
-    const [openDrawer, setOpenDrawer] = useState<boolean>(false);
-    const handleDrawerOpen = () => setOpenDrawer(true);
-    const handleDrawerClose = () => setOpenDrawer(false);
+    const [openDrawer, setOpenDrawer] = useState<DrawerState>({ drawer_name: null });
+    const handleDrawerOpen = ({drawer_name}: DrawerState) => setOpenDrawer({ ...{drawer_name} });
+    const handleDrawerClose = () => setOpenDrawer({ drawer_name: null });
+
+    const [, dispatch] = useReducer((target: string, action: string) => {
+        switch (action) {
+            case 'search': setOpenDrawer({ drawer_name: 'search' }); return 'search';
+            case 'user_menu': setOpenDrawer({ drawer_name: 'user_menu' }); return 'user_menu';
+            default: setOpenDrawer({ drawer_name: null }); return target;
+        }
+    }, 'search');
 
     const [openDialog, setOpenDialog] = useState(false);
     const handleDialogOpen = () => setOpenDialog(true);
@@ -41,16 +60,27 @@ export default function Footer() {
                     ? (
                         <BottomNavigation>
                             <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'ホーム'} icon={<HomeIcon />} href={'/'} />
-                            <BottomNavigationAction showLabel={true} label={'検索'} icon={<SearchIcon />} />
+                            <BottomNavigationAction
+                                showLabel={true}
+                                label={'検索'}
+                                onClick={() => dispatch('search')}
+                                icon={<SearchIcon />}
+                            />
                             <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'作品追加'} href={`/artworks/add`} icon={<AddIcon/>} />
-                            <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'マイページ'} onClick={handleDrawerOpen} icon={
-                                <DefaultUserIcon
-                                    name={user.handle_name}
-                                    furtherProp={{width: 30, height: 30, fontSize: 15}}
-                                />
-                            } />
+                            <BottomNavigationAction
+                                LinkComponent={Link}
+                                showLabel={true}
+                                label={'マイページ'}
+                                onClick={() => dispatch('user_menu')}
+                                icon={
+                                    <DefaultUserIcon
+                                        name={user.handle_name}
+                                        furtherProp={{width: 30, height: 30, fontSize: 15}}
+                                    />
+                                }
+                            />
                             <Drawer
-                                open={openDrawer}
+                                open={openDrawer.drawer_name === 'user_menu'}
                                 anchor={'bottom'}
                                 onClose={handleDrawerClose}
                             >
@@ -88,7 +118,12 @@ export default function Footer() {
                     ) : (
                         <BottomNavigation>
                             <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'ホーム'} icon={<HomeIcon />} href={'/'} />
-                            <BottomNavigationAction showLabel={true} label={'検索'} icon={<SearchIcon />} />
+                            <BottomNavigationAction
+                                showLabel={true}
+                                label={'検索'}
+                                onClick={() => dispatch('search')}
+                                icon={<SearchIcon />}
+                            />
                             <BottomNavigationAction showLabel={true} label={'ログイン'} icon={
                                 <LoginDialog
                                     button={<LoginIcon onClick={handleDialogOpen} />}
@@ -100,6 +135,25 @@ export default function Footer() {
                     )
                 )
             }
+            <Drawer
+                open={openDrawer.drawer_name === 'search'}
+                anchor={'top'}
+                onClose={handleDrawerClose}
+            >
+                <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    padding: '0.5rem',
+                }}>
+                    <SearchInput
+                        inputPaddingSize={'small'}
+                        labelFontSize={'1rem'}
+                        inputFontSize={'1rem'}
+                        onSearchIconClick={handleDrawerClose}
+                    />
+                </Box>
+            </Drawer>
         </Paper>
     )
 }

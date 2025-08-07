@@ -47,10 +47,16 @@ export default createYoga<
   graphqlEndpoint: '/api/graphql',
   schema,
   plugins: [
-    usePersistedOperations({
-      getPersistedOperation(key: string) {
-        return persistedOperations[key];
-      }
+    (() => {
+      (
+        process.env.NODE_ENV === "development"
+        && process.env.npm_lifecycle_event === "graphql-codegen"
+      )
+      && usePersistedOperations({
+        getPersistedOperation(key: string) {
+          return persistedOperations[key];
+        }
+      })
     }),
   ],
   context: async ({ req, res }) => createContext(req, res),

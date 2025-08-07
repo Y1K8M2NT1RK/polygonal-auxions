@@ -6,12 +6,29 @@ import { Artwork, ArtworkRanks, userIncludeFile } from '../consts';
 builder.queryField("artworks", (t) =>
   t.prismaField({
     type: [Artwork], // 複数のデータを求める場合は[]で囲う
-    resolve: (query, _parent, _args, _ctx, _info) => 
-      prisma.artwork.findMany({
+    args: {
+      q: t.arg.string({ required: false }),
+      // page: t.arg.int({ required: false, defaultValue: 1 }),
+      // limit: t.arg.int({ required: false, defaultValue: 20 }),
+    },
+    resolve: (query, _parent, args, _ctx, _info) =>  {
+      const keywords = (args.q || '').split(/\s+/).map(s => s.trim()).filter(Boolean);
+
+      return prisma.artwork.findMany({
         ...query,
+        where: {
+          AND: keywords.map(keyword => ({
+            OR: [
+              { title: { contains: keyword, mode: 'insensitive' } },
+              { feature: { contains: keyword, mode: 'insensitive' } },
+              { user: { handle_name: { contains: keyword, mode: 'insensitive' } } }
+            ]
+          })),
+        },
         orderBy: { created_at: 'desc' },
-        include: { artwork_file: true, user: userIncludeFile }
-    }),
+        include: { artwork_file: true, user: true }
+      });
+    },
   })
 );
 

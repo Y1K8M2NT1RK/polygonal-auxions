@@ -227,6 +227,11 @@ export type QueryArtworkArgs = {
 };
 
 
+export type QueryArtworksArgs = {
+  q?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryGetArtworkCommentsArgs = {
   artwork_id: Scalars['String']['input'];
 };
@@ -281,8 +286,6 @@ export type ZodFieldError = {
   message: Scalars['String']['output'];
   path: Array<Scalars['String']['output']>;
 };
-
-export type UserFragmentFragment = { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> };
 
 export type UpsertArtworkMutationVariables = Exact<{
   title: Scalars['String']['input'];
@@ -376,7 +379,9 @@ export type FollowOrUnfollowMutationVariables = Exact<{
 
 export type FollowOrUnfollowMutation = { __typename?: 'Mutation', followOrUnfollow: { __typename: 'Follow' } };
 
-export type ArtworksQueryVariables = Exact<{ [key: string]: never; }>;
+export type ArtworksQueryVariables = Exact<{
+  q?: InputMaybe<Scalars['String']['input']>;
+}>;
 
 
 export type ArtworksQuery = { __typename?: 'Query', artworks: Array<{ __typename?: 'Artwork', id: string, title: string, slug_id: string, feature: string, created_at: any, user: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> }, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }> }> };
@@ -431,15 +436,7 @@ export type GetFollowedByQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetFollowedByQuery = { __typename?: 'Query', getFollowedByUser: Array<{ __typename?: 'User', handle_name: string, introduction: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> }> };
 
-export const UserFragmentFragmentDoc = gql`
-    fragment UserFragment on User {
-  id
-  handle_name
-  user_files {
-    file_path
-  }
-}
-    `;
+
 export const UpsertArtworkDocument = gql`
     mutation UpsertArtwork($title: String!, $feature: String!, $artwork_slug_id: String, $current_image_url: String, $image_url: String, $content_type: String, $is_image_deleted: Boolean) {
   upsertArtwork(
@@ -630,8 +627,8 @@ export function useFollowOrUnfollowMutation() {
   return Urql.useMutation<FollowOrUnfollowMutation, FollowOrUnfollowMutationVariables>(FollowOrUnfollowDocument);
 };
 export const ArtworksDocument = gql`
-    query Artworks {
-  artworks {
+    query Artworks($q: String) {
+  artworks(q: $q) {
     id
     title
     slug_id

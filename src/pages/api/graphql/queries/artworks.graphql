@@ -1,5 +1,9 @@
-query Artworks {
-	artworks {
+query Artworks(
+    $q: String,
+) {
+	artworks (
+        q: $q
+    ) {
         id,
         title,
         slug_id,

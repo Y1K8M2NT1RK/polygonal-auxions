@@ -44,12 +44,17 @@ export default function App(
   const urqlClient = createClient({
     exchanges: [
       cacheExchange,
-      persistedExchange({
-        preferGetForPersistedQueries: true,
-        enableForMutation: true,
-      }),
+      ...(
+            process.env.NODE_ENV === "development"
+        &&  process.env.npm_lifecycle_event === "graphql-codegen"
+        ? [persistedExchange({
+            preferGetForPersistedQueries: true,
+            enableForMutation: true,
+          })]
+        : []
+      ),
       ssrExchange({isClient: typeof window !== 'undefined'}),
-      createAuthExchange(),
+      // createAuthExchange(),
       fetchExchange,
     ],
     url: '/api/graphql',

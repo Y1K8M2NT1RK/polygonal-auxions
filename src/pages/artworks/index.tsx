@@ -11,14 +11,22 @@ import { useEffect, useState } from 'react';
 import { usePause } from '@/contexts/PauseContexts';
 import Head from 'next/head';
 import ArtworkPopover from './components/artwork-popover';
+import { useSearchParams } from 'next/navigation';
 
 export default function Artworks() {
   const { isPaused, setPaused } = usePause();
 
+  const searchParams = useSearchParams();
+
   const [resultArtworks] = useQuery({
     query: ArtworksDocument,
     pause: isPaused,
-    requestPolicy: 'network-only'
+    requestPolicy: 'network-only',
+    variables: {
+      q: searchParams?.get('q') || '',
+      // page: parseInt(searchParams?.get('page') || '1', 10),
+      // limit: parseInt(searchParams?.get('limit') || '20', 10),
+    },
   });
   const { fetching, error, data: dataArtworks } = resultArtworks;
 
