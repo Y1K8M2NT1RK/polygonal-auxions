@@ -6,12 +6,22 @@
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+  "dev": "next dev",
+  "prebuild": "sh scripts/clean.sh",
+  "build": "sh scripts/build.sh",
+  "build:docker": "sh scripts/build.sh",
     "build-with-debug": "NEXT_DEBUG=true npm run build",
     "vercel-build": "VERCEL_BUILD=true prisma generate && prisma migrate deploy && graphql-codegen && next build && prisma db seed",
-    "start": "next start",
-    "lint": "next lint"
+  "start": "sh scripts/start.sh",
+  "start:detached": "sh scripts/start_detached.sh",
+  "stop": "sh scripts/stop.sh",
+  "smoke": "sh scripts/smoke.sh",
+  "docker:verify": "sh scripts/verify_once.sh",
+    "lint": "next lint",
+    "verify": "sh scripts/verify_compose.sh",
+    "v": "npm run verify",
+    "dc:build": "sh scripts/dc_build.sh",
+    "db": "npm run dc:build"
   },
   "dependencies": {
     "@emotion/cache": "^11.11.0",

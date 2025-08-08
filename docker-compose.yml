@@ -37,6 +37,38 @@ services:
       - app_network
     env_file: .env
 
+  verify:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    tty: true
+    # verifyはコンテナ内で自己疎通を行うため、ポート公開は不要
+    volumes:
+      - type: bind
+        source: .
+        target: /app
+      - type: volume
+        source: node_modules
+        target: /app/node_modules
+    networks:
+      - app_network
+    depends_on:
+      - db
+    env_file: .env
+    environment:
+      # Next.js起動・疎通確認の可変項目（必要に応じて上書き可能）
+      HOST: 0.0.0.0
+      PORT: 3000
+      SMOKE_HOST: localhost
+      SMOKE_PORT: 3000
+      SMOKE_PATH: /
+    command: >
+      /bin/sh -c '
+        npm run build:docker &&
+        npm run smoke
+      '
+    profiles: ["verify"]
+
 volumes:
   node_modules:
   postgres_data:
