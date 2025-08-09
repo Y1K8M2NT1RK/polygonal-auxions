@@ -116,8 +116,22 @@ export const cookieModule: {
     setCookie: (user_id: number, context: YogaContext) => Promise<PrismaAuthPayloadType>;
     deleteCookie: (context: YogaContext) => Promise<boolean>;
 } = {
-    token:  { name: 'token', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 3600,},
-    refreshToken: { name: 'refreshToken', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 604800,},
+    token:  { 
+        name: 'token', 
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production', 
+        maxAge: 3600,
+        path: '/',
+        sameSite: 'strict' as const
+    },
+    refreshToken: { 
+        name: 'refreshToken', 
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production', 
+        maxAge: 604800,
+        path: '/',
+        sameSite: 'strict' as const
+    },
     setCookie: async (user_id: number, context: YogaContext) => {
         const access_token = jwt.sign({ id: user_id }, process.env.JWT_SECRET??'', { expiresIn: '1h' });
         const refresh_token = jwt.sign({ id: user_id }, process.env.JWT_REFRESH_SECRET??'', { expiresIn: '7d' });
@@ -133,17 +147,18 @@ export const cookieModule: {
         return authPayload;
     },
     deleteCookie: async (context: YogaContext) => {
-        await prisma.authPayload.delete({
-            where: { 
-                user_id: context?.auth?.id as number,
-                OR: [
-                    { access_token: context.req.cookies.token },
-                    { refresh_token: context.req.cookies.refreshToken }
-                ]},
-        });
+        try {
+            await prisma.authPayload.delete({
+                where: { 
+                    user_id: context?.auth?.id as number,
+                },
+            });
+        } catch (error) {
+            console.log('AuthPayload already deleted or not found');
+        }
         context.res.setHeader('Set-Cookie', [
             serialize('token', '', { ...cookieModule.token, maxAge: -1 }),
-            serialize('refreshToken', '', { ...cookieModule.token, maxAge: -1 }),
+            serialize('refreshToken', '', { ...cookieModule.refreshToken, maxAge: -1 }),
         ]);
         return true;
     },

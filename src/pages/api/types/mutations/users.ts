@@ -39,10 +39,8 @@ builder.mutationField("login", (t) =>
         validate: [
             async (args) => {
                 const user = await prisma.user.findUnique({where: {email: args?.email},});
-                const saltRounds = 10;
-                const salt = genSaltSync(saltRounds);
-                const hashedPassword = hashSync(user?.password || '', salt);
-                return compareSync(args.password, hashedPassword);
+                if (!user?.password) return false;
+                return compareSync(args.password, user.password);
             },
             {message: 'パスワードが違います。', path: ['password']},
         ],
