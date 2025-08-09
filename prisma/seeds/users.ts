@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker'
+import { hashSync } from 'bcrypt'
 import { prisma } from '../../src/pages/api/db'
 
 export const createUsersData = () => {
@@ -42,7 +43,7 @@ export const createUsersData = () => {
             name,
             name_kana: nameKana,
             handle_name: handleName,
-            password: '0000', // VarChar(30)以内
+            password: hashSync('0000', 10), // Hash the password for security
             birthday: faker.date.birthdate({ min: 18, max: 65, mode: 'age' }).toISOString(),
             introduction: faker.helpers.arrayElement(introductions).substring(0, 500), // VarChar(500)制限
             phone_number: faker.string.numeric(11), // VarChar(15)制限で11桁の数字
@@ -55,6 +56,20 @@ export const createUsersData = () => {
 
 export const seedUsers = async () => {
     const usersData = createUsersData();
+    
+    // Add a test user with known credentials for login testing
+    usersData[0] = {
+        name: 'テストユーザー',
+        name_kana: 'てすとゆーざー',
+        handle_name: 'testuser',
+        password: hashSync('0000', 10), // Hash the test password
+        birthday: new Date('1990-01-01').toISOString(),
+        introduction: 'テスト用のユーザーアカウントです。',
+        phone_number: '09012345678',
+        email: 'aaa@example.jp', // Known test email from README
+        address: 'テスト住所'
+    };
+    
     await prisma.user.createMany({ data: usersData });
     console.log('userの作成が完了しました。');
 };

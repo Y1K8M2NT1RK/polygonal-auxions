@@ -39,10 +39,8 @@ builder.mutationField("login", (t) =>
         validate: [
             async (args) => {
                 const user = await prisma.user.findUnique({where: {email: args?.email},});
-                const saltRounds = 10;
-                const salt = genSaltSync(saltRounds);
-                const hashedPassword = hashSync(user?.password || '', salt);
-                return compareSync(args.password, hashedPassword);
+                if (!user?.password) return false;
+                return compareSync(args.password, user.password);
             },
             {message: 'パスワードが違います。', path: ['password']},
         ],
@@ -60,11 +58,18 @@ builder.mutationField("refresh", (t) =>
         errors: { types: [ZodError], },
         authScopes: { isAuthenticated: true, },
         resolve: async (_query, _parent, _args, ctx) => {
-            const authPayload = cookieModule.setCookie(ctx?.auth?.id as number, ctx);
-            if ( !authPayload) {
+            if (!ctx?.auth?.id) {
+                throw new Error('User not authenticated');
+            }
+            
+            // Check if user still exists
+            const user = await prisma.user.findUnique({ where: { id: ctx.auth.id } });
+            if (!user) {
                 cookieModule.deleteCookie(ctx);
                 throw new Error('User not found');
             }
+            
+            const authPayload = await cookieModule.setCookie(ctx.auth.id, ctx);
             return authPayload;
         },
     })
@@ -171,6 +176,26 @@ builder.mutationField("logout", (t) =>
                 return cookieModule.deleteCookie(ctx);
             } catch (error) {
                 console.error('Logout error:', error);
+                return false;
+            }
+        },
+    })
+)
+
+builder.mutationField("logoutAll", (t) => 
+    t.boolean({
+        authScopes: { isAuthenticated: true, },
+        resolve: async (_query, _parent, ctx) => {
+            try {
+                // Delete all auth payloads for this user
+                await prisma.authPayload.deleteMany({
+                    where: { user_id: ctx?.auth?.id as number }
+                });
+                
+                // Clear current session cookies
+                return cookieModule.deleteCookie(ctx);
+            } catch (error) {
+                console.error('LogoutAll error:', error);
                 return false;
             }
         },

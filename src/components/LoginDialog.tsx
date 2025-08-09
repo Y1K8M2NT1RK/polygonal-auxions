@@ -55,6 +55,7 @@ export default function LoginDialog({
     const onSubmit = handleSubmit(async (data: FormData) => {
         setLockInput(true);
         await handleLogin(data.email, data.password);
+        setLockInput(false);
     });
 
     const handleClose = useCallback(() => { clearErrors(); setOpenDialog(false); }, [clearErrors, setOpenDialog]);
@@ -71,7 +72,7 @@ export default function LoginDialog({
         else if(!isLoggedIn) setLockInput(false);
     }, [formErrors, setError, isLockedInputExternally, isLoggedIn]);
 
-    useEffect(() => { if(!isLoggedIn) handleClose() }, [isLoggedIn, handleClose]);
+    useEffect(() => { if(isLoggedIn) handleClose() }, [isLoggedIn, handleClose]);
 
     return (
         <Box sx={sxProps?.Box}>
