@@ -1,7 +1,11 @@
 {
+    "$schema": "https://openapi.vercel.sh/vercel.json",
     "functions": {
         "src/pages/api/**/*.{ts,js}": {
             "includeFiles": "node_modules/.prisma/**"
         }
+    },
+    "git": {
+        "deploymentEnabled": false
     }
 }
