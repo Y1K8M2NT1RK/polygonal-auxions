@@ -173,3 +173,41 @@ docker ps
     * ![スクリーンショット 2025-02-18 151619](https://github.com/user-attachments/assets/56733872-b8b7-4b89-9c48-841a03547464)
 
 [目次へ戻る](https://github.com/Y1K8M2NT1RK/polygonal-auxions?tab=readme-ov-file#0-%E7%9B%AE%E6%AC%A1)
+
+## 6. デプロイ (手動運用方針)
+自動デプロイを無効化し、明示操作のみで Vercel へ反映します。
+
+### 1. 前提
+`vercel.json` に `"git": { "deploymentEnabled": false }` を設定済み (push でデプロイされません)。
+
+### 2. Preview デプロイ
+```
+npm ci
+npx prisma generate
+npx graphql-codegen
+npm run build
+npx vercel --prebuilt --confirm
+```
+
+### 3. Production デプロイ
+```
+npm ci
+npx prisma generate
+npx graphql-codegen
+npm run build
+npx vercel deploy --prod --prebuilt --confirm
+```
+
+### 4. 推奨ワークフロー
+1. main ブランチへ merge
+2. Preview デプロイで動作確認
+3. 問題なければ Production デプロイ
+
+### 5. 失敗時リカバリ
+Vercel ダッシュボード > Deployments で前回 Production を Promote することで即座にロールバック可能。
+
+### 6. バンドル最適化メモ (Tree Shaking)
+- modularizeImports 設定で `@mui/material` / `@mui/icons-material` を個別 import 化
+- package.json `sideEffects` で未使用コード削減を支援 (CSS は副作用扱いで除外)
+- 不要になった一括 import を書かない: `import Button from '@mui/material/Button'` または `import { Button } from '@mui/material'`
+

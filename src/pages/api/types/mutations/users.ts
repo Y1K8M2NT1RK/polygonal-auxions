@@ -39,10 +39,13 @@ builder.mutationField("login", (t) =>
         validate: [
             async (args) => {
                 const user = await prisma.user.findUnique({where: {email: args?.email},});
-                const saltRounds = 10;
-                const salt = genSaltSync(saltRounds);
-                const hashedPassword = hashSync(user?.password || '', salt);
-                return compareSync(args.password, hashedPassword);
+                if(!user){
+                    // ダミー比較でタイミング差異を軽減
+                    compareSync(args.password, '$2b$10$ABCDEFGHIJKLMNOPQRSTUVabcdefghijklmnopqrstuv12');
+                    return false;
+                }
+                // user.password は既にハッシュ済み想定。再ハッシュせず直接比較
+                return compareSync(args.password, user.password);
             },
             {message: 'パスワードが違います。', path: ['password']},
         ],
