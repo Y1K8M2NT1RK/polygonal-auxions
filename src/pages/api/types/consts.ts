@@ -116,8 +116,9 @@ export const cookieModule: {
     setCookie: (user_id: number, context: YogaContext) => Promise<PrismaAuthPayloadType>;
     deleteCookie: (context: YogaContext) => Promise<boolean>;
 } = {
-    token:  { name: 'token', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 3600,},
-    refreshToken: { name: 'refreshToken', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 604800,},
+    // Cookie 属性強化: SameSite=Lax, path=/, 本番で Secure、HttpOnly を全て付与
+    token:  { name: 'token', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 3600, sameSite: 'lax', path: '/' },
+    refreshToken: { name: 'refreshToken', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 604800, sameSite: 'lax', path: '/' },
     setCookie: async (user_id: number, context: YogaContext) => {
         const secret = new TextEncoder().encode(process.env.JWT_SECRET ?? '');
         const refreshSecret = new TextEncoder().encode(process.env.JWT_REFRESH_SECRET ?? '');
@@ -154,7 +155,7 @@ export const cookieModule: {
         });
         context.res.setHeader('Set-Cookie', [
             serialize('token', '', { ...cookieModule.token, maxAge: -1 }),
-            serialize('refreshToken', '', { ...cookieModule.token, maxAge: -1 }),
+            serialize('refreshToken', '', { ...cookieModule.refreshToken, maxAge: -1 }),
         ]);
         return true;
     },

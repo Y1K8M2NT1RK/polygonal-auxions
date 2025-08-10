@@ -18,13 +18,6 @@ builder.mutationField("login", (t) =>
                     type: 'string',
                     maxLength: [100, {message: '文字数が多すぎます。'}],
                     minLength: [1, {message: '入力してください。'}],
-                    refine: [
-                        async (val) => {
-                            if( val == "" ) return true;
-                            return !!(await prisma.user.findUnique({where: {email: val},}));
-                        },
-                        {message: '入力した情報からユーザが確認できません。'}
-                    ],
                 },
             }),
             password: t.arg.string({
@@ -47,7 +40,7 @@ builder.mutationField("login", (t) =>
                 // user.password は既にハッシュ済み想定。再ハッシュせず直接比較
                 return compareSync(args.password, user.password);
             },
-            {message: 'パスワードが違います。', path: ['password']},
+            {message: 'メールまたはパスワードが違います。', path: ['password']},
         ],
         resolve: async (_query, _parent, args, ctx) => {
             const user = await prisma.user.findUnique({where: {email: args.email},});
