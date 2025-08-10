@@ -4,7 +4,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type { YogaContext } from './context';
 import { GraphQLError } from 'graphql';
 import { ZodError } from 'zod';
-import jwt, { type JwtPayload } from 'jsonwebtoken';
+import { jwtVerify } from 'jose';
 import { prisma } from './db';
 import { User } from '../../../prisma/generated/client';
 import { readFileSync } from 'fs';
@@ -24,12 +24,16 @@ export const createContext = async (
 
   let auth: User | null = null;
 
-  if (!!token) {
+  if (token) {
     try {
-      const user_id = (jwt.verify(token, process.env.JWT_SECRET||'') as JwtPayload).id as number;
-      auth = await prisma.user.findUnique({ where: { id: user_id },});
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET || '');
+      const { payload } = await jwtVerify(token, secret, { algorithms: ['HS256'] });
+      const user_id = (payload as any).id as number;
+      if (typeof user_id === 'number') {
+        auth = await prisma.user.findUnique({ where: { id: user_id } });
+      }
     } catch (error) {
-      console.error('トークンの特定がエラーにより不可:', error);
+      console.error('トークン検証失敗:', error);
     }
   }
 
