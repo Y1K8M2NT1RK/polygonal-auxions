@@ -39,11 +39,7 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
   const handleLogin = useCallback(async (email: string, password: string) => {
     const result = await login({ email, password });
     if (result.data?.login.__typename === 'MutationLoginSuccess') {
-      if (typeof window !== 'undefined') {
-        document.cookie = `token=${result.data.login.data.accessToken}; HttpOnly; Secure; Path=/; SameSite=Strict`;
-        document.cookie = `refreshToken=${result.data.login.data.refreshToken}; HttpOnly; Secure; Path=/; SameSite=Strict`;
-        window.location.reload();
-      }
+      if (typeof window !== 'undefined') window.location.reload();
     } else {
       const gqlErrors: string[] = result.error?.graphQLErrors[0].extensions.messages as string[];
       setFormErrors(gqlErrors);
@@ -54,11 +50,7 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
   const handleLogout = useCallback(async () => {
     const result = await logout({});
     if (result.data?.logout) {
-      if (typeof window !== 'undefined') {
-        document.cookie = 'token=; Max-Age=0; path=/; secure; HttpOnly; SameSite=Strict';
-        document.cookie = 'refreshToken=; Max-Age=0; path=/; secure; HttpOnly; SameSite=Strict';
-        window.location.reload();
-      }
+      if (typeof window !== 'undefined') window.location.reload();
     } else {
       toast.error('ログアウトに失敗しました。');
     }
