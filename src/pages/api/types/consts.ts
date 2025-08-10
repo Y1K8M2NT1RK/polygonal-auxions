@@ -1,6 +1,6 @@
 import { builder } from '../builder';
 import { prisma } from '../db';
-import jwt from 'jsonwebtoken';
+import { SignJWT, jwtVerify } from 'jose';
 import { serialize } from 'cookie';
 import { YogaContext } from '../context';
 import { AuthPayload as PrismaAuthPayloadType } from '../../../../prisma/generated/client';
@@ -119,8 +119,19 @@ export const cookieModule: {
     token:  { name: 'token', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 3600,},
     refreshToken: { name: 'refreshToken', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 604800,},
     setCookie: async (user_id: number, context: YogaContext) => {
-        const access_token = jwt.sign({ id: user_id }, process.env.JWT_SECRET??'', { expiresIn: '1h' });
-        const refresh_token = jwt.sign({ id: user_id }, process.env.JWT_REFRESH_SECRET??'', { expiresIn: '7d' });
+        const secret = new TextEncoder().encode(process.env.JWT_SECRET ?? '');
+        const refreshSecret = new TextEncoder().encode(process.env.JWT_REFRESH_SECRET ?? '');
+        const now = Math.floor(Date.now() / 1000);
+        const access_token = await new SignJWT({ id: user_id })
+            .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
+            .setIssuedAt(now)
+            .setExpirationTime('1h')
+            .sign(secret);
+        const refresh_token = await new SignJWT({ id: user_id })
+            .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
+            .setIssuedAt(now)
+            .setExpirationTime('7d')
+            .sign(refreshSecret);
         const authPayload = await prisma.authPayload.upsert({
             where: { user_id: user_id },
             update: {access_token, refresh_token, expires_at: new Date(Date.now() + 15 * 60 * 1000),},
