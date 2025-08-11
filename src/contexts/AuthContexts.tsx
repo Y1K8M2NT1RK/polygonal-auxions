@@ -49,8 +49,7 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
         const msg = 'セッションが失効しました。ページを再読み込みしてから再度お試しください。';
         setFormErrors([msg]);
         toast.error(msg);
-        // 自動リロード（UX次第でコメントアウト可）
-        setTimeout(() => { if (typeof window !== 'undefined') window.location.reload(); }, 1500);
+            // 自動リロードは行わない（ユーザー操作に委ねる）
       } else {
         const gqlErrors: string[] = (firstErr?.extensions?.messages as string[]) || ['ログインに失敗しました。'];
         setFormErrors(gqlErrors);
