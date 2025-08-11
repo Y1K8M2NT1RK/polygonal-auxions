@@ -211,3 +211,33 @@ Vercel ダッシュボード > Deployments で前回 Production を Promote す�
 - package.json `sideEffects` で未使用コード削減を支援 (CSS は副作用扱いで除外)
 - 不要になった一括 import を書かない: `import Button from '@mui/material/Button'` または `import { Button } from '@mui/material'`
 
+## 7. セキュリティ設定メモ
+### 1. CSRF 簡易防御
+`/api/graphql` への POST について、`Origin` もしくは `Referer` のホストが許可リスト外の場合は 403 を返します。許可リストは環境変数 `CSRF_ALLOWED_HOSTS` (カンマ区切り) で指定可能。未設定時はアクセス先自身 (`request.nextUrl.host`) のみ許可。
+
+例:
+```
+CSRF_ALLOWED_HOSTS=localhost:3001,polygonal-auxions.vercel.app
+```
+
+### 2. 認証 Cookie 仕様
+| Cookie 名 | 用途 | 有効期限 | 属性 |
+|-----------|------|----------|------|
+| token | アクセストークン (JWT) | 1h | HttpOnly / SameSite=Strict / Path=/ / Secure(本番のみ) |
+| refreshToken | リフレッシュトークン (JWT) | 7d | HttpOnly / SameSite=Strict / Path=/ / Secure(本番のみ) |
+
+`logout` / `logoutAll` 実行時はいずれも即時削除 (maxAge=-1) されます。`logoutAll` は DB 上の全セッションレコード (authPayload) を削除し、他ブラウザ/端末のログインも無効化します。
+
+### 3. Basic 認証 (任意)
+環境変数 `BASIC_AUTH_USER`, `BASIC_AUTH_PASS` の両方が設定されている場合のみ全リクエストに Basic 認証を要求します。未設定ならスキップします。
+
+### 4. JWT 秘密鍵
+`JWT_SECRET` / `JWT_REFRESH_SECRET` を必ず十分に長いランダム値に設定してください (例: OpenSSL `openssl rand -hex 64`).
+
+### 5. 今後の強化候補
+- CSRF 対策をトークン方式 (Double Submit Cookie / SameSite=Lax+nonce) へ昇格
+- GraphQL のレート制限 (IP / user basis)
+- Refresh Token ローテーション (ワンタイム化) と検出ログ
+- セッション固定攻撃対策としてログイン前 Cookie 初期化
+
+
