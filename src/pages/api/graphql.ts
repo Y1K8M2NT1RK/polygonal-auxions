@@ -6,7 +6,7 @@ import { GraphQLError } from 'graphql';
 import { ZodError } from 'zod';
 import { jwtVerify } from 'jose';
 import { prisma } from './db';
-import { User } from '../../../prisma/generated/client';
+import { User } from '@prisma/client';
 import { readFileSync } from 'fs';
 import { usePersistedOperations } from '@graphql-yoga/plugin-persisted-operations'
 import { join } from 'path';
@@ -46,6 +46,17 @@ export const createContext = async (
   return { req, res, auth };
 };
 
+// GraphiQL 有効化条件:
+//  - NODE_ENV !== production ならデフォルト有効
+//  - ただし GRAPHIQL=0 / false で明示的に無効化可能
+//  - プロダクションでも緊急デバッグ用に GRAPHIQL=1 で強制有効化可 (推奨: 一時的利用)
+const enableGraphiQL = (() => {
+  const flag = (process.env.GRAPHIQL || '').toLowerCase();
+  if (flag === '0' || flag === 'false') return false;
+  if (flag === '1' || flag === 'true') return true;
+  return process.env.NODE_ENV !== 'production';
+})();
+
 const yoga = createYoga<
   {
     req: NextApiRequest;
@@ -53,7 +64,7 @@ const yoga = createYoga<
   },
   YogaContext
 >({
-  graphiql: process.env.NODE_ENV === "development",
+  graphiql: enableGraphiQL,
   graphqlEndpoint: '/api/graphql',
   schema,
   plugins: ((process.env.NODE_ENV === 'development' && process.env.npm_lifecycle_event === 'graphql-codegen')

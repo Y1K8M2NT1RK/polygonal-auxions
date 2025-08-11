@@ -5,15 +5,15 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x", "linux-arm64-openssl-1.1.x", "rhel-openssl-1.0.x"]
-  output   = "./generated/client"
+  // output removed: use default node_modules/.prisma/client to avoid permission issues
 }
 
 generator pothos {
-  provider = "prisma-pothos-types"
-  clientOutput = "../../../../prisma/generated/client"
-  output = "../src/pages/api/types/pothos.ts"
+  provider     = "prisma-pothos-types"
+  // clientOutput now omitted; will auto-detect default Prisma client location
+  output       = "../src/pages/api/types/pothos.ts"
 }
 
 datasource db {
