@@ -43,9 +43,19 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
       reexecuteQuery({ requestPolicy: 'network-only' });
       toast.success('ログインしました。');
     } else {
-      const gqlErrors: string[] = result.error?.graphQLErrors[0]?.extensions?.messages as string[] || ['ログインに失敗しました。'];
-      setFormErrors(gqlErrors);
-      toast.error('ログインできません。入力内容をお確かめください。');
+      const firstErr = result.error?.graphQLErrors?.[0];
+      const code = firstErr?.extensions?.code as string | undefined;
+      if (code === 'CSRF_INVALID') {
+        const msg = 'セッションが失効しました。ページを再読み込みしてから再度お試しください。';
+        setFormErrors([msg]);
+        toast.error(msg);
+        // 自動リロード（UX次第でコメントアウト可）
+        setTimeout(() => { if (typeof window !== 'undefined') window.location.reload(); }, 1500);
+      } else {
+        const gqlErrors: string[] = (firstErr?.extensions?.messages as string[]) || ['ログインに失敗しました。'];
+        setFormErrors(gqlErrors);
+        toast.error('ログインできません。入力内容をお確かめください。');
+      }
     }
   }, [login, reexecuteQuery]);
 
