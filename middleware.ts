@@ -40,6 +40,30 @@ export function middleware(request: NextRequest) {
         }
     }
     
+    // CSRF 簡易対策: /api/graphql への cross-site POST を Origin/Referer で拒否
+    if (request.method === 'POST' && request.nextUrl.pathname === '/api/graphql') {
+        const origin = request.headers.get('origin');
+        const referer = request.headers.get('referer');
+        const selfHost = request.nextUrl.host;
+        const allowed = (process.env.CSRF_ALLOWED_HOSTS || '')
+            .split(',')
+            .map(h => h.trim())
+            .filter(Boolean);
+        if (!allowed.length) allowed.push(selfHost);
+        const extractHost = (urlStr: string | null) => {
+            if (!urlStr) return null;
+            try { return new URL(urlStr).host; } catch { return null; }
+        }
+        const originHost = extractHost(origin);
+        const refererHost = extractHost(referer);
+        if (originHost && !allowed.includes(originHost)) {
+            return new Response('Forbidden (CSRF)', { status: 403 });
+        }
+        if (!originHost && refererHost && !allowed.includes(refererHost)) {
+            return new Response('Forbidden (CSRF)', { status: 403 });
+        }
+    }
+
     // 本番環境で"/api/debug"と"/api/openssl"にアクセスした場合は404エラーを返す
     if( process.env.NODE_ENV === 'production' ) {
         const restrictedPaths = ['/api/debug', '/api/openssl'];
