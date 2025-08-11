@@ -74,6 +74,11 @@ mutation Logout {
   logout
 }
 
+# invalidate all sessions for current user
+mutation LogoutAll {
+  logoutAll
+}
+
 mutation followOrUnfollow($following_id: String!, $mode: String!){
   followOrUnfollow(following_id: $following_id, mode: $mode){
      __typename

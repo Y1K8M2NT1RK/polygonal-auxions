@@ -95,6 +95,7 @@ export type Mutation = {
   followOrUnfollow: Follow;
   login: MutationLoginResult;
   logout: Scalars['Boolean']['output'];
+  logoutAll: Scalars['Boolean']['output'];
   refresh: MutationRefreshResult;
   removeArtwork: Artwork;
   removeArtworkRank: ArtworkRanks;
@@ -371,6 +372,11 @@ export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
 export type LogoutMutation = { __typename?: 'Mutation', logout: boolean };
 
+export type LogoutAllMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogoutAllMutation = { __typename?: 'Mutation', logoutAll: boolean };
+
 export type FollowOrUnfollowMutationVariables = Exact<{
   following_id: Scalars['String']['input'];
   mode: Scalars['String']['input'];
@@ -614,6 +620,15 @@ export const LogoutDocument = gql`
 
 export function useLogoutMutation() {
   return Urql.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument);
+};
+export const LogoutAllDocument = gql`
+    mutation LogoutAll {
+  logoutAll
+}
+    `;
+
+export function useLogoutAllMutation() {
+  return Urql.useMutation<LogoutAllMutation, LogoutAllMutationVariables>(LogoutAllDocument);
 };
 export const FollowOrUnfollowDocument = gql`
     mutation followOrUnfollow($following_id: String!, $mode: String!) {
