@@ -1,6 +1,6 @@
 import { builder } from '../builder';
 import { prisma } from '../db';
-import { SignJWT, jwtVerify } from 'jose';
+import { SignJWT } from 'jose';
 import { serialize } from 'cookie';
 import { YogaContext } from '../context';
 import { AuthPayload as PrismaAuthPayloadType } from '../../../../prisma/generated/client';
@@ -116,28 +116,9 @@ export const cookieModule: {
     setCookie: (user_id: number, context: YogaContext) => Promise<PrismaAuthPayloadType>;
     deleteCookie: (context: YogaContext) => Promise<boolean>;
 } = {
-<<<<<<< HEAD
-    // Cookie 属性強化: SameSite=Lax, path=/, 本番で Secure、HttpOnly を全て付与
-    token:  { name: 'token', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 3600, sameSite: 'lax', path: '/' },
-    refreshToken: { name: 'refreshToken', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 604800, sameSite: 'lax', path: '/' },
-=======
-    token:  { 
-            // Cookie 属性強化: SameSite=Strict, path=/, 本番で Secure、HttpOnly を全て付与
-            token:  { name: 'token', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 3600, sameSite: 'strict', path: '/' },
-            refreshToken: { name: 'refreshToken', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 604800, sameSite: 'strict', path: '/' },
-        maxAge: 3600,
-        path: '/',
-        sameSite: 'strict' as const
-    },
-    refreshToken: { 
-        name: 'refreshToken', 
-        httpOnly: true, 
-        secure: process.env.NODE_ENV === 'production', 
-        maxAge: 604800,
-        path: '/',
-        sameSite: 'strict' as const
-    },
->>>>>>> copilot-fix-7
+    // Cookie 属性強化: SameSite=Strict, path=/, 本番で Secure、HttpOnly を全て付与
+    token:  { name: 'token', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 3600, sameSite: 'strict', path: '/' },
+    refreshToken: { name: 'refreshToken', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 604800, sameSite: 'strict', path: '/' },
     setCookie: async (user_id: number, context: YogaContext) => {
         const secret = new TextEncoder().encode(process.env.JWT_SECRET ?? '');
         const refreshSecret = new TextEncoder().encode(process.env.JWT_REFRESH_SECRET ?? '');
