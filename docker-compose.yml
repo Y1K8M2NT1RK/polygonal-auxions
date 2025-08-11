@@ -6,7 +6,6 @@ services:
     tty: true
     ports:
       - "3001:3000"
-      - "5555:5555"
     volumes:
       - type: bind
         source: .
@@ -37,7 +36,7 @@ services:
     networks:
       - app_network
     env_file: .env
-    profiles: ["dev", "verify"]
+  # profiles removed to ensure availability for dependent services
 
   verify:
     build:
@@ -70,6 +69,32 @@ services:
         npm run smoke
       '
     profiles: ["verify"]
+
+  prisma-studio: # profile 無し: そのまま `docker compose up -d prisma-studio`
+    build:
+      context: .
+      dockerfile: Dockerfile
+    tty: true
+    ports:
+      - "5555:5555"
+    volumes:
+      - type: bind
+        source: .
+        target: /app
+      - type: volume
+        source: node_modules
+        target: /app/node_modules
+    networks:
+      - app_network
+    depends_on:
+      - db
+    env_file: .env
+    command: >
+      /bin/sh -c '
+        npx prisma generate && \
+        npx prisma migrate deploy && \
+        npx prisma studio --port 5555 --browser none
+      '
 
 volumes:
   node_modules:

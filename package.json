@@ -21,7 +21,8 @@
     "verify": "sh scripts/verify_compose.sh",
     "v": "npm run verify",
     "dc:build": "sh scripts/dc_build.sh",
-    "db": "npm run dc:build"
+  "db": "npm run dc:build",
+  "studio": "npx prisma studio --port 5555 --browser none"
   },
   "dependencies": {
     "@emotion/cache": "^11.11.0",
@@ -88,6 +89,7 @@
   },
   "sideEffects": [
     "src/app/globals.css",
-    "**/*.css"
+    "**/*.css",
+    "src/pages/api/types/**/*"  
   ]
 }
