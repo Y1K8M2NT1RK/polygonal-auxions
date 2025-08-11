@@ -1,7 +1,7 @@
 import { builder } from '../../builder';
 import { prisma } from '../../db';
 import { ZodError } from 'zod';
-import { compareSync, genSaltSync, hashSync } from 'bcrypt';
+import { compareSync } from 'bcrypt';
 import { AuthPayload, Follows, User } from '../consts';
 import { cookieModule } from '../consts';
 import { ImageInput } from '../consts';
@@ -32,15 +32,10 @@ builder.mutationField("login", (t) =>
         validate: [
             async (args) => {
                 const user = await prisma.user.findUnique({where: {email: args?.email},});
-                if(!user){
-                    // ダミー比較でタイミング差異を軽減
-                    compareSync(args.password, '$2b$10$ABCDEFGHIJKLMNOPQRSTUVabcdefghijklmnopqrstuv12');
-                    return false;
-                }
-                // user.password は既にハッシュ済み想定。再ハッシュせず直接比較
+                if (!user?.password) return false;
                 return compareSync(args.password, user.password);
             },
-            {message: 'メールまたはパスワードが違います。', path: ['password']},
+            {message: 'パスワードが違います。', path: ['password']},
         ],
         resolve: async (_query, _parent, args, ctx) => {
             const user = await prisma.user.findUnique({where: {email: args.email},});
@@ -56,11 +51,18 @@ builder.mutationField("refresh", (t) =>
         errors: { types: [ZodError], },
         authScopes: { isAuthenticated: true, },
         resolve: async (_query, _parent, _args, ctx) => {
-            const authPayload = cookieModule.setCookie(ctx?.auth?.id as number, ctx);
-            if ( !authPayload) {
+            if (!ctx?.auth?.id) {
+                throw new Error('User not authenticated');
+            }
+            
+            // Check if user still exists
+            const user = await prisma.user.findUnique({ where: { id: ctx.auth.id } });
+            if (!user) {
                 cookieModule.deleteCookie(ctx);
                 throw new Error('User not found');
             }
+            
+            const authPayload = await cookieModule.setCookie(ctx.auth.id, ctx);
             return authPayload;
         },
     })
@@ -167,6 +169,26 @@ builder.mutationField("logout", (t) =>
                 return cookieModule.deleteCookie(ctx);
             } catch (error) {
                 console.error('Logout error:', error);
+                return false;
+            }
+        },
+    })
+)
+
+builder.mutationField("logoutAll", (t) => 
+    t.boolean({
+        authScopes: { isAuthenticated: true, },
+        resolve: async (_query, _parent, ctx) => {
+            try {
+                // Delete all auth payloads for this user
+                await prisma.authPayload.deleteMany({
+                    where: { user_id: ctx?.auth?.id as number }
+                });
+                
+                // Clear current session cookies
+                return cookieModule.deleteCookie(ctx);
+            } catch (error) {
+                console.error('LogoutAll error:', error);
                 return false;
             }
         },

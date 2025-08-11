@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
+import { hashSync, genSaltSync } from 'bcrypt'
 import { prisma } from '../../src/pages/api/db'
-import { hashSync, genSaltSync } from 'bcrypt';
 
 export const createUsersData = () => {
     const usersData = [];
@@ -56,26 +56,18 @@ export const createUsersData = () => {
 
 export const seedUsers = async () => {
     const usersData = createUsersData();
-    // 先にランダムユーザ
+    // 固定テストユーザ (README 記載)
+    usersData[0] = {
+        name: 'テストユーザー',
+    name_kana: 'たなかたろう',
+        handle_name: 'testuser',
+        password: hashSync('0000', genSaltSync(10)),
+        birthday: new Date('1990-01-01').toISOString(),
+        introduction: 'テスト用のユーザーアカウントです。',
+        phone_number: '09012345678',
+        email: 'aaa@example.jp',
+        address: 'テスト住所'
+    };
     await prisma.user.createMany({ data: usersData });
-    // 既知テストユーザ (ログイン確認用)
-    const testEmail = 'test@example.com';
-    const exists = await prisma.user.findUnique({ where: { email: testEmail } });
-    if (!exists) {
-        await prisma.user.create({
-            data: {
-                name: 'Test User',
-                name_kana: 'てすとゆーざー',
-                handle_name: 'testuser',
-                password: hashSync('password123', genSaltSync(10)),
-                birthday: faker.date.birthdate({ min: 25, max: 40, mode: 'age' }).toISOString(),
-                introduction: 'テストログイン用ユーザーです。',
-                phone_number: faker.string.numeric(11),
-                email: testEmail,
-                address: 'Test City',
-            }
-        });
-        console.log('test user created: email=test@example.com password=password123');
-    }
-    console.log('userの作成が完了しました。');
+    console.log('userの作成が完了しました。 (含: aaa@example.jp / 0000)');
 };

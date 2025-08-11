@@ -27,7 +27,7 @@ model User {
   name              String     @db.VarChar(25)
   name_kana         String?    @db.VarChar(50)  // 日本語用
   handle_name       String     @unique @db.VarChar(60)
-  // bcrypt ハッシュ(60文字)格納のため長さ拡張
+  // bcrypt ハッシュ(最大60文字)格納のため長さ拡張 (余裕含め72)
   password          String     @db.VarChar(72)
   birthday          DateTime   @db.Date
   introduction      String     @db.VarChar(500)
