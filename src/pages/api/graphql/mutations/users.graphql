@@ -16,25 +16,6 @@ mutation Login($email: String!, $password: String!) {
   }
 }
 
-# todo: refreshをちゃんと動かせるようにする
-mutation Refresh {
-  refresh {
-    ... on MutationRefreshSuccess {
-      __typename
-      data {
-        accessToken
-      }
-    }
-    ... on ZodError {
-      __typename
-      message
-      fieldErrors {
-        message
-      }
-    }
-  }
-}
-
 mutation UpdateMyProfile(
   $name: String,
   $name_kana: String,
