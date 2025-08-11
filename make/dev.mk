@@ -12,6 +12,7 @@ prebuild:
 
 # アプリ全体をビルド (scripts/build.sh)
 build:
+	@if [ -n "$$SKIP_LOCAL_BUILD" ]; then echo "[build] SKIP_LOCAL_BUILD=1 -> skip local build"; exit 0; fi; \
 	sh scripts/build.sh
 
 # コンテナ内ビルド用エイリアス (build:docker)
@@ -19,10 +20,12 @@ build-docker: build
 
 # NEXT_DEBUG フラグ付きビルド
 build-with-debug:
+	@if [ -n "$$SKIP_LOCAL_BUILD" ]; then echo "[build-with-debug] SKIP_LOCAL_BUILD=1 -> skip local build"; exit 0; fi; \
 	NEXT_DEBUG=true $(NPM) run build
 
 # Vercel CLI / 手動デプロイ用 本番ビルド手順
 vercel-build:
+	@if [ -n "$$SKIP_LOCAL_BUILD" ]; then echo "[vercel-build] SKIP_LOCAL_BUILD=1 -> skip (assume remote build will run)"; exit 0; fi; \
 	VERCEL_BUILD=true $(PRISMA) generate && \
 	$(PRISMA) migrate deploy && \
 	graphql-codegen && \
