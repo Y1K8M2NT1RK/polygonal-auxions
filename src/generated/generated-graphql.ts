@@ -174,7 +174,6 @@ export type MutationLoginSuccess = {
   data: AuthPayload;
 };
 
-
 export type MutationUpdateMyProfileResult = MutationUpdateMyProfileSuccess | ZodError;
 
 export type MutationUpdateMyProfileSuccess = {
@@ -339,10 +338,6 @@ export type LoginMutationVariables = Exact<{
 
 
 export type LoginMutation = { __typename?: 'Mutation', login: { __typename: 'MutationLoginSuccess', data: { __typename?: 'AuthPayload', accessToken: string } } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
-
-
-
-// Refresh flow removed
 
 export type UpdateMyProfileMutationVariables = Exact<{
   name?: InputMaybe<Scalars['String']['input']>;
@@ -533,7 +528,6 @@ export const LoginDocument = gql`
       __typename
       data {
         accessToken
-        __typename
       }
     }
     ... on ZodError {
@@ -541,10 +535,8 @@ export const LoginDocument = gql`
       message
       fieldErrors {
         message
-        __typename
       }
     }
-    __typename
   }
 }
     `;
@@ -552,7 +544,6 @@ export const LoginDocument = gql`
 export function useLoginMutation() {
   return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
 };
-
 export const UpdateMyProfileDocument = gql`
     mutation UpdateMyProfile($name: String, $name_kana: String, $birthday: String, $introduction: String, $phone_number: String, $address: String, $bg: ImageInput, $icon: ImageInput) {
   updateMyProfile(

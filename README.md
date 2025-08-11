@@ -211,6 +211,27 @@ Vercel ダッシュボード > Deployments で前回 Production を Promote す�
 - package.json `sideEffects` で未使用コード削減を支援 (CSS は副作用扱いで除外)
 - 不要になった一括 import を書かない: `import Button from '@mui/material/Button'` または `import { Button } from '@mui/material'`
 
+### 7. Vercel 認証設定 (.env.vercel 方式)
+ローカル開発で都度 `export VERCEL_TOKEN=...` する手間を省くため、以下の手順で `.env.vercel` を作成できます。
+
+1. `.env.vercel.example` をコピー
+```
+cp .env.vercel.example .env.vercel
+```
+2. 発行済みの Personal Token / Project / Org ID を記入
+```
+VERCEL_PROJECT_ID=prj_xxxxx
+VERCEL_ORG_ID=team_xxxxx   # team_ か usr_
+VERCEL_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxx
+```
+3. `make vercel-link` で `.vercel/project.json` を生成 (未リンクの場合)
+4. デプロイ: `make deploy-preview` / `make deploy-prod`
+
+補足:
+* `.env.vercel` は `.gitignore` 済み (コミット禁止)
+* ID が分からない場合は token を設定し `make vercel-link` (または `make vercel-link-docker`) で対話リンクし、その後 ID を `.env.vercel` に反映
+* CI ではリポジトリ Secrets に同名変数を登録し、`make deploy-*` を呼び出してください
+
 ## 7. セキュリティ設定メモ
 ### 1. CSRF 簡易防御
 `/api/graphql` への POST について、`Origin` もしくは `Referer` のホストが許可リスト外の場合は 403 を返します。許可リストは環境変数 `CSRF_ALLOWED_HOSTS` (カンマ区切り) で指定可能。未設定時はアクセス先自身 (`request.nextUrl.host`) のみ許可。
