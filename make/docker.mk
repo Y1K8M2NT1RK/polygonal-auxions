@@ -9,6 +9,7 @@ TAIL ?= 120
 
 # Docker イメージビルド (scripts/dc_build.sh)
 dc-build:
+	@if [ -n "$$SKIP_LOCAL_BUILD" ]; then echo "[dc-build] SKIP_LOCAL_BUILD=1 -> skip docker image build"; exit 0; fi; \
 	sh scripts/dc_build.sh
 
 # 後方互換用エイリアス

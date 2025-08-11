@@ -20,3 +20,4 @@ seed:
 # 複合: generate + migrate + seed を一括
 # Prisma 一連処理
 prisma-all: prisma-generate prisma-migrate seed
+	@if [ -n "$$SKIP_LOCAL_BUILD" ]; then echo "[prisma-all] SKIP_LOCAL_BUILD=1 -> all steps already skipped"; fi
