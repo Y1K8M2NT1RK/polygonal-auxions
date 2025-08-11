@@ -116,9 +116,28 @@ export const cookieModule: {
     setCookie: (user_id: number, context: YogaContext) => Promise<PrismaAuthPayloadType>;
     deleteCookie: (context: YogaContext) => Promise<boolean>;
 } = {
+<<<<<<< HEAD
     // Cookie 属性強化: SameSite=Lax, path=/, 本番で Secure、HttpOnly を全て付与
     token:  { name: 'token', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 3600, sameSite: 'lax', path: '/' },
     refreshToken: { name: 'refreshToken', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 604800, sameSite: 'lax', path: '/' },
+=======
+    token:  { 
+            // Cookie 属性強化: SameSite=Strict, path=/, 本番で Secure、HttpOnly を全て付与
+            token:  { name: 'token', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 3600, sameSite: 'strict', path: '/' },
+            refreshToken: { name: 'refreshToken', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 604800, sameSite: 'strict', path: '/' },
+        maxAge: 3600,
+        path: '/',
+        sameSite: 'strict' as const
+    },
+    refreshToken: { 
+        name: 'refreshToken', 
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production', 
+        maxAge: 604800,
+        path: '/',
+        sameSite: 'strict' as const
+    },
+>>>>>>> copilot-fix-7
     setCookie: async (user_id: number, context: YogaContext) => {
         const secret = new TextEncoder().encode(process.env.JWT_SECRET ?? '');
         const refreshSecret = new TextEncoder().encode(process.env.JWT_REFRESH_SECRET ?? '');
@@ -145,14 +164,15 @@ export const cookieModule: {
         return authPayload;
     },
     deleteCookie: async (context: YogaContext) => {
-        await prisma.authPayload.delete({
-            where: { 
-                user_id: context?.auth?.id as number,
-                OR: [
-                    { access_token: context.req.cookies.token },
-                    { refresh_token: context.req.cookies.refreshToken }
-                ]},
-        });
+        try {
+            await prisma.authPayload.delete({
+                where: { 
+                    user_id: context?.auth?.id as number,
+                },
+            });
+        } catch (error) {
+            console.log('AuthPayload already deleted or not found');
+        }
         context.res.setHeader('Set-Cookie', [
             serialize('token', '', { ...cookieModule.token, maxAge: -1 }),
             serialize('refreshToken', '', { ...cookieModule.refreshToken, maxAge: -1 }),

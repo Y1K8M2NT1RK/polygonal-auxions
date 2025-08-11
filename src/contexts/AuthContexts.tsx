@@ -39,25 +39,29 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
   const handleLogin = useCallback(async (email: string, password: string) => {
     const result = await login({ email, password });
     if (result.data?.login.__typename === 'MutationLoginSuccess') {
-      // Cookie はサーバー側 (cookieModule.setCookie) が HttpOnly 属性付きで付与するため
-      // クライアントでの document.cookie 設定は不要かつ HttpOnly は付与不能。
-      if (typeof window !== 'undefined') window.location.reload();
+      // Cookies are set server-side, just update state and refetch user data
+      setFormErrors([]);
+      reexecuteQuery({ requestPolicy: 'network-only' });
+      toast.success('ログインしました。');
     } else {
-      const gqlErrors: string[] = result.error?.graphQLErrors[0]?.extensions?.messages as string[] || [];
+      const gqlErrors: string[] = result.error?.graphQLErrors[0]?.extensions?.messages as string[] || ['ログインに失敗しました。'];
       setFormErrors(gqlErrors);
       toast.error('ログインできません。入力内容をお確かめください。');
     }
-  }, [login]);
+  }, [login, reexecuteQuery]);
 
   const handleLogout = useCallback(async () => {
     const result = await logout({});
     if (result.data?.logout) {
-      // サーバーが Set-Cookie で削除済み。クライアント側での手動削除は不要。
-      if (typeof window !== 'undefined') window.location.reload();
+      // Cookies are cleared server-side, just update state
+      setAuth(null);
+      setIsLoggedIn(false);
+      reexecuteQuery({ requestPolicy: 'network-only' });
+      toast.success('ログアウトしました。');
     } else {
       toast.error('ログアウトに失敗しました。');
     }
-  }, [logout]);
+  }, [logout, reexecuteQuery]);
 
   // 認証方式A (Cookie セッション純化) 前提: クライアント側定期 refresh は不要
   // サーバ側の rolling セッション / 期限切れ時 401 応答で十分
