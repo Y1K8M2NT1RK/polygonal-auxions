@@ -223,10 +223,12 @@ CSRF_ALLOWED_HOSTS=localhost:3001,polygonal-auxions.vercel.app
 ### 2. 認証 Cookie 仕様
 | Cookie 名 | 用途 | 有効期限 | 属性 |
 |-----------|------|----------|------|
-| token | アクセストークン (JWT) | 1h | HttpOnly / SameSite=Strict / Path=/ / Secure(本番のみ) |
+| token | アクセストークン (JWT) | 15m | HttpOnly / SameSite=Strict / Path=/ / Secure(本番のみ) |
 | refreshToken | リフレッシュトークン (JWT) | 7d | HttpOnly / SameSite=Strict / Path=/ / Secure(本番のみ) |
 
 `logout` / `logoutAll` 実行時はいずれも即時削除 (maxAge=-1) されます。`logoutAll` は DB 上の全セッションレコード (authPayload) を削除し、他ブラウザ/端末のログインも無効化します。
+
+注: 現状 GraphQL の `refresh` ミューテーションは廃止し、アクセストークンの期限短縮 (15分) + 明示ログイン方式に簡素化しました。必要になった場合にのみ refresh ロジックを再導入します。
 
 ### 3. Basic 認証 (任意)
 環境変数 `BASIC_AUTH_USER`, `BASIC_AUTH_PASS` の両方が設定されている場合のみ全リクエストに Basic 認証を要求します。未設定ならスキップします。

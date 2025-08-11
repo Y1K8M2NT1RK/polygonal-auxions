@@ -117,8 +117,9 @@ export const cookieModule: {
     deleteCookie: (context: YogaContext) => Promise<boolean>;
 } = {
     // Cookie 属性強化: SameSite=Strict, path=/, 本番で Secure、HttpOnly を全て付与
-    token:  { name: 'token', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 3600, sameSite: 'strict', path: '/' },
-    refreshToken: { name: 'refreshToken', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 604800, sameSite: 'strict', path: '/' },
+    // access: 15分, refresh: 7日 (maxAge は秒単位)
+    token:  { name: 'token', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 60 * 15, sameSite: 'strict', path: '/' },
+    refreshToken: { name: 'refreshToken', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 60 * 60 * 24 * 7, sameSite: 'strict', path: '/' },
     setCookie: async (user_id: number, context: YogaContext) => {
         const secret = new TextEncoder().encode(process.env.JWT_SECRET ?? '');
         const refreshSecret = new TextEncoder().encode(process.env.JWT_REFRESH_SECRET ?? '');
@@ -126,7 +127,7 @@ export const cookieModule: {
         const access_token = await new SignJWT({ id: user_id })
             .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
             .setIssuedAt(now)
-            .setExpirationTime('1h')
+            .setExpirationTime('15m')
             .sign(secret);
         const refresh_token = await new SignJWT({ id: user_id })
             .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
@@ -135,7 +136,7 @@ export const cookieModule: {
             .sign(refreshSecret);
         const authPayload = await prisma.authPayload.upsert({
             where: { user_id: user_id },
-            update: {access_token, refresh_token, expires_at: new Date(Date.now() + 15 * 60 * 1000),},
+            update: {access_token, refresh_token, expires_at: new Date(Date.now() + 15 * 60 * 1000),}, // DB 側 expires_at も 15 分
             create: {access_token, refresh_token, user_id: user_id, expires_at: new Date(Date.now() + 15 * 60 * 1000),},
         });
         context.res.setHeader('Set-Cookie', [

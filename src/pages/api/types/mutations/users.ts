@@ -45,28 +45,6 @@ builder.mutationField("login", (t) =>
     })
 );
 
-builder.mutationField("refresh", (t) => 
-    t.prismaField({
-        type: AuthPayload,
-        errors: { types: [ZodError], },
-        authScopes: { isAuthenticated: true, },
-        resolve: async (_query, _parent, _args, ctx) => {
-            if (!ctx?.auth?.id) {
-                throw new Error('User not authenticated');
-            }
-            
-            // Check if user still exists
-            const user = await prisma.user.findUnique({ where: { id: ctx.auth.id } });
-            if (!user) {
-                cookieModule.deleteCookie(ctx);
-                throw new Error('User not found');
-            }
-            
-            const authPayload = await cookieModule.setCookie(ctx.auth.id, ctx);
-            return authPayload;
-        },
-    })
-);
 
 builder.mutationField("updateMyProfile", (t) =>
     t.prismaField({
