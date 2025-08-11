@@ -3,7 +3,7 @@ import { prisma } from '../../db';
 import { ZodError } from 'zod';
 import { compareSync } from 'bcrypt';
 import { AuthPayload, Follows, User } from '../consts';
-import { cookieModule } from '../consts';
+import { cookieModule } from '../cookie';
 import { ImageInput } from '../consts';
 import { del } from '@vercel/blob';
 

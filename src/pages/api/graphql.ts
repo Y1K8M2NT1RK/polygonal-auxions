@@ -46,7 +46,7 @@ export const createContext = async (
   return { req, res, auth };
 };
 
-export default createYoga<
+const yoga = createYoga<
   {
     req: NextApiRequest;
     res: NextApiResponse;
@@ -56,17 +56,15 @@ export default createYoga<
   graphiql: process.env.NODE_ENV === "development",
   graphqlEndpoint: '/api/graphql',
   schema,
-  plugins: [
-    ...((process.env.NODE_ENV === 'development' && process.env.npm_lifecycle_event === 'graphql-codegen')
-      ? [
-          usePersistedOperations({
-            getPersistedOperation(key: string) {
-              return persistedOperations[key];
-            },
-          }),
-        ]
-      : []),
-  ],
+  plugins: ((process.env.NODE_ENV === 'development' && process.env.npm_lifecycle_event === 'graphql-codegen')
+    ? [
+        usePersistedOperations({
+          getPersistedOperation(key: string) {
+            return persistedOperations[key];
+          },
+        }),
+      ]
+    : []),
   context: async ({ req, res }) => createContext(req, res),
   maskedErrors: {
     maskError(error, message) {
@@ -92,3 +90,20 @@ export default createYoga<
     },
   },
 });
+
+// CSRF: Double Submit Cookie 検証 (Mutation POST 時のみ)
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === 'POST') {
+    const bodyStr = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+    const isMutation = /\bmutation\b/i.test(bodyStr);
+    if (isMutation) {
+      const csrfCookie = (req as any).cookies?.csrfToken;
+      const headerToken = (req.headers['x-csrf-token'] as string) || '';
+      if (!csrfCookie || !headerToken || csrfCookie !== headerToken) {
+        res.status(403).send('Forbidden (CSRF token mismatch)');
+        return;
+      }
+    }
+  }
+  return yoga(req, res);
+}

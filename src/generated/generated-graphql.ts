@@ -56,7 +56,6 @@ export type AuthPayload = {
   accessToken: Scalars['String']['output'];
   expires_at: Scalars['Date']['output'];
   id: Scalars['ID']['output'];
-  refreshToken: Scalars['String']['output'];
   user: User;
 };
 
@@ -96,7 +95,6 @@ export type Mutation = {
   login: MutationLoginResult;
   logout: Scalars['Boolean']['output'];
   logoutAll: Scalars['Boolean']['output'];
-  refresh: MutationRefreshResult;
   removeArtwork: Artwork;
   removeArtworkRank: ArtworkRanks;
   removeComment: Comment;
@@ -176,12 +174,6 @@ export type MutationLoginSuccess = {
   data: AuthPayload;
 };
 
-export type MutationRefreshResult = MutationRefreshSuccess | ZodError;
-
-export type MutationRefreshSuccess = {
-  __typename?: 'MutationRefreshSuccess';
-  data: AuthPayload;
-};
 
 export type MutationUpdateMyProfileResult = MutationUpdateMyProfileSuccess | ZodError;
 
@@ -346,12 +338,11 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login: { __typename: 'MutationLoginSuccess', data: { __typename?: 'AuthPayload', accessToken: string, refreshToken: string } } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
-
-export type RefreshMutationVariables = Exact<{ [key: string]: never; }>;
+export type LoginMutation = { __typename?: 'Mutation', login: { __typename: 'MutationLoginSuccess', data: { __typename?: 'AuthPayload', accessToken: string } } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
 
 
-export type RefreshMutation = { __typename?: 'Mutation', refresh: { __typename: 'MutationRefreshSuccess', data: { __typename?: 'AuthPayload', accessToken: string, refreshToken: string } } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
+
+// Refresh flow removed
 
 export type UpdateMyProfileMutationVariables = Exact<{
   name?: InputMaybe<Scalars['String']['input']>;
@@ -542,7 +533,7 @@ export const LoginDocument = gql`
       __typename
       data {
         accessToken
-        refreshToken
+        __typename
       }
     }
     ... on ZodError {
@@ -550,8 +541,10 @@ export const LoginDocument = gql`
       message
       fieldErrors {
         message
+        __typename
       }
     }
+    __typename
   }
 }
     `;
@@ -559,30 +552,7 @@ export const LoginDocument = gql`
 export function useLoginMutation() {
   return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
 };
-export const RefreshDocument = gql`
-    mutation Refresh {
-  refresh {
-    ... on MutationRefreshSuccess {
-      __typename
-      data {
-        accessToken
-        refreshToken
-      }
-    }
-    ... on ZodError {
-      __typename
-      message
-      fieldErrors {
-        message
-      }
-    }
-  }
-}
-    `;
 
-export function useRefreshMutation() {
-  return Urql.useMutation<RefreshMutation, RefreshMutationVariables>(RefreshDocument);
-};
 export const UpdateMyProfileDocument = gql`
     mutation UpdateMyProfile($name: String, $name_kana: String, $birthday: String, $introduction: String, $phone_number: String, $address: String, $bg: ImageInput, $icon: ImageInput) {
   updateMyProfile(

@@ -1,6 +1,6 @@
 import { FC, createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useQuery, useMutation } from 'urql';
-import { MeDocument, LoginDocument, RefreshDocument, LogoutDocument, UserProfileDocument, User } from '@/generated/generated-graphql';
+import { MeDocument, LoginDocument, LogoutDocument, UserProfileDocument, User } from '@/generated/generated-graphql';
 import { toast } from 'react-toastify';
 
 type AuthContextType = {
@@ -33,7 +33,6 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
   }, [data]);
 
   const [, login] = useMutation(LoginDocument);
-  const [, refreshToken] = useMutation(RefreshDocument);
   const [, logout] = useMutation(LogoutDocument);
 
   const handleLogin = useCallback(async (email: string, password: string) => {
@@ -67,17 +66,7 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
   // サーバ側の rolling セッション / 期限切れ時 401 応答で十分
   // 旧実装: 14分周期で refresh ミューテーションを実行
   // 保守参考用に残す: コメント解除で再度利用可能
-  // useEffect(() => {
-  //   const interval = setInterval(async () => {
-  //     try {
-  //       await refreshToken({});
-  //       reexecuteQuery({ requestPolicy: 'network-only' });
-  //     } catch (error) {
-  //       console.error('Failed to refresh token:', error);
-  //     }
-  //   }, 14 * 60 * 1000);
-  //   return () => clearInterval(interval);
-  // }, [refreshToken, reexecuteQuery, reExecuteProfile]);
+  // refresh トークン廃止: 定期 refresh 処理は不要になりました
 
   useEffect(() => {
     if (isLoggedIn) {

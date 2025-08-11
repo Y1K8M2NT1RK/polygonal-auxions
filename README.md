@@ -224,22 +224,35 @@ CSRF_ALLOWED_HOSTS=localhost:3001,polygonal-auxions.vercel.app
 | Cookie 名 | 用途 | 有効期限 | 属性 |
 |-----------|------|----------|------|
 | token | アクセストークン (JWT) | 15m | HttpOnly / SameSite=Strict / Path=/ / Secure(本番のみ) |
-| refreshToken | リフレッシュトークン (JWT) | 7d | HttpOnly / SameSite=Strict / Path=/ / Secure(本番のみ) |
 
-`logout` / `logoutAll` 実行時はいずれも即時削除 (maxAge=-1) されます。`logoutAll` は DB 上の全セッションレコード (authPayload) を削除し、他ブラウザ/端末のログインも無効化します。
+`logout` / `logoutAll` 実行時は token を即時削除 (maxAge=-1) します。`logoutAll` は DB 上の全セッションレコード (authPayload) を削除し、他ブラウザ/端末のログインも無効化します。
 
-注: 現状 GraphQL の `refresh` ミューテーションは廃止し、アクセストークンの期限短縮 (15分) + 明示ログイン方式に簡素化しました。必要になった場合にのみ refresh ロジックを再導入します。
+注: refresh トークン及び `refresh` ミューテーションは廃止済みです (セッションは 15 分アクセストークン + 再ログイン方式)。
+
+#### CSRF トークン拡張 (Double Submit Cookie)
+`/api/csrf` (GET) にアクセスすると `csrfToken` Cookie (非 HttpOnly) が払い出され、GraphQL Mutation を行う際は `X-CSRF-Token` ヘッダに同値を送信する必要があります。サーバ側で Cookie 値とヘッダ値が一致しない場合 403 を返します。ログイン時は新しい `csrfToken` が再発行され、セッション固定を避けるため JWT には `jti` (ランダム 16 bytes hex) を埋め込んでいます。
+
+最小実装例 (ブラウザ):
+```ts
+// 初期ロード時
+await fetch('/api/csrf', { credentials: 'include' });
+// Mutation 実行時
+const csrf = document.cookie.split('; ').find(c=>c.startsWith('csrfToken='))?.split('=')[1];
+await fetch('/api/graphql', { method:'POST', headers:{'Content-Type':'application/json','X-CSRF-Token': csrf!}, body: JSON.stringify({query: 'mutation {...}'}) });
+```
+
+セッション固定対策: ログイン毎に (1) JWT jti 変更 (2) csrfToken 再発行 を行い、旧クッキー経由の固定攻撃を排除します。
 
 ### 3. Basic 認証 (任意)
 環境変数 `BASIC_AUTH_USER`, `BASIC_AUTH_PASS` の両方が設定されている場合のみ全リクエストに Basic 認証を要求します。未設定ならスキップします。
 
 ### 4. JWT 秘密鍵
-`JWT_SECRET` / `JWT_REFRESH_SECRET` を必ず十分に長いランダム値に設定してください (例: OpenSSL `openssl rand -hex 64`).
+`JWT_SECRET` を十分に長いランダム値に設定してください (例: OpenSSL `openssl rand -hex 64`).
 
 ### 5. 今後の強化候補
 - CSRF 対策をトークン方式 (Double Submit Cookie / SameSite=Lax+nonce) へ昇格
 - GraphQL のレート制限 (IP / user basis)
-- Refresh Token ローテーション (ワンタイム化) と検出ログ
+- 追加的なセッション延命の再設計 (必要性が出た場合)
 - セッション固定攻撃対策としてログイン前 Cookie 初期化
 
 

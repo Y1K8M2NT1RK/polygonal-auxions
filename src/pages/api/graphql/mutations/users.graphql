@@ -4,7 +4,6 @@ mutation Login($email: String!, $password: String!) {
       __typename
       data {
         accessToken
-        refreshToken
       }
     }
     ... on ZodError {
@@ -24,7 +23,6 @@ mutation Refresh {
       __typename
       data {
         accessToken
-        refreshToken
       }
     }
     ... on ZodError {

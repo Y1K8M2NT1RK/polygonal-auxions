@@ -77,7 +77,6 @@ model Purpose { // 1: 背景, 2: アイコン
 model AuthPayload {
   id                 String     @id @default(uuid())
   access_token       String
-  refresh_token      String
   user_id            Int        @unique
   created_at         DateTime   @default(now())
   expires_at         DateTime

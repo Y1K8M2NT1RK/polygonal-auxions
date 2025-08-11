@@ -1,9 +1,6 @@
 import { builder } from '../builder';
 import { prisma } from '../db';
-import { SignJWT } from 'jose';
-import { serialize } from 'cookie';
-import { YogaContext } from '../context';
-import { AuthPayload as PrismaAuthPayloadType } from '../../../../prisma/generated/client';
+// cookie / auth helpers moved to cookie.ts
 
 export const User = builder.prismaObject('User', {
     fields: (t) => ({
@@ -39,9 +36,8 @@ export const UserFile = builder.prismaObject('UserFiles', {
 export const AuthPayload = builder.prismaObject('AuthPayload', {
     fields: (t) => ({
         id: t.exposeID('id'),
-        accessToken: t.exposeString('access_token'),
-        refreshToken: t.exposeString('refresh_token'),
-        expires_at: t.expose('expires_at', { type: 'Date' }),
+    accessToken: t.exposeString('access_token'),
+    expires_at: t.expose('expires_at', { type: 'Date' }),
         user: t.relation('user'),
     }),
 });
@@ -110,57 +106,8 @@ export const ImageInput = builder.inputType('ImageInput', {
     }),
 })
 
-export const cookieModule: {
-    token: object;
-    refreshToken: object;
-    setCookie: (user_id: number, context: YogaContext) => Promise<PrismaAuthPayloadType>;
-    deleteCookie: (context: YogaContext) => Promise<boolean>;
-} = {
-    // Cookie 属性強化: SameSite=Strict, path=/, 本番で Secure、HttpOnly を全て付与
-    // access: 15分, refresh: 7日 (maxAge は秒単位)
-    token:  { name: 'token', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 60 * 15, sameSite: 'strict', path: '/' },
-    refreshToken: { name: 'refreshToken', httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 60 * 60 * 24 * 7, sameSite: 'strict', path: '/' },
-    setCookie: async (user_id: number, context: YogaContext) => {
-        const secret = new TextEncoder().encode(process.env.JWT_SECRET ?? '');
-        const refreshSecret = new TextEncoder().encode(process.env.JWT_REFRESH_SECRET ?? '');
-        const now = Math.floor(Date.now() / 1000);
-        const access_token = await new SignJWT({ id: user_id })
-            .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
-            .setIssuedAt(now)
-            .setExpirationTime('15m')
-            .sign(secret);
-        const refresh_token = await new SignJWT({ id: user_id })
-            .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
-            .setIssuedAt(now)
-            .setExpirationTime('7d')
-            .sign(refreshSecret);
-        const authPayload = await prisma.authPayload.upsert({
-            where: { user_id: user_id },
-            update: {access_token, refresh_token, expires_at: new Date(Date.now() + 15 * 60 * 1000),}, // DB 側 expires_at も 15 分
-            create: {access_token, refresh_token, user_id: user_id, expires_at: new Date(Date.now() + 15 * 60 * 1000),},
-        });
-        context.res.setHeader('Set-Cookie', [
-            serialize('token', access_token, cookieModule.token),
-            serialize('refreshToken', refresh_token, cookieModule.refreshToken),
-        ]);
-        return authPayload;
-    },
-    deleteCookie: async (context: YogaContext) => {
-        try {
-            await prisma.authPayload.delete({
-                where: { 
-                    user_id: context?.auth?.id as number,
-                },
-            });
-        } catch (error) {
-            console.log('AuthPayload already deleted or not found');
-        }
-        context.res.setHeader('Set-Cookie', [
-            serialize('token', '', { ...cookieModule.token, maxAge: -1 }),
-            serialize('refreshToken', '', { ...cookieModule.refreshToken, maxAge: -1 }),
-        ]);
-        return true;
-    },
-}
+import { randomBytes } from 'crypto';
+
+// (cookieModule removed from this file)
 
 export const userIncludeFile = { include: { user_files: { where: { purpose_id: 2 } } } };
