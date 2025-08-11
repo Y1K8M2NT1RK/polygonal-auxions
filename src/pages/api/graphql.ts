@@ -13,7 +13,13 @@ import { join } from 'path';
 
 // ビルド後のファイルパスを指定
 const persistedOperationsPath = join(process.cwd(), 'src/generated/persisted-operations.json');
-const persistedOperations = JSON.parse(readFileSync(persistedOperationsPath, 'utf-8'));
+let persistedOperations: Record<string, any> = {};
+try {
+  // 読み込みはオプション化（ファイル未生成でも API 全体を落とさない）
+  persistedOperations = JSON.parse(readFileSync(persistedOperationsPath, 'utf-8'));
+} catch (e) {
+  console.warn('[graphql] persisted-operations.json not loaded (optional):', (e as Error).message);
+}
 
 // GraphQL-Yogaのcontextを設定
 export const createContext = async (
@@ -51,17 +57,15 @@ export default createYoga<
   graphqlEndpoint: '/api/graphql',
   schema,
   plugins: [
-    (() => {
-      (
-        process.env.NODE_ENV === "development"
-        && process.env.npm_lifecycle_event === "graphql-codegen"
-      )
-      && usePersistedOperations({
-        getPersistedOperation(key: string) {
-          return persistedOperations[key];
-        }
-      })
-    }),
+    ...((process.env.NODE_ENV === 'development' && process.env.npm_lifecycle_event === 'graphql-codegen')
+      ? [
+          usePersistedOperations({
+            getPersistedOperation(key: string) {
+              return persistedOperations[key];
+            },
+          }),
+        ]
+      : []),
   ],
   context: async ({ req, res }) => createContext(req, res),
   maskedErrors: {
