@@ -41,8 +41,39 @@
 - 定数/再利用 util: `consts.ts` or 専用 util ファイル
 
 ## 8. エラーハンドリング
-- ビジネスエラーとシステム例外を分類
-- GraphQL エラー拡張にコード/種類を付与
+### 8.1 分類ポリシー
+| 区分 | 説明 | 例 | GraphQL 拡張 http.status | code (extensions) | UI 想定処理 |
+|------|------|----|--------------------------|-------------------|-------------|
+| Validation (入力) | スキーマ/バリデーション違反 (Zod) | 文字数超過 / 必須欠落 | 400 | (無し) messages/fieldErrors | RHF フィールドエラー表示 |
+| Business (認証/権限) | ドメイン条件違反・認証状態異常 | 認証必須操作 / セッション失効 | 401/403 | CSRF_INVALID 等 | グローバルフォームエラー / 再ログイン誘導 |
+| Business (論理) | 業務的制約 | フォロー重複 / 不正 mode 値 | 400/422 | DOMAIN_CONSTRAINT | トースト / インライン表示 |
+| System | 予期せぬ例外 / インフラ | DB 障害 / 未捕捉例外 | 500 | INTERNAL_SERVER_ERROR | 汎用エラー表示 + ログ収集 |
+
+### 8.2 具体的エラー生成条件
+| 生成箇所 | 条件 | 返却型 / throw | マッピング結果 |
+|-----------|------|----------------|----------------|
+| Pothos validate 配列 | 戻り値 false | ZodError 相当 (fieldErrorsに path) | Validation 400 |
+| Zod schema | schema 不一致 | ZodError | Validation 400 |
+| login ミューテーション | CSRF 不一致 (グローバルで __csrfInvalid フラグ) | CsrfError | Business(認証) 403 code=CSRF_INVALID |
+| login ミューテーション | email 未登録 | Error() | System 500 (今後 NotFound 化要検討) |
+| bcrypt 照合失敗 | validate false | ZodError(password) | Validation 400 |
+| followOrUnfollow | 不正 mode | Error('follow error') | System 500 (将来 DOMAIN_CONSTRAINT へ) |
+| マスキングロジック (maskedErrors) | cause instanceof CsrfError | GraphQLError(message, http 403, code CSRF_INVALID) | Business(認証) |
+| マスキングロジック | cause instanceof ZodError | GraphQLError(messages, http 400) | Validation |
+| マスキングロジック | その他 | GraphQLError(http 500) | System |
+
+### 8.3 CSRF 不一致の扱い
+- login 以外の mutation: 早期に HTTP 403 を直接返却 (GraphQL レイヤ未到達)
+- login: 403 を GraphQL に持ち上げ CsrfError として返却し、RHF でフォーム上に「セッション無効」等を表示可能
+- メッセージは内部実装 (CSRF トークン) を明示せずセッション失効として表現
+
+### 8.4 改善予定 (Backlog)
+- email 未存在時の Error() をドメイン 404/422 に再分類
+- followOrUnfollow の汎用 Error -> DOMAIN_CONSTRAINT 化
+- code 体系: VALIDATION / AUTH / DOMAIN_CONSTRAINT / INTERNAL 等への標準化
+- ログ集約 (code + request id) / アラート閾値設定
+
+最終更新: 2025-08-11
 
 ## 9. Prisma 命名
 - Model: 単数 PascalCase (`User`)

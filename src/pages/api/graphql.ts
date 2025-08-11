@@ -4,6 +4,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type { YogaContext } from './context';
 import { GraphQLError } from 'graphql';
 import { ZodError } from 'zod';
+import { CsrfError } from './types/errors';
 import { jwtVerify } from 'jose';
 import { prisma } from './db';
 import { User } from '@prisma/client';
@@ -91,6 +92,15 @@ const yoga = createYoga<
           }
         });
 
+      // CSRF domain error surfaced intentionally
+      if (cause instanceof CsrfError) {
+        return new GraphQLError(cause.message, {
+          extensions: {
+            http: { status: 403 },
+            code: 'CSRF_INVALID',
+          }
+        });
+      }
       // Other Error
       return new GraphQLError(message, {
         extensions: {
@@ -111,8 +121,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const csrfCookie = (req as any).cookies?.csrfToken;
       const headerToken = (req.headers['x-csrf-token'] as string) || '';
       if (!csrfCookie || !headerToken || csrfCookie !== headerToken) {
-        res.status(403).send('Forbidden (CSRF token mismatch)');
-        return;
+        // login ミューテーションは GraphQL error 化 (フォームエラー扱い) するため早期 403 を避ける
+        if (/login\s*\(/i.test(bodyStr)) {
+          (req as any).__csrfInvalid = true;
+        } else {
+          res.status(403).send('Forbidden (CSRF token mismatch)');
+          return;
+        }
       }
     }
   }

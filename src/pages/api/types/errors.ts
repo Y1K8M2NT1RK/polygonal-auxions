@@ -1,6 +1,14 @@
 import { builder } from '../builder';
 import { ZodError, ZodFormattedError } from 'zod';
 
+// カスタム CSRF エラー (特定ミューテーションで 403 をフォームエラー表示に統合するため)
+export class CsrfError extends Error {
+    constructor(message = 'セッションが無効または期限切れです。ページを再読み込みして再試行してください。') {
+        super(message);
+        this.name = 'CsrfError';
+    }
+}
+
 const ErrorInterface = builder.interfaceRef<Error>('Error').implement({
     fields: (t) => ({
         message: t.exposeString('message'),
@@ -53,5 +61,14 @@ builder.objectType(ZodError, {
             type: [ZodFieldError],
             resolve: (err) => flattenErrors(err.format(), []),
         }),
+    }),
+});
+
+// CsrfError GraphQL 型
+builder.objectType(CsrfError, {
+    name: 'CsrfError',
+    interfaces: [ErrorInterface],
+    fields: (t) => ({
+        // message は ErrorInterface 経由で expose 済み
     }),
 });

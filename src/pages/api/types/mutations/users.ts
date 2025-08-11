@@ -3,6 +3,7 @@ import { prisma } from '../../db';
 import { ZodError } from 'zod';
 import { compareSync } from 'bcrypt';
 import { AuthPayload, Follows, User } from '../consts';
+import { CsrfError } from '../errors';
 import { cookieModule } from '../cookie';
 import { ImageInput } from '../consts';
 import { del } from '@vercel/blob';
@@ -10,7 +11,7 @@ import { del } from '@vercel/blob';
 builder.mutationField("login", (t) => 
     t.prismaField({
         type: AuthPayload,
-        errors: { types: [ZodError], },
+    errors: { types: [ZodError, CsrfError], },
         args: {
             email: t.arg.string({
                 required: true,
@@ -38,6 +39,10 @@ builder.mutationField("login", (t) =>
             {message: 'パスワードが違います。', path: ['password']},
         ],
         resolve: async (_query, _parent, args, ctx) => {
+            // CSRF 失敗を GraphQL レイヤに昇格 (フォーム側で 403 -> フィールドエラー表示可能)
+            if ((ctx.req as any).__csrfInvalid) {
+                throw new CsrfError();
+            }
             const user = await prisma.user.findUnique({where: {email: args.email},});
             if (!user) throw new Error();
             return cookieModule.setCookie(user.id, ctx);
