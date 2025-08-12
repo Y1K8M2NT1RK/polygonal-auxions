@@ -17,11 +17,10 @@ import {
 import DefaultUserIcon from '@/components/DefaultUserIcon';
 import { useForm } from 'react-hook-form';
 import CloseIcon from '@mui/icons-material/Close';
-import { User, UserFiles } from '@/generated/generated-graphql';
+import { User, UserFiles, UpdateMyProfileDocument, UpdatePasswordDocument, useUpdatePasswordMutation } from '@/generated/generated-graphql';
 import { DateTime } from 'luxon';
 import Image from 'next/image';
 import { useMutation } from 'urql';
-import { UpdateMyProfileDocument } from '@/generated/generated-graphql';
 import { toast } from 'react-toastify';
 import { useState, type ChangeEvent } from 'react';
 import { upload } from "@vercel/blob/client";
@@ -30,25 +29,6 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { useUserProfile } from '@/contexts/Profile/ProfileContext';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import gql from 'graphql-tag';
-
-// GraphQL mutation for password update
-const UpdatePasswordDocument = gql`
-  mutation UpdatePassword($password: String!, $passwordConfirmation: String!) {
-    updatePassword(password: $password, passwordConfirmation: $passwordConfirmation) {
-      ... on MutationUpdatePasswordSuccess {
-        __typename
-      }
-      ... on ZodError {
-        __typename
-        message
-        fieldErrors {
-          message
-        }
-      }
-    }
-  }
-`;
 
 type ProfileEditDialogProps = {
     isDialogOpen: boolean;
@@ -119,13 +99,13 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
     const {isSmallScreen} = useResponsive();
 
     const [, updateMyProfile] = useMutation(UpdateMyProfileDocument);
-    const [, updatePassword] = useMutation(UpdatePasswordDocument);
+    const [, executeUpdatePassword] = useUpdatePasswordMutation();
 
     const onSubmit = handleSubmit(async (data) => {
         try {
             // パスワード更新の処理を最初に実行
             if (data.password && data.passwordConfirmation) {
-                const passwordResult = await updatePassword({
+                const passwordResult = await executeUpdatePassword({
                     password: data.password,
                     passwordConfirmation: data.passwordConfirmation
                 });

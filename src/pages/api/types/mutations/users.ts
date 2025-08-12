@@ -179,7 +179,7 @@ builder.mutationField("updatePassword", (t) =>
             });
         },
     })
-.)
+);
 
 builder.mutationField("logout", (t) => 
     t.boolean({
