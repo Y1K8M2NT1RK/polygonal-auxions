@@ -30,9 +30,25 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { useUserProfile } from '@/contexts/Profile/ProfileContext';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import gql from 'graphql-tag';
 
-// TODO: This will be generated after GraphQL codegen runs
-// import { UpdatePasswordDocument } from '@/generated/generated-graphql';
+// GraphQL mutation for password update
+const UpdatePasswordDocument = gql`
+  mutation UpdatePassword($password: String!, $passwordConfirmation: String!) {
+    updatePassword(password: $password, passwordConfirmation: $passwordConfirmation) {
+      ... on MutationUpdatePasswordSuccess {
+        __typename
+      }
+      ... on ZodError {
+        __typename
+        message
+        fieldErrors {
+          message
+        }
+      }
+    }
+  }
+`;
 
 type ProfileEditDialogProps = {
     isDialogOpen: boolean;
@@ -87,6 +103,8 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
         defaultValues: {
             bg: { is_image_deleted: false, image_url: undefined, content_type: undefined },
             icon: { is_image_deleted: false, image_url: undefined, content_type: undefined },
+            password: '',
+            passwordConfirmation: '',
         },
     });
 
@@ -101,27 +119,26 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
     const {isSmallScreen} = useResponsive();
 
     const [, updateMyProfile] = useMutation(UpdateMyProfileDocument);
-    // TODO: Add UpdatePasswordDocument import after GraphQL codegen
-    // const [, updatePassword] = useMutation(UpdatePasswordDocument);
+    const [, updatePassword] = useMutation(UpdatePasswordDocument);
 
     const onSubmit = handleSubmit(async (data) => {
         try {
             // パスワード更新の処理を最初に実行
             if (data.password && data.passwordConfirmation) {
-                // TODO: Implement password update when UpdatePasswordDocument is available
-                // const passwordResult = await updatePassword({
-                //     password: data.password,
-                //     passwordConfirmation: data.passwordConfirmation
-                // });
-                // if (passwordResult.error) {
-                //     const gqlErrors: string[] = passwordResult.error?.graphQLErrors[0].extensions.messages as string[];
-                //     for (const [key, val] of Object.entries(gqlErrors)) {
-                //         setError(`root.${key}`, { type: 'server', message: val[0] });
-                //     }
-                //     toast.error('パスワードを更新できません。入力内容をお確かめください。');
-                //     return;
-                // }
-                toast.info('パスワード更新機能は実装中です。他の情報のみ更新されます。');
+                const passwordResult = await updatePassword({
+                    password: data.password,
+                    passwordConfirmation: data.passwordConfirmation
+                });
+                
+                if (passwordResult.error) {
+                    const gqlErrors: string[] = passwordResult.error?.graphQLErrors[0].extensions.messages as string[];
+                    for (const [key, val] of Object.entries(gqlErrors)) {
+                        setError(`root.${key}`, { type: 'server', message: val[0] });
+                    }
+                    toast.error('パスワードを更新できません。入力内容をお確かめください。');
+                    return;
+                }
+                toast.success('パスワードが更新されました。');
             }
 
             // 既存のプロフィール更新処理
@@ -174,7 +191,14 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
     const handleClose = () => {
         onClose();
         setImageUpload({ bg: null, icon: null });
-        reset();
+        reset({
+            bg: { is_image_deleted: false, image_url: undefined, content_type: undefined },
+            icon: { is_image_deleted: false, image_url: undefined, content_type: undefined },
+            password: '',
+            passwordConfirmation: '',
+        });
+        setShowPassword(false);
+        setShowPasswordConfirmation(false);
         toast.info('編集をキャンセルしました');
     };
 
