@@ -28,6 +28,11 @@ import { upload } from "@vercel/blob/client";
 import { BLOB_BASE_DIR } from '@/constants/blob';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { useUserProfile } from '@/contexts/Profile/ProfileContext';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+
+// TODO: This will be generated after GraphQL codegen runs
+// import { UpdatePasswordDocument } from '@/generated/generated-graphql';
 
 type ProfileEditDialogProps = {
     isDialogOpen: boolean;
@@ -55,6 +60,8 @@ type FormData = {
     introduction: string;
     bg: UserImages;
     icon: UserImages;
+    password: string;
+    passwordConfirmation: string;
 };
 
 const getBlobDatasetUrl = async (file: File, dirname: string): Promise<{ image_url: string; content_type: string; }> => {
@@ -84,6 +91,8 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
     });
 
     const [imageUpload, setImageUpload] = useState<{ bg: File | null; icon: File | null }>({ bg: null, icon: null });
+    const [showPassword, setShowPassword] = useState(false);
+    const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
     const isImageDeleted = {
         bg: watch('bg.is_image_deleted'),
         icon: watch('icon.is_image_deleted'),
@@ -92,42 +101,74 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
     const {isSmallScreen} = useResponsive();
 
     const [, updateMyProfile] = useMutation(UpdateMyProfileDocument);
+    // TODO: Add UpdatePasswordDocument import after GraphQL codegen
+    // const [, updatePassword] = useMutation(UpdatePasswordDocument);
 
     const onSubmit = handleSubmit(async (data) => {
-        // アップロードが必要な場合のみ
-        if (imageUpload.bg || imageUpload.icon) {
-            const uploadDatas: Promise<{ image_url: string; content_type: string } | null>[] = [
-                imageUpload.bg ? getBlobDatasetUrl(imageUpload.bg, "bg") : Promise.resolve(null),
-                imageUpload.icon ? getBlobDatasetUrl(imageUpload.icon, "icon") : Promise.resolve(null),
-            ];
-            const [bgResult, iconResult] = await Promise.all(uploadDatas);
-            if (bgResult) {
-                data.bg.image_url = bgResult.image_url;
-                data.bg.content_type = bgResult.content_type;
+        try {
+            // パスワード更新の処理を最初に実行
+            if (data.password && data.passwordConfirmation) {
+                // TODO: Implement password update when UpdatePasswordDocument is available
+                // const passwordResult = await updatePassword({
+                //     password: data.password,
+                //     passwordConfirmation: data.passwordConfirmation
+                // });
+                // if (passwordResult.error) {
+                //     const gqlErrors: string[] = passwordResult.error?.graphQLErrors[0].extensions.messages as string[];
+                //     for (const [key, val] of Object.entries(gqlErrors)) {
+                //         setError(`root.${key}`, { type: 'server', message: val[0] });
+                //     }
+                //     toast.error('パスワードを更新できません。入力内容をお確かめください。');
+                //     return;
+                // }
+                toast.info('パスワード更新機能は実装中です。他の情報のみ更新されます。');
             }
-            if (iconResult) {
-                data.icon.image_url = iconResult.image_url;
-                data.icon.content_type = iconResult.content_type;
+
+            // 既存のプロフィール更新処理
+            // アップロードが必要な場合のみ
+            if (imageUpload.bg || imageUpload.icon) {
+                const uploadDatas: Promise<{ image_url: string; content_type: string } | null>[] = [
+                    imageUpload.bg ? getBlobDatasetUrl(imageUpload.bg, "bg") : Promise.resolve(null),
+                    imageUpload.icon ? getBlobDatasetUrl(imageUpload.icon, "icon") : Promise.resolve(null),
+                ];
+                const [bgResult, iconResult] = await Promise.all(uploadDatas);
+                if (bgResult) {
+                    data.bg.image_url = bgResult.image_url;
+                    data.bg.content_type = bgResult.content_type;
+                }
+                if (iconResult) {
+                    data.icon.image_url = iconResult.image_url;
+                    data.icon.content_type = iconResult.content_type;
+                }
             }
-        }
-        return updateMyProfile(data).then(result => {
-            if(result.error){
-                const gqlErrors:string[] = result.error ?.graphQLErrors[0].extensions.messages as string[];
-                for( const [key, val] of Object.entries(gqlErrors) ) setError(`root.${key}`, {type: 'server', message: val[0]});
-                toast.error('更新できません。入力内容をお確かめください。');
-                return;
-            }
-            reExecuteProfile();
-            setImageUpload({ bg: null, icon: null });
-            reset({
-                birthday: data.birthday,
-                bg: { current_image_url: userImages?.bg?.file_path, is_image_deleted: false, image_url: undefined, content_type: undefined },
-                icon: { current_image_url: userImages?.icon?.file_path, is_image_deleted: false, image_url: undefined, content_type: undefined },
+
+            // パスワードフィールドを除いたプロフィール更新データを作成
+            const { password, passwordConfirmation, ...profileData } = data;
+            
+            return updateMyProfile(profileData).then(result => {
+                if(result.error){
+                    const gqlErrors:string[] = result.error ?.graphQLErrors[0].extensions.messages as string[];
+                    for( const [key, val] of Object.entries(gqlErrors) ) setError(`root.${key}`, {type: 'server', message: val[0]});
+                    toast.error('更新できません。入力内容をお確かめください。');
+                    return;
+                }
+                reExecuteProfile();
+                setImageUpload({ bg: null, icon: null });
+                reset({
+                    birthday: data.birthday,
+                    bg: { current_image_url: userImages?.bg?.file_path, is_image_deleted: false, image_url: undefined, content_type: undefined },
+                    icon: { current_image_url: userImages?.icon?.file_path, is_image_deleted: false, image_url: undefined, content_type: undefined },
+                    password: '',
+                    passwordConfirmation: '',
+                });
+                console.log(userImages);
+                toast.success('更新できました。');
+                onClose();
             });
-            console.log(userImages);
-            toast.success('更新できました。');
-            onClose();
-        });
+        } catch (error) {
+            console.error('Update error:', error);
+            toast.error('更新中にエラーが発生しました。');
+        }
     });
     
     const handleClose = () => {
@@ -365,6 +406,52 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
                                     {...register("introduction")}
                                     error={!!errors?.root?.introduction?.message}
                                     helperText={errors?.root?.introduction?.message ? errors?.root?.introduction?.message : null}
+                                />
+                            </FormControl>
+                            <FormControl fullWidth sx={{my: 2}}>
+                                <TextField
+                                    size="small"
+                                    type={showPassword ? 'text' : 'password'}
+                                    label="新しいパスワード"
+                                    InputLabelProps={{ style: { fontSize: 20 } }}
+                                    InputProps={{ 
+                                        style: { fontSize: 20 },
+                                        endAdornment: (
+                                            <IconButton
+                                                aria-label="toggle password visibility"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                edge="end"
+                                            >
+                                                {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                            </IconButton>
+                                        ),
+                                    }}
+                                    {...register("password")}
+                                    error={!!errors?.root?.password?.message}
+                                    helperText={errors?.root?.password?.message ? errors?.root?.password?.message : null}
+                                />
+                            </FormControl>
+                            <FormControl fullWidth sx={{my: 2}}>
+                                <TextField
+                                    size="small"
+                                    type={showPasswordConfirmation ? 'text' : 'password'}
+                                    label="新しいパスワード（確認用）"
+                                    InputLabelProps={{ style: { fontSize: 20 } }}
+                                    InputProps={{ 
+                                        style: { fontSize: 20 },
+                                        endAdornment: (
+                                            <IconButton
+                                                aria-label="toggle password confirmation visibility"
+                                                onClick={() => setShowPasswordConfirmation(!showPasswordConfirmation)}
+                                                edge="end"
+                                            >
+                                                {showPasswordConfirmation ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                            </IconButton>
+                                        ),
+                                    }}
+                                    {...register("passwordConfirmation")}
+                                    error={!!errors?.root?.passwordConfirmation?.message}
+                                    helperText={errors?.root?.passwordConfirmation?.message ? errors?.root?.passwordConfirmation?.message : null}
                                 />
                             </FormControl>
                             <Box sx={{display:'flex', flexDirection:'column', width: isSmallScreen ? '100%' : '70%'}}>

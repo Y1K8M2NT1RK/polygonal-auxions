@@ -1,7 +1,7 @@
 import { builder } from '../../builder';
 import { prisma } from '../../db';
 import { ZodError } from 'zod';
-import { compareSync } from 'bcrypt';
+import { compareSync, hashSync } from 'bcrypt';
 import { AuthPayload, Follows, User } from '../consts';
 import { CsrfError } from '../errors';
 import { cookieModule } from '../cookie';
@@ -143,6 +143,43 @@ builder.mutationField("updateMyProfile", (t) =>
         },
     })
 )
+
+builder.mutationField("updatePassword", (t) => 
+    t.prismaField({
+        type: User,
+        errors: { types: [ZodError], },
+        authScopes: { isAuthenticated: true, },
+        args: {
+            password: t.arg.string({
+                required: true,
+                validate: {
+                    type: 'string',
+                    maxLength: [100, {message: '文字数が多すぎます。'}],
+                    minLength: [1, {message: '入力してください。'}],
+                },
+            }),
+            passwordConfirmation: t.arg.string({
+                required: true,
+                validate: {
+                    type: 'string',
+                    maxLength: [100, {message: '文字数が多すぎます。'}],
+                    minLength: [1, {message: '入力してください。'}],
+                },
+            }),
+        },
+        validate: [
+            (args) => args.password === args.passwordConfirmation,
+            {message: 'パスワードが一致しません。', path: ['passwordConfirmation']},
+        ],
+        resolve: async (_query, _parent, args, ctx) => {
+            const hashedPassword = hashSync(args.password, 10);
+            return prisma.user.update({
+                where: { id: ctx.auth?.id as number },
+                data: { password: hashedPassword },
+            });
+        },
+    })
+.)
 
 builder.mutationField("logout", (t) => 
     t.boolean({
