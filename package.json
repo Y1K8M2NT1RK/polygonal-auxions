@@ -19,11 +19,15 @@
     "lint": "next lint",
     "verify": "sh scripts/verify_compose.sh",
     "v": "npm run verify",
-    "dc:build": "sh scripts/dc_build.sh",
-  "db": "npm run dc:build",
+  "dc:build": "make dc-build",
+  "db": "make dc-build",
+  "docker:deps": "make docker-deps-install",
+  "docker:deps:verify": "make docker-deps-verify",
+  "docker:modules:reset": "make docker-reset-modules",
   "studio": "npx prisma studio --port 5555 --browser none"
   },
   "dependencies": {
+  "@graphql-yoga/render-graphiql": "^5.15.1",
     "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.4",
     "@emotion/server": "^11.11.0",

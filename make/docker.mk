@@ -1,16 +1,20 @@
 ## SECTION コンテナ / Docker & Orchestration
 # Docker / コンテナ関連ターゲット
-.PHONY: dc-build db studio studio-app up down stop containers-stop restart logs ps prune down-v
+.PHONY: dc-build db studio studio-app up down stop containers-stop restart logs ps prune down-v docker-deps-install docker-deps-verify docker-reset-modules docker-next-clean
 
 # 対象サービス一覧 (指定しなければ全サービス停止: 空なら docker compose stop = 全)
 SERVICES ?=
 # ログの追跡行数 (logs ターゲット)
 TAIL ?= 120
 
-# Docker イメージビルド (scripts/dc_build.sh)
+## プロジェクト名推定 (compose の named volume 名に利用)
+COMPOSE_PROJECT_NAME ?= $(shell basename $(CURDIR))
+NODE_MODULES_VOLUME := $(COMPOSE_PROJECT_NAME)_node_modules
+
+# Docker イメージビルド（compose ビルドを直接実行）
 dc-build:
 	@if [ -n "$$SKIP_LOCAL_BUILD" ]; then echo "[dc-build] SKIP_LOCAL_BUILD=1 -> skip docker image build"; exit 0; fi; \
-	sh scripts/dc_build.sh
+	docker compose build
 
 # 後方互換用エイリアス
 db: dc-build
@@ -65,3 +69,37 @@ down-v:
 prune:
 	docker compose rm -f -s || true
 	@if [ "$(FORCE)" = "1" ]; then docker builder prune -f; fi
+
+# 依存（node_modules）をコンテナ側にインストール（named volume への追加反映）
+docker-deps-install:
+	@echo "[docker-deps-install] installing dependencies inside container (app service)"; \
+	docker compose run --rm app npm install --no-audit --no-fund
+
+# 依存解決の存在確認（PKG=パッケージ名 省略時は @graphql-yoga/render-graphiql）
+docker-deps-verify:
+	@pkg="$${PKG:-@graphql-yoga/render-graphiql}"; \
+	echo "[docker-deps-verify] checking: $$pkg"; \
+	docker compose run --rm app node -e "require.resolve('$$pkg') && console.log('ok')"
+
+# node_modules の named volume を初期化して再構築（破壊的）
+# 使い方: make docker-reset-modules CONFIRM=1
+docker-reset-modules:
+	@if [ "$(CONFIRM)" != "1" ]; then \
+	  echo "[docker-reset-modules] この操作は $(NODE_MODULES_VOLUME) を削除します。実行するには CONFIRM=1 を付けてください"; \
+	  exit 1; \
+	fi; \
+	echo "[docker-reset-modules] stopping stack..."; \
+	docker compose down; \
+	echo "[docker-reset-modules] removing volume: $(NODE_MODULES_VOLUME)"; \
+	docker volume rm $(NODE_MODULES_VOLUME) || true; \
+	echo "[docker-reset-modules] rebuilding images (no cache)..."; \
+	docker compose build --no-cache; \
+	echo "[docker-reset-modules] starting stack (db app prisma-studio)..."; \
+	docker compose up -d db app prisma-studio
+
+# Next.js のビルド生成物 (.next) とキャッシュをアプリコンテナ内で削除し、再生成を促す
+# 使い方: make docker-next-clean
+docker-next-clean:
+	@echo "[docker-next-clean] removing .next and node_modules/.cache in app container..."; \
+	docker compose exec app sh -lc 'rm -rf .next node_modules/.cache || true' && \
+	echo "[docker-next-clean] done. Reloading page will trigger fresh rebuild by next dev."

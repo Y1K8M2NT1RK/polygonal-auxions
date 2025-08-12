@@ -1,5 +1,6 @@
 import { schema } from '@/pages/api/schema';
 import { createYoga } from 'graphql-yoga';
+import { renderGraphiQL } from '@graphql-yoga/render-graphiql';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { YogaContext } from './context';
 import { GraphQLError } from 'graphql';
@@ -66,6 +67,8 @@ const yoga = createYoga<
   YogaContext
 >({
   graphiql: enableGraphiQL,
+  // Serve GraphiQL assets locally to comply with our CSP (no external CDN like unpkg)
+  renderGraphiQL,
   graphqlEndpoint: '/api/graphql',
   schema,
   plugins: ((process.env.NODE_ENV === 'development' && process.env.npm_lifecycle_event === 'graphql-codegen')
