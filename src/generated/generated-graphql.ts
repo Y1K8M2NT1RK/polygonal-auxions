@@ -69,6 +69,11 @@ export type Comment = {
   user: User;
 };
 
+export type CsrfError = Error & {
+  __typename?: 'CsrfError';
+  message: Scalars['String']['output'];
+};
+
 export type Error = {
   message: Scalars['String']['output'];
 };
@@ -99,6 +104,7 @@ export type Mutation = {
   removeArtworkRank: ArtworkRanks;
   removeComment: Comment;
   updateMyProfile: MutationUpdateMyProfileResult;
+  updatePassword: MutationUpdatePasswordResult;
   upsertArtwork: MutationUpsertArtworkResult;
   upsertComment: MutationUpsertCommentResult;
 };
@@ -150,6 +156,12 @@ export type MutationUpdateMyProfileArgs = {
 };
 
 
+export type MutationUpdatePasswordArgs = {
+  password: Scalars['String']['input'];
+  passwordConfirmation: Scalars['String']['input'];
+};
+
+
 export type MutationUpsertArtworkArgs = {
   artwork_slug_id?: InputMaybe<Scalars['String']['input']>;
   content_type?: InputMaybe<Scalars['String']['input']>;
@@ -167,7 +179,7 @@ export type MutationUpsertCommentArgs = {
   comment_slug_id?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type MutationLoginResult = MutationLoginSuccess | ZodError;
+export type MutationLoginResult = CsrfError | MutationLoginSuccess | ZodError;
 
 export type MutationLoginSuccess = {
   __typename?: 'MutationLoginSuccess';
@@ -178,6 +190,13 @@ export type MutationUpdateMyProfileResult = MutationUpdateMyProfileSuccess | Zod
 
 export type MutationUpdateMyProfileSuccess = {
   __typename?: 'MutationUpdateMyProfileSuccess';
+  data: User;
+};
+
+export type MutationUpdatePasswordResult = MutationUpdatePasswordSuccess | ZodError;
+
+export type MutationUpdatePasswordSuccess = {
+  __typename?: 'MutationUpdatePasswordSuccess';
   data: User;
 };
 
@@ -337,7 +356,7 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login: { __typename: 'MutationLoginSuccess', data: { __typename?: 'AuthPayload', accessToken: string } } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
+export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'CsrfError' } | { __typename: 'MutationLoginSuccess', data: { __typename?: 'AuthPayload', accessToken: string } } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
 
 export type UpdateMyProfileMutationVariables = Exact<{
   name?: InputMaybe<Scalars['String']['input']>;
@@ -352,6 +371,14 @@ export type UpdateMyProfileMutationVariables = Exact<{
 
 
 export type UpdateMyProfileMutation = { __typename?: 'Mutation', updateMyProfile: { __typename: 'MutationUpdateMyProfileSuccess' } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
+
+export type UpdatePasswordMutationVariables = Exact<{
+  password: Scalars['String']['input'];
+  passwordConfirmation: Scalars['String']['input'];
+}>;
+
+
+export type UpdatePasswordMutation = { __typename?: 'Mutation', updatePassword: { __typename: 'MutationUpdatePasswordSuccess' } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -572,6 +599,26 @@ export const UpdateMyProfileDocument = gql`
 
 export function useUpdateMyProfileMutation() {
   return Urql.useMutation<UpdateMyProfileMutation, UpdateMyProfileMutationVariables>(UpdateMyProfileDocument);
+};
+export const UpdatePasswordDocument = gql`
+    mutation UpdatePassword($password: String!, $passwordConfirmation: String!) {
+  updatePassword(password: $password, passwordConfirmation: $passwordConfirmation) {
+    ... on MutationUpdatePasswordSuccess {
+      __typename
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors {
+        message
+      }
+    }
+  }
+}
+    `;
+
+export function useUpdatePasswordMutation() {
+  return Urql.useMutation<UpdatePasswordMutation, UpdatePasswordMutationVariables>(UpdatePasswordDocument);
 };
 export const LogoutDocument = gql`
     mutation Logout {

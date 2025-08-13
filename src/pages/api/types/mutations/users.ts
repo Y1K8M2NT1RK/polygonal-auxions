@@ -1,7 +1,7 @@
 import { builder } from '../../builder';
 import { prisma } from '../../db';
 import { ZodError } from 'zod';
-import { compareSync } from 'bcrypt';
+import { compareSync, hashSync } from 'bcrypt';
 import { AuthPayload, Follows, User } from '../consts';
 import { CsrfError } from '../errors';
 import { cookieModule } from '../cookie';
@@ -143,6 +143,58 @@ builder.mutationField("updateMyProfile", (t) =>
         },
     })
 )
+
+builder.mutationField("updatePassword", (t) => 
+    t.prismaField({
+        type: User,
+        errors: { types: [ZodError], },
+        authScopes: { isAuthenticated: true, },
+        args: {
+            password: t.arg.string({
+                required: true,
+                validate: {
+                    type: 'string',
+                    maxLength: [100, {message: '文字数が多すぎます。'}],
+                    minLength: [1, {message: '入力してください。'}],
+                    refine: [
+                        (val: string) => val.trim().length > 0,
+                        { message: '入力してください。' },
+                    ],
+                },
+            }),
+            passwordConfirmation: t.arg.string({
+                required: true,
+                validate: {
+                    type: 'string',
+                    maxLength: [100, {message: '文字数が多すぎます。'}],
+                    minLength: [1, {message: '入力してください。'}],
+                    refine: [
+                        (val: string) => val.trim().length > 0,
+                        { message: '入力してください。' },
+                    ],
+                },
+            }),
+        },
+        validate: [
+            (args) => args.password === args.passwordConfirmation,
+            {message: 'パスワードが一致しません。', path: ['passwordConfirmation']},
+        ],
+        resolve: async (_query, _parent, args, ctx) => {
+            const userId = ctx.auth?.id as number;
+            const hashedPassword = hashSync(args.password, 10);
+            // パスワード更新
+            const updated = await prisma.user.update({
+                where: { id: userId },
+                data: { password: hashedPassword },
+            });
+            // 全セッション無効化
+            await prisma.authPayload.deleteMany({ where: { user_id: userId } });
+            // 現在クライアント向けに再発行
+            await cookieModule.setCookie(userId, ctx);
+            return updated;
+        },
+    })
+);
 
 builder.mutationField("logout", (t) => 
     t.boolean({

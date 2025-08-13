@@ -49,6 +49,21 @@ mutation UpdateMyProfile(
   }
 }
 
+mutation UpdatePassword($password: String!, $passwordConfirmation: String!) {
+  updatePassword(password: $password, passwordConfirmation: $passwordConfirmation) {
+    ... on MutationUpdatePasswordSuccess {
+      __typename
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors {
+        message
+      }
+    }
+  }
+}
+
 mutation Logout {
   logout
 }

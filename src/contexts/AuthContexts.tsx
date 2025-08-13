@@ -32,16 +32,28 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
     setAuth(data?.me || null);
   }, [data]);
 
+  // Ensure CSRF cookie exists on first load (idempotent)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      fetch('/api/csrf', { credentials: 'include' }).catch(() => {});
+    }
+  }, []);
+
   const [, login] = useMutation(LoginDocument);
   const [, logout] = useMutation(LogoutDocument);
 
   const handleLogin = useCallback(async (email: string, password: string) => {
+    if (typeof window !== 'undefined') {
+      try { sessionStorage.setItem('authBusy', 'login'); } catch {}
+  try { window.dispatchEvent(new CustomEvent('authBusyChange', { detail: 'login' })); } catch {}
+    }
     const result = await login({ email, password });
     if (result.data?.login.__typename === 'MutationLoginSuccess') {
-      // Cookies are set server-side, just update state and refetch user data
       setFormErrors([]);
-      reexecuteQuery({ requestPolicy: 'network-only' });
-      toast.success('ログインしました。');
+      if (typeof window !== 'undefined') {
+        try { sessionStorage.setItem('postAuthToast', 'login'); } catch {}
+        window.location.reload();
+      }
     } else {
       const firstErr = result.error?.graphQLErrors?.[0];
       const code = firstErr?.extensions?.code as string | undefined;
@@ -55,19 +67,33 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
         setFormErrors(gqlErrors);
         toast.error('ログインできません。入力内容をお確かめください。');
       }
+      // 失敗時は Busy を解除
+      if (typeof window !== 'undefined') {
+        try { sessionStorage.removeItem('authBusy'); } catch {}
+  try { window.dispatchEvent(new CustomEvent('authBusyChange', { detail: null as any })); } catch {}
+      }
     }
   }, [login, reexecuteQuery]);
 
   const handleLogout = useCallback(async () => {
+    if (typeof window !== 'undefined') {
+      try { sessionStorage.setItem('authBusy', 'logout'); } catch {}
+  try { window.dispatchEvent(new CustomEvent('authBusyChange', { detail: 'logout' })); } catch {}
+    }
     const result = await logout({});
     if (result.data?.logout) {
-      // Cookies are cleared server-side, just update state
       setAuth(null);
       setIsLoggedIn(false);
-      reexecuteQuery({ requestPolicy: 'network-only' });
-      toast.success('ログアウトしました。');
+      if (typeof window !== 'undefined') {
+        try { sessionStorage.setItem('postAuthToast', 'logout'); } catch {}
+        window.location.reload();
+      }
     } else {
       toast.error('ログアウトに失敗しました。');
+      if (typeof window !== 'undefined') {
+        try { sessionStorage.removeItem('authBusy'); } catch {}
+  try { window.dispatchEvent(new CustomEvent('authBusyChange', { detail: null as any })); } catch {}
+      }
     }
   }, [logout, reexecuteQuery]);
 

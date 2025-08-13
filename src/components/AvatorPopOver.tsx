@@ -17,7 +17,7 @@ import Link from 'next/link';
 import { type User } from '@/generated/generated-graphql';
 import { useAuth } from '@/contexts/AuthContexts';
 import DefaultUserIcon from '@/components/DefaultUserIcon';
-import LoginDialog from './LoginDialog';
+// LoginDialog is not used here; logout acts directly to avoid flicker
 
 type Props = {
     auth: User;
@@ -34,11 +34,7 @@ export default function AvatorPopover({auth}: Props){
   
     const open = Boolean(anchorEl);
 
-    const [openDialog, setOpenDialog] = useState(false);
-    const handleDialogOpen = () => setOpenDialog(true);
-
-    const [isLockedInputExternally, setIsLockedInputExternally] = useState(false);
-    const handleLockInputExternally = () => setIsLockedInputExternally(true);
+    // No local login dialog for logout path to prevent transient dialog display
 
     return (
         <Box>
@@ -72,20 +68,9 @@ export default function AvatorPopover({auth}: Props){
                             </Typography>
                         </MenuItem>
                         <MenuItem><Typography variant="button"><SettingsIcon /> 設定</Typography></MenuItem>
-                        <LoginDialog
-                            button={
-                                <MenuItem onClick={() => {
-                                    handleDialogOpen();
-                                    handleLockInputExternally();
-                                    handleLogout();
-                                }}>
-                                    <Typography variant="button"><LogoutIcon /> ログアウト</Typography>
-                                </MenuItem>
-                            }
-                            openDialog={openDialog}
-                            setOpenDialog={setOpenDialog}
-                            isLockedInputExternally={isLockedInputExternally}
-                        />
+                        <MenuItem onClick={() => { handleLogout(); }}>
+                            <Typography variant="button"><LogoutIcon /> ログアウト</Typography>
+                        </MenuItem>
                     </MenuList>
                 </Card>
             </Popover>

@@ -12,8 +12,10 @@ generator client {
 
 generator pothos {
   provider     = "prisma-pothos-types"
-  // clientOutput now omitted; will auto-detect default Prisma client location
+  // Explicitly set clientOutput/import to keep stable import path in generated file
+  clientOutput = "../node_modules/@prisma/client"
   output       = "../src/pages/api/types/pothos.ts"
+  clientImportPath = "@prisma/client"
 }
 
 datasource db {
