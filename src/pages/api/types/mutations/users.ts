@@ -8,6 +8,13 @@ import { cookieModule } from '../cookie';
 import { ImageInput } from '../consts';
 import { del } from '@vercel/blob';
 
+type ImageInputValue = {
+    is_image_deleted?: boolean;
+    current_image_url?: string;
+    image_url?: string;
+    content_type?: string;
+} | null;
+
 builder.mutationField("login", (t) => 
     t.prismaField({
         type: AuthPayload,
@@ -103,28 +110,30 @@ builder.mutationField("updateMyProfile", (t) =>
         resolve: async (_query, _parent, args, ctx) => {
             let targetExistedFile = null;
             let updateData: { createMany: { data: any[] } } = { createMany: { data: [] } };
-            let userFiles = null;
+            let userFiles: ImageInputValue = null;
             for(const val of [{key: 1, files: args.bg,}, {key: 2, files: args.icon,}]) {
-                userFiles = val.files;
+                userFiles = (val.files as any) as ImageInputValue;
                 if (!userFiles) continue;
-                if( userFiles.current_image_url && userFiles.image_url && userFiles.content_type ){
-                    await del(userFiles.current_image_url as string, {token: process.env.BLOB_READ_WRITE_TOKEN});
+                if( userFiles?.current_image_url && userFiles?.image_url && userFiles?.content_type ){
+                    await del(userFiles.current_image_url, {token: process.env.BLOB_READ_WRITE_TOKEN});
                 }
                 targetExistedFile = await prisma.userFiles.findFirst({
-                    where: { file_path: userFiles.current_image_url as string, },
+                    where: { file_path: (userFiles?.current_image_url || '') },
                 });
                 if ((
                         (!!userFiles?.image_url && !!userFiles?.content_type)
-                    ||  userFiles.is_image_deleted==true
+                    ||  userFiles?.is_image_deleted==true
                 ) && !!targetExistedFile ) {
                     await prisma.userFiles.delete({where: {id: targetExistedFile?.id}});
                 }
                 if(!!userFiles?.image_url && !!userFiles?.content_type && userFiles?.is_image_deleted != true) {
+                    const imageUrl = userFiles.image_url || '';
+                    const contentType = userFiles.content_type || '';
                     updateData.createMany.data.push({
                         purpose_id: val.key,
-                        file_path: userFiles.image_url,
-                        file_name: userFiles.image_url.split('/').pop(),
-                        extension: userFiles.content_type.split('/')[1] ?? '',
+                        file_path: imageUrl,
+                        file_name: imageUrl.split('/').pop() || '',
+                        extension: contentType.split('/')[1] || '',
                     });
                 }
             }

@@ -3,7 +3,7 @@ import { prisma } from '../db';
 // cookie / auth helpers moved to cookie.ts
 
 export const User = builder.prismaObject('User', {
-    fields: (t) => ({
+    fields: (t: any) => ({
         id: t.exposeID('id'),
         name: t.exposeString('name'),
         slug_id: t.exposeString('slug_id'),
@@ -23,7 +23,7 @@ export const User = builder.prismaObject('User', {
 });
 
 export const UserFile = builder.prismaObject('UserFiles', {
-    fields: (t) => ({
+    fields: (t: any) => ({
         id: t.exposeID('id'),
         user_id: t.exposeID('user_id'),
         purpose_id: t.exposeID('purpose_id'),
@@ -34,7 +34,7 @@ export const UserFile = builder.prismaObject('UserFiles', {
 });
   
 export const AuthPayload = builder.prismaObject('AuthPayload', {
-    fields: (t) => ({
+    fields: (t: any) => ({
         id: t.exposeID('id'),
     accessToken: t.exposeString('access_token'),
     expires_at: t.expose('expires_at', { type: 'Date' }),
@@ -43,7 +43,7 @@ export const AuthPayload = builder.prismaObject('AuthPayload', {
 });
   
 export const Follows = builder.prismaObject('Follow', {
-    fields: (t) => ({
+    fields: (t: any) => ({
         following: t.relation('following'),
         following_id: t.exposeID('following_id'),
         followed_by: t.relation('followedBy'),
@@ -52,7 +52,7 @@ export const Follows = builder.prismaObject('Follow', {
 });
 
 export const Artwork = builder.prismaObject('Artwork', {
-    fields: (t) => ({
+    fields: (t: any) => ({
         id: t.exposeID('id'),
         slug_id: t.exposeID('slug_id'),
         title: t.exposeString('title'),
@@ -70,7 +70,7 @@ export const Artwork = builder.prismaObject('Artwork', {
 });
 
 export const ArtworkRanks = builder.prismaObject('ArtworkRanks', {
-    fields: (t) => ({
+    fields: (t: any) => ({
         id: t.exposeID('id'),
         artwork_id: t.exposeID('artwork_id'),
         rank_id: t.exposeID('rank_id'),
@@ -79,7 +79,7 @@ export const ArtworkRanks = builder.prismaObject('ArtworkRanks', {
 });
 
 export const ArtworkFile = builder.prismaObject('ArtworkFile', {
-    fields: (t) => ({
+    fields: (t: any) => ({
         id: t.exposeID('id'),
         artwork_id: t.exposeID('artwork_id'),
         file_path: t.exposeString('file_path'),
@@ -87,7 +87,7 @@ export const ArtworkFile = builder.prismaObject('ArtworkFile', {
 });
 
 export const Comment = builder.prismaObject('Comment', {
-    fields: (t) => ({
+    fields: (t: any) => ({
         body: t.exposeString('body'),
         artwork_id: t.exposeID('artwork_id'),
         slug_id: t.exposeID('slug_id'),
@@ -98,7 +98,7 @@ export const Comment = builder.prismaObject('Comment', {
 });
 
 export const ImageInput = builder.inputType('ImageInput', {
-    fields: (t) => ({
+    fields: (t: any) => ({
         is_image_deleted: t.boolean({defaultValue: false,}),
         current_image_url: t.string({defaultValue: ''}),
         image_url: t.string(),
