@@ -23,6 +23,8 @@ import { ToastContainer, Bounce } from 'react-toastify';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { ProfileProvider } from '@/contexts/Profile/ProfileContext';
+import { useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 interface AppContentProps extends Omit<AppProps, 'router'> {
   router: NextRouter;
@@ -100,6 +102,19 @@ function AppContent({ Component, pageProps, router }: AppContentProps) {
   const { isLoggedIn } = useAuth();
   const isRootPath = router.pathname === '/';
   const {isSmallScreen, isLargeScreen} = useResponsive();
+
+  // リロード後に遅延トーストを表示
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const key = sessionStorage.getItem('postAuthToast');
+      if (key) {
+        sessionStorage.removeItem('postAuthToast');
+        if (key === 'login') toast.success('ログインしました。');
+        if (key === 'logout') toast.success('ログアウトしました。');
+      }
+    } catch {}
+  }, []);
 
   return (
     <>

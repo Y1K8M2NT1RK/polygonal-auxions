@@ -46,8 +46,10 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
     const result = await login({ email, password });
     if (result.data?.login.__typename === 'MutationLoginSuccess') {
       setFormErrors([]);
-      toast.success('ログインしました。');
-      if (typeof window !== 'undefined') window.location.reload();
+      if (typeof window !== 'undefined') {
+        try { sessionStorage.setItem('postAuthToast', 'login'); } catch {}
+        window.location.reload();
+      }
     } else {
       const firstErr = result.error?.graphQLErrors?.[0];
       const code = firstErr?.extensions?.code as string | undefined;
@@ -69,8 +71,10 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
     if (result.data?.logout) {
       setAuth(null);
       setIsLoggedIn(false);
-      toast.success('ログアウトしました。');
-      if (typeof window !== 'undefined') window.location.reload();
+      if (typeof window !== 'undefined') {
+        try { sessionStorage.setItem('postAuthToast', 'logout'); } catch {}
+        window.location.reload();
+      }
     } else {
       toast.error('ログアウトに失敗しました。');
     }
