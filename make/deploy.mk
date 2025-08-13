@@ -18,7 +18,7 @@ _deploy-common: _deploy-install
 	  exit 0; \
 	fi; \
 	echo "[deploy] local build start"; \
-	npx prisma generate; \
+	npm run -s prisma:generate; \
 	npx graphql-codegen; \
 	npm run build
 
