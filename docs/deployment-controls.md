@@ -63,7 +63,9 @@ Vercel ダッシュボード > Deployments から過去 Production を Promote�
 - `docker compose --profile verify up --build --exit-code-from verify` による smoke
 
 ## 6. コミットメッセージ規約
-- 日本語 / 20文字以内 / 要約 (例: `認証比較修正`, `手動デプロイ追記`)
+- 日本語 / 20文字以内 / 要約（ジャンルタグは文字数に含めない）
+- 先頭にジャンルタグを付与（例: `feat:`, `fix:`, `docs:`, `build:`, `refactor:`, `chore:`）
+- 例: `fix: 認証比較修正`, `build: 手動デプロイ追記`
 
 ## 7. 今後の拡張候補
 - 自動 Preview (手動トリガー GitHub Action) 化
