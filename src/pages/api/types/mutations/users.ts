@@ -172,31 +172,17 @@ builder.mutationField("updatePassword", (t) =>
             {message: 'パスワードが一致しません。', path: ['passwordConfirmation']},
         ],
         resolve: async (_query, _parent, args, ctx) => {
-            // 互換性対策: 旧スキーマ(VARCHAR(30))環境でのハッシュ切り捨てを防ぐため、
-            // トランザクション内で更新→再検証し、失敗時はロールバックします。
-            const updated = await prisma.$transaction(async (tx) => {
-                const hashedPassword = hashSync(args.password, 10);
-                const userId = ctx.auth?.id as number;
-                const res = await tx.user.update({
-                    where: { id: userId },
-                    data: { password: hashedPassword },
-                });
-                // 再取得してハッシュが有効か検証（桁数不足などで切り詰められた場合は不一致になります）
-                const fresh = await tx.user.findUnique({
-                    where: { id: userId },
-                    select: { password: true },
-                });
-                if (!fresh?.password || !compareSync(args.password, fresh.password)) {
-                    // 失敗を検知したらエラーを投げてトランザクションをロールバック
-                    throw new Error('PASSWORD_HASH_PERSIST_FAILED');
-                }
-                // セキュリティ: パスワード変更時は全セッション無効化
-                await tx.authPayload.deleteMany({ where: { user_id: userId } });
-                return res;
+            const userId = ctx.auth?.id as number;
+            const hashedPassword = hashSync(args.password, 10);
+            // パスワード更新
+            const updated = await prisma.user.update({
+                where: { id: userId },
+                data: { password: hashedPassword },
             });
-
-            // 現在のクライアント用に新しいトークンを再発行（他端末は無効化されたまま）
-            await cookieModule.setCookie(ctx.auth?.id as number, ctx);
+            // 全セッション無効化
+            await prisma.authPayload.deleteMany({ where: { user_id: userId } });
+            // 現在クライアント向けに再発行
+            await cookieModule.setCookie(userId, ctx);
             return updated;
         },
     })

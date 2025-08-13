@@ -45,10 +45,9 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
   const handleLogin = useCallback(async (email: string, password: string) => {
     const result = await login({ email, password });
     if (result.data?.login.__typename === 'MutationLoginSuccess') {
-      // Cookies are set server-side, just update state and refetch user data
       setFormErrors([]);
-      reexecuteQuery({ requestPolicy: 'network-only' });
       toast.success('ログインしました。');
+      if (typeof window !== 'undefined') window.location.reload();
     } else {
       const firstErr = result.error?.graphQLErrors?.[0];
       const code = firstErr?.extensions?.code as string | undefined;
@@ -68,11 +67,10 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
   const handleLogout = useCallback(async () => {
     const result = await logout({});
     if (result.data?.logout) {
-      // Cookies are cleared server-side, just update state
       setAuth(null);
       setIsLoggedIn(false);
-      reexecuteQuery({ requestPolicy: 'network-only' });
       toast.success('ログアウトしました。');
+      if (typeof window !== 'undefined') window.location.reload();
     } else {
       toast.error('ログアウトに失敗しました。');
     }

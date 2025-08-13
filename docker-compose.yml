@@ -19,13 +19,13 @@ services:
       - db
     profiles: ["dev"]
     env_file: .env
-    command: >
-      /bin/sh -c '
-        npx prisma generate &&
-        npx prisma migrate deploy &&
-        npx prisma db seed &&
+    command: >-
+      /bin/sh -lc "
+        npm run prisma:generate && \
+        npx prisma migrate deploy && \
+        npx prisma db seed && \
         npm run dev
-      '
+      "
 
   db:
     image: postgres:16
@@ -89,12 +89,12 @@ services:
     depends_on:
       - db
     env_file: .env
-    command: >
-      /bin/sh -c '
-        npx prisma generate && \
+    command: >-
+      /bin/sh -lc "
+        npm run prisma:generate && \
         npx prisma migrate deploy && \
         npx prisma studio --port 5555 --browser none
-      '
+      "
 
 volumes:
   node_modules:
