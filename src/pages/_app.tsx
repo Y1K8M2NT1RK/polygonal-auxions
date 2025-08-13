@@ -8,7 +8,7 @@ import {
   ssrExchange,
  } from 'urql';
 import { AppCacheProvider as MUIProvider } from '@mui/material-nextjs/v14-pagesRouter';
-import { CssBaseline, ThemeProvider, createTheme, useMediaQuery } from '@mui/material';
+import { CssBaseline, ThemeProvider, createTheme, useMediaQuery, Backdrop, CircularProgress } from '@mui/material';
 import Header from '@/components/Header';
 import NextTopLoader from 'nextjs-toploader';
 import createAuthExchange from '../utils/auth-exchanges';
@@ -23,7 +23,7 @@ import { ToastContainer, Bounce } from 'react-toastify';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { ProfileProvider } from '@/contexts/Profile/ProfileContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 interface AppContentProps extends Omit<AppProps, 'router'> {
@@ -99,9 +99,24 @@ export default function App(
 }
 
 function AppContent({ Component, pageProps, router }: AppContentProps) {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, fetching } = useAuth();
   const isRootPath = router.pathname === '/';
   const {isSmallScreen, isLargeScreen} = useResponsive();
+  const [authBusy, setAuthBusy] = useState<string | null>(null);
+  // 初期化: リロード直後に sessionStorage から取得
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const v = sessionStorage.getItem('authBusy');
+      setAuthBusy(v);
+    } catch {}
+    const onChange = (e: Event) => {
+      const detail = (e as CustomEvent).detail as string | null | undefined;
+      setAuthBusy(detail ?? sessionStorage.getItem('authBusy'));
+    };
+    window.addEventListener('authBusyChange', onChange as EventListener);
+    return () => window.removeEventListener('authBusyChange', onChange as EventListener);
+  }, []);
 
   // リロード後に遅延トーストを表示
   useEffect(() => {
@@ -116,6 +131,16 @@ function AppContent({ Component, pageProps, router }: AppContentProps) {
     } catch {}
   }, []);
 
+  // 認証のリロード跨ぎ Busy 表示: Me が確定するまで維持し、確定後に解除
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    // fetching が false になれば初期化完了とみなす
+    if (!fetching) {
+  try { sessionStorage.removeItem('authBusy'); } catch {}
+  setAuthBusy(null);
+    }
+  }, [fetching]);
+
   return (
     <>
       {(!isRootPath || isLoggedIn) && isLargeScreen && <Header />}
@@ -129,6 +154,9 @@ function AppContent({ Component, pageProps, router }: AppContentProps) {
         style={{zIndex: 9999, ...(isSmallScreen ? {width: '100%'} : null)}}
       />
       <Component {...pageProps}/>
+      <Backdrop open={!!authBusy} sx={{ zIndex: (theme) => theme.zIndex.modal + 1, color: '#fff' }}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
       {!isLargeScreen && <Footer />}
     </>
   );

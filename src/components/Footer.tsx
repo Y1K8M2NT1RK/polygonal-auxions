@@ -47,9 +47,6 @@ export default function Footer() {
     const [openDialog, setOpenDialog] = useState(false);
     const handleDialogOpen = () => setOpenDialog(true);
 
-    const [isLockedInputExternally, setIsLockedInputExternally] = useState(false);
-    const handleLockInputExternally = () => setIsLockedInputExternally(true);
-
     return (
         <Paper sx={{position: 'fixed', bottom: 0, right: 0, left: 0}} elevation={3}>
             {   
@@ -97,21 +94,10 @@ export default function Footer() {
                                         <ListItemIcon><SettingsIcon /></ListItemIcon>
                                         <ListItemText primary={'設定'}/>
                                     </ListItemButton>
-                                    <LoginDialog
-                                        button={
-                                            <ListItemButton onClick={() => {
-                                                handleDialogOpen();
-                                                handleLockInputExternally();
-                                                handleLogout();
-                                            }}>
-                                                <ListItemIcon><LogoutIcon /></ListItemIcon>
-                                                <ListItemText primary={'ログアウト'}/>
-                                            </ListItemButton>
-                                        }
-                                        openDialog={openDialog}
-                                        setOpenDialog={setOpenDialog}
-                                        isLockedInputExternally={isLockedInputExternally}
-                                    />
+                                    <ListItemButton onClick={() => { handleLogout(); }}>
+                                        <ListItemIcon><LogoutIcon /></ListItemIcon>
+                                        <ListItemText primary={'ログアウト'}/>
+                                    </ListItemButton>
                                 </List>
                             </Drawer>
                         </ BottomNavigation>

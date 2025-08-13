@@ -43,6 +43,10 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
   const [, logout] = useMutation(LogoutDocument);
 
   const handleLogin = useCallback(async (email: string, password: string) => {
+    if (typeof window !== 'undefined') {
+      try { sessionStorage.setItem('authBusy', 'login'); } catch {}
+  try { window.dispatchEvent(new CustomEvent('authBusyChange', { detail: 'login' })); } catch {}
+    }
     const result = await login({ email, password });
     if (result.data?.login.__typename === 'MutationLoginSuccess') {
       setFormErrors([]);
@@ -63,10 +67,19 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
         setFormErrors(gqlErrors);
         toast.error('ログインできません。入力内容をお確かめください。');
       }
+      // 失敗時は Busy を解除
+      if (typeof window !== 'undefined') {
+        try { sessionStorage.removeItem('authBusy'); } catch {}
+  try { window.dispatchEvent(new CustomEvent('authBusyChange', { detail: null as any })); } catch {}
+      }
     }
   }, [login, reexecuteQuery]);
 
   const handleLogout = useCallback(async () => {
+    if (typeof window !== 'undefined') {
+      try { sessionStorage.setItem('authBusy', 'logout'); } catch {}
+  try { window.dispatchEvent(new CustomEvent('authBusyChange', { detail: 'logout' })); } catch {}
+    }
     const result = await logout({});
     if (result.data?.logout) {
       setAuth(null);
@@ -77,6 +90,10 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
       }
     } else {
       toast.error('ログアウトに失敗しました。');
+      if (typeof window !== 'undefined') {
+        try { sessionStorage.removeItem('authBusy'); } catch {}
+  try { window.dispatchEvent(new CustomEvent('authBusyChange', { detail: null as any })); } catch {}
+      }
     }
   }, [logout, reexecuteQuery]);
 
