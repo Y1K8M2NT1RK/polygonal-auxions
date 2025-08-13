@@ -104,7 +104,16 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
     const onSubmit = handleSubmit(async (data) => {
         try {
             // パスワード更新の処理を最初に実行
-            if (data.password && data.passwordConfirmation) {
+            const passwordFilled = (data.password ?? '').trim().length > 0;
+            const confirmationFilled = (data.passwordConfirmation ?? '').trim().length > 0;
+            // 片方のみ入力はエラーにする
+            if ((passwordFilled && !confirmationFilled) || (!passwordFilled && confirmationFilled)) {
+                if (!passwordFilled) setError('root.password', { type: 'client', message: '入力してください。' });
+                if (!confirmationFilled) setError('root.passwordConfirmation', { type: 'client', message: '入力してください。' });
+                toast.error('パスワードと確認用パスワードを両方入力してください。');
+                return;
+            }
+            if (passwordFilled && confirmationFilled) {
                 const passwordResult = await executeUpdatePassword({
                     password: data.password,
                     passwordConfirmation: data.passwordConfirmation

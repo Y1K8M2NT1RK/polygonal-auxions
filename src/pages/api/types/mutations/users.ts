@@ -156,6 +156,10 @@ builder.mutationField("updatePassword", (t) =>
                     type: 'string',
                     maxLength: [100, {message: '文字数が多すぎます。'}],
                     minLength: [1, {message: '入力してください。'}],
+                    refine: [
+                        (val: string) => val.trim().length > 0,
+                        { message: '入力してください。' },
+                    ],
                 },
             }),
             passwordConfirmation: t.arg.string({
@@ -164,6 +168,10 @@ builder.mutationField("updatePassword", (t) =>
                     type: 'string',
                     maxLength: [100, {message: '文字数が多すぎます。'}],
                     minLength: [1, {message: '入力してください。'}],
+                    refine: [
+                        (val: string) => val.trim().length > 0,
+                        { message: '入力してください。' },
+                    ],
                 },
             }),
         },
