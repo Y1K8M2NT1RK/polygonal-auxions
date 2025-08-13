@@ -172,10 +172,24 @@ builder.mutationField("updatePassword", (t) =>
             {message: 'パスワードが一致しません。', path: ['passwordConfirmation']},
         ],
         resolve: async (_query, _parent, args, ctx) => {
-            const hashedPassword = hashSync(args.password, 10);
-            return prisma.user.update({
-                where: { id: ctx.auth?.id as number },
-                data: { password: hashedPassword },
+            // 互換性対策: 旧スキーマ(VARCHAR(30))環境でのハッシュ切り捨てを防ぐため、
+            // トランザクション内で更新→再検証し、失敗時はロールバックします。
+            return prisma.$transaction(async (tx) => {
+                const hashedPassword = hashSync(args.password, 10);
+                const updated = await tx.user.update({
+                    where: { id: ctx.auth?.id as number },
+                    data: { password: hashedPassword },
+                });
+                // 再取得してハッシュが有効か検証（桁数不足などで切り詰められた場合は不一致になります）
+                const fresh = await tx.user.findUnique({
+                    where: { id: ctx.auth?.id as number },
+                    select: { password: true },
+                });
+                if (!fresh?.password || !compareSync(args.password, fresh.password)) {
+                    // 失敗を検知したらエラーを投げてトランザクションをロールバック
+                    throw new Error('PASSWORD_HASH_PERSIST_FAILED');
+                }
+                return updated;
             });
         },
     })
