@@ -1,5 +1,5 @@
 /* eslint-disable */
-import type { Prisma, User, UserFiles, Purpose, AuthPayload, Follow, Artwork, ArtworkFile, ArtworkGizmo, Comment, ArtworkRanks, Ranks, RankTypes } from "/workspaces/polygonal-auxions/node_modules/@prisma/client";
+import type { Prisma, User, UserFiles, Purpose, AuthPayload, Follow, Artwork, ArtworkFile, ArtworkGizmo, Comment, ArtworkRanks, Ranks, RankTypes } from "/app/node_modules/@prisma/client";
 export default interface PrismaTypes {
     User: {
         Name: "User";

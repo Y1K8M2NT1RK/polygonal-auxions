@@ -69,6 +69,11 @@ export type Comment = {
   user: User;
 };
 
+export type CsrfError = Error & {
+  __typename?: 'CsrfError';
+  message: Scalars['String']['output'];
+};
+
 export type Error = {
   message: Scalars['String']['output'];
 };
@@ -174,7 +179,7 @@ export type MutationUpsertCommentArgs = {
   comment_slug_id?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type MutationLoginResult = MutationLoginSuccess | ZodError;
+export type MutationLoginResult = CsrfError | MutationLoginSuccess | ZodError;
 
 export type MutationLoginSuccess = {
   __typename?: 'MutationLoginSuccess';
@@ -192,6 +197,7 @@ export type MutationUpdatePasswordResult = MutationUpdatePasswordSuccess | ZodEr
 
 export type MutationUpdatePasswordSuccess = {
   __typename?: 'MutationUpdatePasswordSuccess';
+  data: User;
 };
 
 export type MutationUpsertArtworkResult = MutationUpsertArtworkSuccess | ZodError;
@@ -350,7 +356,7 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login: { __typename: 'MutationLoginSuccess', data: { __typename?: 'AuthPayload', accessToken: string } } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
+export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'CsrfError' } | { __typename: 'MutationLoginSuccess', data: { __typename?: 'AuthPayload', accessToken: string } } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
 
 export type UpdateMyProfileMutationVariables = Exact<{
   name?: InputMaybe<Scalars['String']['input']>;

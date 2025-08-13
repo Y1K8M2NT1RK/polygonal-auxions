@@ -32,6 +32,13 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
     setAuth(data?.me || null);
   }, [data]);
 
+  // Ensure CSRF cookie exists on first load (idempotent)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      fetch('/api/csrf', { credentials: 'include' }).catch(() => {});
+    }
+  }, []);
+
   const [, login] = useMutation(LoginDocument);
   const [, logout] = useMutation(LogoutDocument);
 

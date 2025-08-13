@@ -58,8 +58,15 @@ export default function App(
       fetchExchange,
     ],
     url: '/api/graphql',
-    fetchOptions: {
-      credentials: 'include',
+    fetchOptions: () => {
+      // Add CSRF header for mutations (and harmlessly for others) using the Double Submit cookie
+      const headers: Record<string, string> = {};
+      if (typeof document !== 'undefined') {
+        const match = (document.cookie || '').split('; ').find((c) => c.startsWith('csrfToken='));
+        const csrf = match?.split('=')[1];
+        if (csrf) headers['x-csrf-token'] = csrf;
+      }
+      return { credentials: 'include', headers };
     },
   });
   return (
