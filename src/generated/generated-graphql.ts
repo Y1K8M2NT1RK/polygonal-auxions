@@ -272,6 +272,7 @@ export type User = {
   name: Scalars['String']['output'];
   name_kana?: Maybe<Scalars['String']['output']>;
   phone_number?: Maybe<Scalars['String']['output']>;
+  role: UserRole;
   slug_id: Scalars['String']['output'];
   user_files: Array<UserFiles>;
 };
@@ -285,6 +286,12 @@ export type UserFiles = {
   user: User;
   user_id: Scalars['ID']['output'];
 };
+
+export enum UserRole {
+  Admin = 'ADMIN',
+  Moderator = 'MODERATOR',
+  User = 'USER'
+}
 
 export type ZodError = Error & {
   __typename?: 'ZodError';
@@ -443,7 +450,7 @@ export type UserProfileQuery = { __typename?: 'Query', UserProfile: { __typename
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> } };
+export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, handle_name: string, email: string, role: UserRole, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> } };
 
 export type GetFollowingQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -810,6 +817,8 @@ export const MeDocument = gql`
   me {
     id
     handle_name
+    email
+    role
     user_files {
       file_path
     }

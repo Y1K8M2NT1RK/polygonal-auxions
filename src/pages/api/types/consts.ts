@@ -2,6 +2,11 @@ import { builder } from '../builder';
 import { prisma } from '../db';
 // cookie / auth helpers moved to cookie.ts
 
+// UserRole enum
+export const UserRole = builder.enumType('UserRole', {
+    values: ['USER', 'ADMIN', 'MODERATOR'] as const,
+});
+
 export const User = builder.prismaObject('User', {
     fields: (t: any) => ({
         id: t.exposeID('id'),
@@ -14,6 +19,11 @@ export const User = builder.prismaObject('User', {
         phone_number: t.exposeString('phone_number', {nullable: true}),
         birthday: t.expose('birthday', {type: 'Date', nullable: true}),
         address: t.exposeString('address'),
+        // Prisma の select に含まれないケースでも安全に返す
+        role: t.field({
+            type: UserRole,
+            resolve: (user: any) => (user?.role as any) ?? 'USER',
+        }),
         created_at: t.expose('created_at', {type: 'Date'}),
         user_files: t.relation('user_files'),
         artworks: t.relation('artworks'),

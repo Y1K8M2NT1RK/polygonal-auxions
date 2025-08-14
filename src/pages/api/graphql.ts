@@ -8,7 +8,6 @@ import { ZodError } from 'zod';
 import { CsrfError } from './types/errors';
 import { jwtVerify } from 'jose';
 import { prisma } from './db';
-import { User } from '@prisma/client';
 import { readFileSync } from 'fs';
 import { usePersistedOperations } from '@graphql-yoga/plugin-persisted-operations'
 import { join } from 'path';
@@ -30,7 +29,7 @@ export const createContext = async (
 ): Promise<YogaContext> => {
   const token = req.cookies?.token;
 
-  let auth: User | null = null;
+  let auth: any = null;
 
   if (token) {
     try {

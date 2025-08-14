@@ -40,9 +40,9 @@ builder.queryField("me", (t) =>
     resolve: (query, _parent, _args, ctx, _info) => {
       return prisma.user.findUniqueOrThrow({
         ...query,
-        where: {id: ctx.auth?.id},
-        ...userIncludeFile,
-      })},
+        where: { id: ctx.auth?.id },
+      });
+    },
   })
 );
 

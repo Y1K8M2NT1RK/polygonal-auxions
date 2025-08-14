@@ -34,7 +34,9 @@ const main = async () => {
                 introduction: '最小シードモード用のアカウントです。',
                 phone_number: '09000000000',
                 email: 'aaa@example.jp',
-                address: 'テスト住所'
+                address: 'テスト住所',
+                // @ts-ignore - role field may not be in types yet
+                role: 'USER'
             }
         });
         await prisma.artwork.create({

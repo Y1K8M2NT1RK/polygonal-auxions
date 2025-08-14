@@ -48,7 +48,9 @@ export const createUsersData = () => {
             introduction: faker.helpers.arrayElement(introductions).substring(0, 500), // VarChar(500)制限
             phone_number: faker.string.numeric(11), // VarChar(15)制限で11桁の数字
             email: faker.internet.email().substring(0, 150), // VarChar(150)制限
-            address: `${faker.location.city()}-${faker.location.streetAddress()}`.substring(0, 150) // VarChar(150)制限
+            address: `${faker.location.city()}-${faker.location.streetAddress()}`.substring(0, 150), // VarChar(150)制限
+            // @ts-ignore - role field may not be in types yet
+            role: 'USER'
         });
     }
     return usersData;
@@ -66,8 +68,26 @@ export const seedUsers = async () => {
         introduction: 'テスト用のユーザーアカウントです。',
         phone_number: '09012345678',
         email: 'aaa@example.jp',
-        address: 'テスト住所'
+        address: 'テスト住所',
+        // @ts-ignore - role field may not be in types yet
+        role: 'USER'
     };
+    
+    // 固定管理者ユーザ
+    usersData[1] = {
+        name: '管理者',
+        name_kana: 'かんりしゃ',
+        handle_name: 'admin',
+        password: hashSync('admin123', genSaltSync(10)), // 管理者用パスワード
+        birthday: new Date('1985-01-01').toISOString(),
+        introduction: 'システム管理者アカウントです。',
+        phone_number: '09087654321',
+        email: 'admin@example.com',
+        address: '管理者住所',
+        // @ts-ignore - role field may not be in types yet  
+        role: 'ADMIN'
+    };
+    
     await prisma.user.createMany({ data: usersData });
-    console.log('userの作成が完了しました。 (含: aaa@example.jp / 0000)');
+    console.log('userの作成が完了しました。 (含: aaa@example.jp / 0000, admin@example.com / admin123)');
 };
