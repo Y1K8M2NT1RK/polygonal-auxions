@@ -104,6 +104,7 @@ export default function App(
 function AppContent({ Component, pageProps, router }: AppContentProps) {
   const { isLoggedIn, fetching } = useAuth();
   const isRootPath = router.pathname === '/';
+  const isAdminRoute = router.pathname.startsWith('/admin');
   const {isSmallScreen, isLargeScreen} = useResponsive();
   const [authBusy, setAuthBusy] = useState<string | null>(null);
   // 初期化: リロード直後に sessionStorage から取得
@@ -146,7 +147,7 @@ function AppContent({ Component, pageProps, router }: AppContentProps) {
 
   return (
     <>
-      {(!isRootPath || isLoggedIn) && isLargeScreen && <Header />}
+      {(!isRootPath || isLoggedIn) && isLargeScreen && !isAdminRoute && <Header />}
       <ToastContainer
         position="bottom-center"
         autoClose={5000}

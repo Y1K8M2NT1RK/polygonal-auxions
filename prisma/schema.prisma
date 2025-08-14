@@ -23,6 +23,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  ADMIN
+  MODERATOR
+}
+
 model User {
   id                Int        @id @default(autoincrement())
   slug_id           String     @unique @default(cuid())
@@ -36,6 +42,7 @@ model User {
   phone_number      String     @db.VarChar(15)
   email             String     @unique @db.VarChar(150)
   address           String     @db.VarChar(150)
+  role              UserRole   @default(USER)
   created_at        DateTime   @default(now()) @db.Timestamp()
   updated_at        DateTime   @default(now()) @db.Timestamp() @updatedAt
 

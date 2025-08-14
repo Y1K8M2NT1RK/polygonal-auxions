@@ -2,7 +2,6 @@ import { FC, createContext, useContext, ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContexts';
 import { User } from '@/generated/generated-graphql';
 
-// Note: This assumes UserRole enum exists in the User type after Prisma migration
 type AdminAuthContextType = {
   isAdminLoggedIn: boolean;
   adminUser: User | null;
@@ -19,12 +18,19 @@ const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefin
 export const AdminAuthProvider: FC<AdminAuthProviderProps> = ({ children }) => {
   const { isLoggedIn, user, fetching, handleLogin, handleLogout, formErrors } = useAuth();
   
-  // Temporary admin check - in production, this should check a role field in the database
-  // For now, we'll check if the user's email contains 'admin' or if their handle name is 'admin'
+  // Check if user has admin role in the database
+  // Fallback to temporary check for email/handle containing 'admin' for existing users
   const isAdminLoggedIn = Boolean(
     isLoggedIn && 
     user && 
-    (user.email?.includes('admin') || user.handle_name === 'admin')
+    (
+      // @ts-ignore - role field may not be in generated types yet
+      user.role === 'ADMIN' || 
+      user.role === 'MODERATOR' ||
+      // Temporary fallback for existing users without role
+      user.email?.includes('admin') || 
+      user.handle_name === 'admin'
+    )
   );
   const adminUser = isAdminLoggedIn ? user : null;
 
