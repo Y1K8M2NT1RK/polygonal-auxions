@@ -39,5 +39,3 @@ next-env.d.ts
 #prisma
 /prisma/generated
 
-# curl cookie jar (do not commit)
-cookie.txt
