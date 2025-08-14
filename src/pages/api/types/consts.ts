@@ -19,8 +19,11 @@ export const User = builder.prismaObject('User', {
         phone_number: t.exposeString('phone_number', {nullable: true}),
         birthday: t.expose('birthday', {type: 'Date', nullable: true}),
         address: t.exposeString('address'),
-    // 正しく Prisma から選択・返却されるよう expose を使用
-    role: t.expose('role', { type: UserRole }),
+        // Prisma の select に含まれないケースでも安全に返す
+        role: t.field({
+            type: UserRole,
+            resolve: (user: any) => (user?.role as any) ?? 'USER',
+        }),
         created_at: t.expose('created_at', {type: 'Date'}),
         user_files: t.relation('user_files'),
         artworks: t.relation('artworks'),
