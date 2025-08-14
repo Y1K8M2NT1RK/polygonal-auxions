@@ -1,3 +1,48 @@
+## SECTION Docker Utility
+## Docker コンテナ内で npm/npx/vercel/psql を実行する補助ターゲット
+
+.PHONY: dc-up db-up npm-docker npx-docker vercel-docker psql-docker prisma-generate-docker migrate-deploy-docker seed-docker admin-promote-5
+
+# Docker Compose up (DBのみ/全体)
+dc-up:
+	docker compose up -d
+
+db-up:
+	docker compose up -d db
+
+# npm を app コンテナ内で実行
+# 使い方: make npm-docker CMD="run build"
+npm-docker: db-up
+	docker compose run --rm app sh -lc "npm $(CMD)"
+
+# npx を app コンテナ内で実行
+# 使い方: make npx-docker CMD="prisma migrate status"
+npx-docker: db-up
+	docker compose run --rm app sh -lc "npx $(CMD)"
+
+# vercel CLI を app コンテナ内で実行（環境変数は .env.vercel を手動で読み込むか外から渡してください）
+# 使い方: make vercel-docker CMD="vercel deploy --prod --yes --token $$VERCEL_TOKEN"
+vercel-docker: db-up
+	docker compose run --rm app sh -lc "$(CMD)"
+
+# psql を db コンテナ内で実行
+# 使い方: make psql-docker SQL="SELECT now();"
+psql-docker: db-up
+	docker compose exec -T db sh -lc 'PGPASSWORD="$$POSTGRES_PASSWORD" psql -h 127.0.0.1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" -c "$(SQL)"'
+
+# よく使うショートカット
+prisma-generate-docker: db-up
+	docker compose run --rm -e VERCEL_BUILD=true app sh -lc "npm run -s prisma:generate"
+
+migrate-deploy-docker: db-up
+	docker compose run --rm app sh -lc "npx prisma migrate deploy"
+
+seed-docker: db-up
+	docker compose run --rm app sh -lc "npx prisma db seed"
+
+# 直近作成の5ユーザーを ADMIN に昇格
+admin-promote-5: db-up
+	docker compose exec -T db sh -lc 'PGPASSWORD="$$POSTGRES_PASSWORD" psql -h 127.0.0.1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" -c "UPDATE users SET role = '\''ADMIN'\'' WHERE id IN (SELECT id FROM users ORDER BY created_at DESC LIMIT 5);"'
 ## SECTION コンテナ / Docker & Orchestration
 # Docker / コンテナ関連ターゲット
 .PHONY: dc-build db studio studio-app up down stop containers-stop restart logs ps prune down-v docker-deps-install docker-deps-verify docker-reset-modules docker-next-clean
