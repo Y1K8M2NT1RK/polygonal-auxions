@@ -11,7 +11,7 @@ export const prisma = (
 	}).$extends({
         query: {
             artwork: {
-                async findMany({ args, query }) {
+                async findMany({ args, query }: { args: any, query: any }) {
                     args.where = { ...args.where, deleted: false };
                     return query(args)
                 },

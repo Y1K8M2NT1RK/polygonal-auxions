@@ -14,6 +14,7 @@ import NextTopLoader from 'nextjs-toploader';
 import createAuthExchange from '../utils/auth-exchanges';
 import { persistedExchange } from '@urql/exchange-persisted';
 import { AuthProvider, useAuth } from '@/contexts/AuthContexts';
+import { AdminAuthProvider } from '@/contexts/AdminAuthContext';
 import { PauseProvider } from '@/contexts/PauseContexts';
 import { useRouter } from 'next/router';
 import type { NextRouter } from 'next/router';
@@ -78,18 +79,20 @@ export default function App(
           <CssBaseline />
           <UrqlProvider value={urqlClient}>
             <AuthProvider>
-              <PauseProvider initialPaused={false}>
-                <ProfileProvider>
-                  <NextTopLoader
-                    color={theme.palette.mode=="dark"?"#AAAAAA":"666666"}
-                    initialPosition={0.08}
-                    crawlSpeed={200}
-                    height={5}
-                    showSpinner={false}
-                  />
-                  <AppContent Component={Component} pageProps={pageProps} router={useRouter()} />
-                </ProfileProvider>
-              </PauseProvider>
+              <AdminAuthProvider>
+                <PauseProvider initialPaused={false}>
+                  <ProfileProvider>
+                    <NextTopLoader
+                      color={theme.palette.mode=="dark"?"#AAAAAA":"666666"}
+                      initialPosition={0.08}
+                      crawlSpeed={200}
+                      height={5}
+                      showSpinner={false}
+                    />
+                    <AppContent Component={Component} pageProps={pageProps} router={useRouter()} />
+                  </ProfileProvider>
+                </PauseProvider>
+              </AdminAuthProvider>
             </AuthProvider>
           </UrqlProvider>
         </ThemeProvider>

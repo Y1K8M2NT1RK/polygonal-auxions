@@ -3,12 +3,11 @@ import { serialize } from 'cookie';
 import { randomBytes } from 'crypto';
 import { prisma } from '../db';
 import { YogaContext } from '../context';
-import { AuthPayload as PrismaAuthPayloadType } from '@prisma/client';
 
 export const cookieModule: {
   token: object;
   csrf: object;
-  setCookie: (user_id: number, context: YogaContext) => Promise<PrismaAuthPayloadType>;
+  setCookie: (user_id: number, context: YogaContext) => Promise<any>;
   ensureCsrf: (context: YogaContext) => string;
   deleteCookie: (context: YogaContext) => Promise<boolean>;
 } = {
