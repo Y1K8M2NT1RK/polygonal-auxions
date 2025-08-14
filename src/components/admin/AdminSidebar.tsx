@@ -16,9 +16,11 @@ import {
   Palette as ArtworkIcon,
   Comment as CommentIcon,
   Report as ReportIcon,
+  Logout as LogoutIcon,
 } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
 
 const drawerWidth = 240;
 
@@ -34,6 +36,7 @@ const menuItems = [
 
 export default function AdminSidebar() {
   const router = useRouter();
+  const { handleAdminLogout } = useAdminAuth();
 
   return (
     <Drawer
@@ -65,6 +68,25 @@ export default function AdminSidebar() {
             </ListItemButton>
           </ListItem>
         ))}
+      </List>
+      <Divider />
+      <List>
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={async () => {
+              try {
+                await handleAdminLogout();
+              } catch (e) {
+                // no-op; toast handled in context
+              }
+            }}
+          >
+            <ListItemIcon>
+              <LogoutIcon />
+            </ListItemIcon>
+            <ListItemText primary="ログアウト" />
+          </ListItemButton>
+        </ListItem>
       </List>
     </Drawer>
   );
