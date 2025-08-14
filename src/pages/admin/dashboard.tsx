@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
 import {
   Typography,
   Grid,
@@ -14,7 +12,6 @@ import {
   Report as ReportIcon,
 } from '@mui/icons-material';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { useAdminAuth } from '@/contexts/AdminAuthContext';
 
 // Dummy data for dashboard cards
 const statsData = [
@@ -45,19 +42,6 @@ const statsData = [
 ];
 
 export default function AdminDashboard() {
-  const { isAdminLoggedIn } = useAdminAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isAdminLoggedIn) {
-      router.push('/admin/login');
-    }
-  }, [isAdminLoggedIn, router]);
-
-  if (!isAdminLoggedIn) {
-    return null; // Will redirect
-  }
-
   return (
     <AdminLayout>
       <Typography variant="h4" gutterBottom>

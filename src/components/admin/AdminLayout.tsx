@@ -16,6 +16,7 @@ import {
 } from '@mui/icons-material';
 import { styled, alpha } from '@mui/material/styles';
 import AdminSidebar from './AdminSidebar';
+import AdminRouteGuard from './AdminRouteGuard';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 
 const drawerWidth = 240;
@@ -67,66 +68,68 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const { adminUser } = useAdminAuth();
 
   return (
-    <Box sx={{ display: 'flex' }}>
-      <AppBar
-        position="fixed"
-        sx={{
-          width: `calc(100% - ${drawerWidth}px)`,
-          ml: `${drawerWidth}px`,
-        }}
-      >
-        <Toolbar>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            管理画面
-          </Typography>
-          
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="検索..."
-              inputProps={{ 'aria-label': 'search' }}
-            />
-          </Search>
-          
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <IconButton color="inherit">
-              <ChatIcon />
-            </IconButton>
+    <AdminRouteGuard>
+      <Box sx={{ display: 'flex' }}>
+        <AppBar
+          position="fixed"
+          sx={{
+            width: `calc(100% - ${drawerWidth}px)`,
+            ml: `${drawerWidth}px`,
+          }}
+        >
+          <Toolbar>
+            <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+              管理画面
+            </Typography>
             
-            <IconButton color="inherit">
-              <NotificationIcon />
-            </IconButton>
+            <Search>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                placeholder="検索..."
+                inputProps={{ 'aria-label': 'search' }}
+              />
+            </Search>
             
-            <IconButton color="inherit">
-              {adminUser?.user_files?.length ? (
-                <Avatar
-                  src={adminUser.user_files[0]?.file_path}
-                  sx={{ width: 32, height: 32 }}
-                />
-              ) : (
-                <UserIcon />
-              )}
-            </IconButton>
-          </Box>
-        </Toolbar>
-      </AppBar>
-      
-      <AdminSidebar />
-      
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          bgcolor: 'background.default',
-          p: 3,
-          width: `calc(100% - ${drawerWidth}px)`,
-        }}
-      >
-        <Toolbar />
-        {children}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <IconButton color="inherit">
+                <ChatIcon />
+              </IconButton>
+              
+              <IconButton color="inherit">
+                <NotificationIcon />
+              </IconButton>
+              
+              <IconButton color="inherit">
+                {adminUser?.user_files?.length ? (
+                  <Avatar
+                    src={adminUser.user_files[0]?.file_path}
+                    sx={{ width: 32, height: 32 }}
+                  />
+                ) : (
+                  <UserIcon />
+                )}
+              </IconButton>
+            </Box>
+          </Toolbar>
+        </AppBar>
+        
+        <AdminSidebar />
+        
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            bgcolor: 'background.default',
+            p: 3,
+            width: `calc(100% - ${drawerWidth}px)`,
+          }}
+        >
+          <Toolbar />
+          {children}
+        </Box>
       </Box>
-    </Box>
+    </AdminRouteGuard>
   );
 }

@@ -24,14 +24,28 @@ export const AdminAuthProvider: FC<AdminAuthProviderProps> = ({ children }) => {
     isLoggedIn && 
     user && 
     (
-      // @ts-ignore - role field may not be in generated types yet
-      user.role === 'ADMIN' || 
-      user.role === 'MODERATOR' ||
-      // Temporary fallback for existing users without role
-      user.email?.includes('admin') || 
+      // Check role field if available in user object (after schema update)
+      (user as any).role === 'ADMIN' || 
+      (user as any).role === 'MODERATOR' ||
+      // Temporary fallback for existing users without role - broad criteria for testing
+      user.email?.toLowerCase().includes('admin') || 
+      user.handle_name?.toLowerCase() === 'admin' ||
+      user.email === 'admin@example.com' ||
       user.handle_name === 'admin'
     )
   );
+  
+  // Debug logging for development
+  if (process.env.NODE_ENV === 'development' && isLoggedIn && user) {
+    console.log('Admin Auth Debug:', {
+      isLoggedIn,
+      userEmail: user.email,
+      userHandle: user.handle_name,
+      userRole: (user as any).role,
+      isAdminLoggedIn
+    });
+  }
+  
   const adminUser = isAdminLoggedIn ? user : null;
 
   const handleAdminLogin = async (email: string, password: string) => {

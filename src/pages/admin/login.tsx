@@ -23,6 +23,7 @@ export default function AdminLogin() {
   // Redirect to admin dashboard if already logged in as admin
   useEffect(() => {
     if (isAdminLoggedIn) {
+      console.log('Admin already logged in, redirecting to dashboard');
       router.push('/admin/dashboard');
     }
   }, [isAdminLoggedIn, router]);
@@ -31,7 +32,10 @@ export default function AdminLogin() {
     e.preventDefault();
     setLoading(true);
     try {
+      console.log('Attempting admin login with:', { email });
       await handleAdminLogin(email, password);
+    } catch (error) {
+      console.error('Admin login error:', error);
     } finally {
       setLoading(false);
     }
@@ -62,6 +66,14 @@ export default function AdminLogin() {
           <Typography variant="h4" component="h1" align="center" gutterBottom>
             管理者ログイン
           </Typography>
+          
+          {process.env.NODE_ENV === 'development' && (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              テスト用アカウント:<br />
+              Email: admin@example.com<br />
+              Password: admin123
+            </Alert>
+          )}
           
           {formErrors.length > 0 && (
             <Alert severity="error" sx={{ mb: 2 }}>
