@@ -161,7 +161,7 @@ function AppContent({ Component, pageProps, router }: AppContentProps) {
       <Backdrop open={!!authBusy} sx={{ zIndex: (theme) => theme.zIndex.modal + 1, color: '#fff' }}>
         <CircularProgress color="inherit" />
       </Backdrop>
-      {!isLargeScreen && <Footer />}
+  {!isLargeScreen && !isAdminRoute && <Footer />}
     </>
   );
 }
