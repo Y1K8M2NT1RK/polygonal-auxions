@@ -1,8 +1,5 @@
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminTable, { TableColumn } from '@/components/admin/AdminTable';
-import { useAdminAuth } from '@/contexts/AdminAuthContext';
 
 // Dummy data for artworks
 const dummyArtworks = [
@@ -51,19 +48,6 @@ const columns: TableColumn[] = [
 ];
 
 export default function AdminArtworks() {
-  const { isAdminLoggedIn } = useAdminAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isAdminLoggedIn) {
-      router.push('/admin/login');
-    }
-  }, [isAdminLoggedIn, router]);
-
-  if (!isAdminLoggedIn) {
-    return null; // Will redirect
-  }
-
   const handleView = (row: any) => {
     console.log('Viewing artwork:', row);
     // TODO: Implement view functionality

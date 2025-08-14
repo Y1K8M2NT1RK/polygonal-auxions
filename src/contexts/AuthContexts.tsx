@@ -20,11 +20,13 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [auth, setAuth] = useState<User | null>(null);
   const [formErrors, setFormErrors] = useState<string[]>([]);
-  const [{ data, fetching }, reexecuteQuery] = useQuery({query: MeDocument});
-  const [reExecuteProfile] = useQuery({
+  const [{ data, fetching }, reexecuteQuery] = useQuery({ query: MeDocument });
+  const [{ /* profileState unused intentionally */ }, reExecuteProfile] = useQuery({
     query: UserProfileDocument,
-    variables: { handle_name: data?.me?.handle_name || '' },
-    requestPolicy: 'network-only'
+    // 適切な変数が揃うまでクエリ実行を停止
+    variables: data?.me?.handle_name ? { handle_name: data.me.handle_name } : (undefined as any),
+    pause: !data?.me?.handle_name,
+    requestPolicy: 'network-only',
   });
 
   useEffect(() => {
@@ -106,8 +108,11 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
   useEffect(() => {
     if (isLoggedIn) {
       reexecuteQuery({ requestPolicy: 'network-only' });
+      if (data?.me?.handle_name) {
+        reExecuteProfile({ requestPolicy: 'network-only' });
+      }
     }
-  }, [isLoggedIn, reexecuteQuery, reExecuteProfile]);
+  }, [isLoggedIn, reexecuteQuery, reExecuteProfile, data?.me?.handle_name]);
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, user: auth, fetching, handleLogin, handleLogout, formErrors }}>

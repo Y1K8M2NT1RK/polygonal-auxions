@@ -19,7 +19,13 @@ export const User = builder.prismaObject('User', {
         phone_number: t.exposeString('phone_number', {nullable: true}),
         birthday: t.expose('birthday', {type: 'Date', nullable: true}),
         address: t.exposeString('address'),
-        role: t.expose('role', {type: UserRole}),
+        // Ensure role never resolves to null/undefined even if not selected by Prisma
+        role: t.field({
+            type: UserRole,
+            resolve: (user: any) => {
+                return (user?.role as any) ?? 'USER';
+            },
+        }),
         created_at: t.expose('created_at', {type: 'Date'}),
         user_files: t.relation('user_files'),
         artworks: t.relation('artworks'),

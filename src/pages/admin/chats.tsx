@@ -1,9 +1,5 @@
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminTable, { TableColumn } from '@/components/admin/AdminTable';
-import { useAdminAuth } from '@/contexts/AdminAuthContext';
-import { useAuth } from '@/contexts/AuthContexts';
 
 // Dummy data for chats
 const dummyChats = [
@@ -48,21 +44,7 @@ const columns: TableColumn[] = [
 ];
 
 export default function AdminChats() {
-  const { isAdminLoggedIn } = useAdminAuth();
-  const { fetching } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!fetching && !isAdminLoggedIn) {
-      router.push('/admin/login');
-    }
-  }, [isAdminLoggedIn, fetching, router]);
-
-  if (fetching) return null; // wait until auth resolves
-  if (!isAdminLoggedIn) {
-    return null; // Will redirect
-  }
-
+  // AdminRouteGuard via AdminLayout handles auth gating/redirect
   const handleView = (row: any) => {
     console.log('Viewing chat:', row);
     // TODO: Implement view functionality

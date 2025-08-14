@@ -4,7 +4,7 @@ import { User, UserProfileDocument } from '@/generated/generated-graphql';
 import { useRouter } from 'next/router';
 
 type ProfileContextType = {
-    profile: User;
+    profile: User | undefined;
     reExecuteProfile: UseQueryExecute;
     fetching: boolean;
 }
@@ -13,14 +13,22 @@ type ProfileProviderProps = { children: ReactNode; };
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
 export const ProfileProvider: FC<ProfileProviderProps> = ({children}) => {
+    const router = useRouter();
+    const handleName = typeof router.query.handle_name === 'string' ? router.query.handle_name : undefined;
     const [{data, fetching}, reExecuteProfile] = useQuery({
         query: UserProfileDocument,
-        variables: {handle_name: useRouter().query.handle_name as string},
+        variables: handleName ? { handle_name: handleName } : (undefined as any),
+        pause: !handleName,
         requestPolicy: 'network-only',
     });
-    const profile: User = data?.UserProfile;
+    const profile: User | undefined = data?.UserProfile;
 
-    useEffect(() => { if (!profile) reExecuteProfile(); }, [profile, reExecuteProfile]);
+    // 再取得は handle_name が存在し、かつ profile 未取得時のみ
+    useEffect(() => {
+        if (handleName && !profile && !fetching) {
+            reExecuteProfile({ requestPolicy: 'network-only' });
+        }
+    }, [handleName, profile, fetching, reExecuteProfile]);
 
     return (
         <ProfileContext.Provider value={{ profile, reExecuteProfile, fetching }}>
