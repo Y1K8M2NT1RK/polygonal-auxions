@@ -20,18 +20,17 @@ export const AdminAuthProvider: FC<AdminAuthProviderProps> = ({ children }) => {
   
   // Check if user has admin role in the database
   // Fallback to temporary check for email/handle containing 'admin' for existing users
+  const role = (user as any)?.role as string | undefined;
+  const email = user?.email?.toLowerCase();
+  const handle = user?.handle_name?.toLowerCase();
   const isAdminLoggedIn = Boolean(
-    isLoggedIn && 
-    user && 
+    isLoggedIn &&
+    user &&
     (
-      // Check role field if available in user object (after schema update)
-      (user as any).role === 'ADMIN' || 
-      (user as any).role === 'MODERATOR' ||
-      // Temporary fallback for existing users without role - broad criteria for testing
-      user.email?.toLowerCase().includes('admin') || 
-      user.handle_name?.toLowerCase() === 'admin' ||
-      user.email === 'admin@example.com' ||
-      user.handle_name === 'admin'
+      role === 'ADMIN' || role === 'MODERATOR' ||
+      email?.includes('admin') ||
+      handle === 'admin' ||
+      email === 'admin@example.com'
     )
   );
   
@@ -41,7 +40,7 @@ export const AdminAuthProvider: FC<AdminAuthProviderProps> = ({ children }) => {
       isLoggedIn,
       userEmail: user.email,
       userHandle: user.handle_name,
-      userRole: (user as any).role,
+      userRole: role,
       isAdminLoggedIn
     });
   }

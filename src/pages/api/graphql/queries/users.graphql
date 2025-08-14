@@ -42,6 +42,8 @@ query me{
     me {
         id
         handle_name
+        email
+        role
         user_files {
             file_path
         }
