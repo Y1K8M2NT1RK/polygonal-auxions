@@ -1,4 +1,4 @@
-import { FC, createContext, useContext, ReactNode } from 'react';
+import { FC, createContext, useContext, ReactNode, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContexts';
 import { User } from '@/generated/generated-graphql';
 
@@ -23,16 +23,18 @@ export const AdminAuthProvider: FC<AdminAuthProviderProps> = ({ children }) => {
   const role = (user as any)?.role as string | undefined;
   const email = user?.email?.toLowerCase();
   const handle = user?.handle_name?.toLowerCase();
-  const isAdminLoggedIn = Boolean(
-    isLoggedIn &&
-    user &&
-    (
+  const isAdminLoggedIn = useMemo(() => {
+    if (!isLoggedIn || !user) return false;
+    return (
       role === 'ADMIN' || role === 'MODERATOR' ||
       email?.includes('admin') ||
       handle === 'admin' ||
       email === 'admin@example.com'
-    )
-  );
+    );
+  }, [isLoggedIn, user, role, email, handle]);
+
+  // Admin 判定のフェッチング状態: Me 未確定時は true 扱い
+  const adminFetching = fetching && !user;
   
   // Debug logging for development
   if (process.env.NODE_ENV === 'development' && isLoggedIn && user) {
@@ -61,7 +63,7 @@ export const AdminAuthProvider: FC<AdminAuthProviderProps> = ({ children }) => {
     <AdminAuthContext.Provider value={{
       isAdminLoggedIn,
       adminUser,
-      fetching,
+  fetching: adminFetching,
       handleAdminLogin,
       handleAdminLogout,
       formErrors
