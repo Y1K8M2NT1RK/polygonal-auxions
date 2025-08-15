@@ -57,7 +57,7 @@ export default function AvatorPopover({auth}: Props){
             >
                 <Card>
                     <MenuList sx={{display: 'flex', flexDirection: 'column', width: 'max-content'}}>
-                        <MenuItem>
+                        <MenuItem component={Link} href="/">
                             <Typography variant="button">
                                 <DashboardIcon /> ダッシュボード
                             </Typography>

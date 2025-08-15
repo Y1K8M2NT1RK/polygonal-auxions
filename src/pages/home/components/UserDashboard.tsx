@@ -6,7 +6,6 @@ import {
   CardContent,
   Box,
   Button,
-  Avatar,
   Container,
 } from '@mui/material';
 import {
@@ -16,11 +15,14 @@ import {
   Add as AddIcon,
   Visibility as ViewIcon,
   Edit as EditIcon,
+  Bookmark as BookmarkIcon,
 } from '@mui/icons-material';
 import Link from 'next/link';
+import Head from 'next/head';
 import { useAuth } from '@/contexts/AuthContexts';
 import { useQuery } from 'urql';
 import { UserProfileDocument } from '@/generated/generated-graphql';
+import DefaultUserIcon from '@/components/DefaultUserIcon';
 
 export default function UserDashboard() {
   const { user } = useAuth();
@@ -41,6 +43,9 @@ export default function UserDashboard() {
 
   // Calculate total likes across all artworks
   const totalLikes = profile?.artworks?.reduce((sum, artwork) => sum + artwork.likes, 0) || 0;
+  
+  // Calculate total bookmarks - placeholder for future implementation
+  const totalBookmarks = 0; // This will be implemented when bookmarks are added to the GraphQL schema
 
   const statsData = [
     {
@@ -66,6 +71,12 @@ export default function UserDashboard() {
       value: totalLikes.toString(),
       icon: <ViewIcon sx={{ fontSize: 40 }} />,
       color: '#9c27b0',
+    },
+    {
+      title: '総ブックマーク数',
+      value: totalBookmarks.toString(),
+      icon: <BookmarkIcon sx={{ fontSize: 40 }} />,
+      color: '#e91e63',
     },
   ];
 
@@ -95,14 +106,17 @@ export default function UserDashboard() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Head>
+        <title>ダッシュボード - Polygonal Auxions</title>
+      </Head>
+      
       {/* Welcome Section */}
       <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Avatar
-          src={user.user_files?.[0]?.file_path}
-          sx={{ width: 56, height: 56 }}
-        >
-          {user.handle_name?.[0]?.toUpperCase()}
-        </Avatar>
+        <DefaultUserIcon
+          name={user.handle_name}
+          imagePath={user.user_files?.[0]?.file_path}
+          furtherProp={{ width: 56, height: 56, fontSize: 28 }}
+        />
         <Box>
           <Typography variant="h4" gutterBottom>
             こんにちは、{profile?.name || user.handle_name}さん
@@ -116,7 +130,7 @@ export default function UserDashboard() {
       {/* Statistics Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {statsData.map((stat, index) => (
-          <Grid key={index} size={{ xs: 12, sm: 6, md: 3 }}>
+          <Grid key={index} item xs={6} sm={6} md={4} lg={2}>
             <Card>
               <CardContent>
                 <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -145,7 +159,7 @@ export default function UserDashboard() {
         </Typography>
         <Grid container spacing={3}>
           {quickActions.map((action, index) => (
-            <Grid key={index} size={{ xs: 12, md: 4 }}>
+            <Grid key={index} item xs={12} md={4}>
               <Card sx={{ height: '100%' }}>
                 <CardContent>
                   <Box display="flex" alignItems="center" gap={2} mb={2}>
@@ -183,7 +197,7 @@ export default function UserDashboard() {
           </Typography>
           <Grid container spacing={3}>
             {/* Recent Artworks */}
-            <Grid size={{ xs: 12, md: 6 }}>
+            <Grid item xs={12} md={6}>
               <Card>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
@@ -201,9 +215,11 @@ export default function UserDashboard() {
                           </Typography>
                         </Box>
                       ))}
-                      <Button component={Link} href={`/profile/${user.handle_name}`} variant="text">
-                        すべての作品を見る
-                      </Button>
+                      {profile.artworks.length > 3 && (
+                        <Button component={Link} href={`/profile/${user.handle_name}`} variant="text">
+                          すべての作品を見る
+                        </Button>
+                      )}
                     </Box>
                   ) : (
                     <Typography variant="body2" color="textSecondary">
@@ -215,7 +231,7 @@ export default function UserDashboard() {
             </Grid>
 
             {/* Recent Comments */}
-            <Grid size={{ xs: 12, md: 6 }}>
+            <Grid item xs={12} md={6}>
               <Card>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
@@ -233,6 +249,11 @@ export default function UserDashboard() {
                           </Typography>
                         </Box>
                       ))}
+                      {profile.comments.length > 3 && (
+                        <Button component={Link} href={`/profile/${user.handle_name}`} variant="text">
+                          すべてのコメントを見る
+                        </Button>
+                      )}
                     </Box>
                   ) : (
                     <Typography variant="body2" color="textSecondary">
