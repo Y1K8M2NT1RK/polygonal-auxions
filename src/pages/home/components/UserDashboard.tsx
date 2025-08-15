@@ -135,24 +135,10 @@ export default function UserDashboard() {
       </Box>
 
       {/* Statistics Cards */}
-      <Grid container spacing={3} sx={{ mb: 4, justifyContent: 'center' }}>
+      <Grid container spacing={3} sx={{ mb: 4 }}>
         {statsData.map((stat, index) => (
-          <Grid 
-            key={index} 
-            item 
-            xs={6}        // Mobile: 2 columns (2-2-1 layout)
-            sm={4}        // Small: 3 columns (3-2 layout) 
-            md={2}        // Medium: 6 columns but only 5 items, so they'll be centered
-            lg={2}        // Large: 6 columns but only 5 items, so they'll be centered  
-            sx={{
-              // For medium screens and up, make it 5 equal columns
-              '@media (min-width:900px)': {
-                flexBasis: '20%',
-                maxWidth: '20%'
-              }
-            }}
-          >
-            <Card sx={{ height: '100%' }}>
+          <Grid key={index} size={{ xs: 6, sm: 6, md: 2.4 }}>
+            <Card>
               <CardContent>
                 <Box display="flex" alignItems="center" justifyContent="space-between">
                   <Box>
@@ -178,9 +164,9 @@ export default function UserDashboard() {
         <Typography variant="h5" gutterBottom>
           クイックアクション
         </Typography>
-        <Grid container spacing={3} sx={{ justifyContent: 'center' }}>
+        <Grid container spacing={3}>
           {quickActions.map((action, index) => (
-            <Grid key={index} item xs={12} sm={6} md={4}>
+            <Grid key={index} size={{ xs: 12, md: 4 }}>
               <Card sx={{ height: '100%' }}>
                 <CardContent>
                   <Box display="flex" alignItems="center" gap={2} mb={2}>
@@ -216,10 +202,10 @@ export default function UserDashboard() {
           <Typography variant="h5" gutterBottom>
             最近の活動
           </Typography>
-          <Grid container spacing={3} sx={{ justifyContent: 'center' }}>
+          <Grid container spacing={3}>
             {/* Recent Artworks */}
-            <Grid item xs={12} md={6}>
-              <Card sx={{ height: 'fit-content' }}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
                     最新の作品
@@ -237,7 +223,7 @@ export default function UserDashboard() {
                         </Box>
                       ))}
                       {profile.artworks.length > 3 && (
-                        <Button component={Link} href={`/profile/${user.handle_name}`} variant="text" fullWidth>
+                        <Button component={Link} href={`/profile/${user.handle_name}`} variant="text">
                           すべての作品を見る
                         </Button>
                       )}
@@ -252,8 +238,8 @@ export default function UserDashboard() {
             </Grid>
 
             {/* Recent Comments */}
-            <Grid item xs={12} md={6}>
-              <Card sx={{ height: 'fit-content' }}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
                     最近のコメント
@@ -271,7 +257,7 @@ export default function UserDashboard() {
                         </Box>
                       ))}
                       {profile.comments.length > 3 && (
-                        <Button component={Link} href={`/profile/${user.handle_name}`} variant="text" fullWidth>
+                        <Button component={Link} href={`/profile/${user.handle_name}`} variant="text">
                           すべてのコメントを見る
                         </Button>
                       )}
