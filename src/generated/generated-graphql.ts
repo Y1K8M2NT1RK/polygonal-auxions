@@ -24,11 +24,15 @@ export type Artwork = {
   artwork_file: Array<ArtworkFile>;
   artwork_ranks: Array<ArtworkRanks>;
   bads: Scalars['Int']['output'];
+  bookmarksCount: Scalars['Int']['output'];
   comments: Array<Comment>;
   created_at: Scalars['Date']['output'];
   deleted: Scalars['Boolean']['output'];
+  favoritesCount: Scalars['Int']['output'];
   feature: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  isBookmarkedByMe: Scalars['Boolean']['output'];
+  isFavoritedByMe: Scalars['Boolean']['output'];
   likes: Scalars['Int']['output'];
   slug_id: Scalars['ID']['output'];
   title: Scalars['String']['output'];
@@ -224,6 +228,10 @@ export type Query = {
   getAuthArtworkRanks: Array<ArtworkRanks>;
   getFollowedByUser: Array<User>;
   getFollowingUser: Array<User>;
+  getMyBookmarksGiven: Scalars['Int']['output'];
+  getMyFavoritesGiven: Scalars['Int']['output'];
+  getMyTotalBookmarks: Scalars['Int']['output'];
+  getMyTotalFavorites: Scalars['Int']['output'];
   me: User;
 };
 
@@ -410,7 +418,7 @@ export type ArtworksQueryVariables = Exact<{
 }>;
 
 
-export type ArtworksQuery = { __typename?: 'Query', artworks: Array<{ __typename?: 'Artwork', id: string, title: string, slug_id: string, feature: string, created_at: any, user: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> }, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }> }> };
+export type ArtworksQuery = { __typename?: 'Query', artworks: Array<{ __typename?: 'Artwork', id: string, title: string, slug_id: string, feature: string, created_at: any, favoritesCount: number, bookmarksCount: number, isFavoritedByMe: boolean, isBookmarkedByMe: boolean, user: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> }, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }> }> };
 
 export type GetAuthArtworkRanksQueryVariables = Exact<{
   artwork_id?: InputMaybe<Scalars['String']['input']>;
@@ -424,7 +432,7 @@ export type ArtworkQueryVariables = Exact<{
 }>;
 
 
-export type ArtworkQuery = { __typename?: 'Query', artwork: { __typename?: 'Artwork', id: string, slug_id: string, title: string, likes: number, bads: number, feature: string, deleted: boolean, created_at: any, user: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> }, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, user: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> } }> } };
+export type ArtworkQuery = { __typename?: 'Query', artwork: { __typename?: 'Artwork', id: string, slug_id: string, title: string, likes: number, bads: number, feature: string, deleted: boolean, created_at: any, favoritesCount: number, bookmarksCount: number, isFavoritedByMe: boolean, isBookmarkedByMe: boolean, user: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> }, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, user: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> } }> } };
 
 export type GetArtworkRanksQueryVariables = Exact<{
   artwork_id: Scalars['String']['input'];
@@ -446,6 +454,13 @@ export type UserProfileQueryVariables = Exact<{
 
 
 export type UserProfileQuery = { __typename?: 'Query', UserProfile: { __typename?: 'User', id: string, name: string, name_kana?: string | null, handle_name: string, introduction: string, birthday?: any | null, phone_number?: string | null, address: string, email: string, created_at: any, user_files: Array<{ __typename?: 'UserFiles', purpose_id: string, file_path: string }>, artworks: Array<{ __typename?: 'Artwork', slug_id: string, title: string, likes: number, bads: number, created_at: any, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }> }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, artwork: { __typename?: 'Artwork', slug_id: string, title: string } }>, following: Array<{ __typename?: 'Follow', followed_by_id: string }> } };
+
+export type DashboardQueryVariables = Exact<{
+  handle_name: Scalars['String']['input'];
+}>;
+
+
+export type DashboardQuery = { __typename?: 'Query', getMyTotalFavorites: number, getMyTotalBookmarks: number, getMyFavoritesGiven: number, getMyBookmarksGiven: number, UserProfile: { __typename?: 'User', name: string, artworks: Array<{ __typename?: 'Artwork', slug_id: string, title: string, favoritesCount: number, created_at: any, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }> }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, artwork: { __typename?: 'Artwork', slug_id: string, title: string } }>, following: Array<{ __typename?: 'Follow', followed_by_id: string }> } };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -664,6 +679,10 @@ export const ArtworksDocument = gql`
     slug_id
     feature
     created_at
+    favoritesCount
+    bookmarksCount
+    isFavoritedByMe
+    isBookmarkedByMe
     user {
       id
       handle_name
@@ -706,6 +725,10 @@ export const ArtworkDocument = gql`
     feature
     deleted
     created_at
+    favoritesCount
+    bookmarksCount
+    isFavoritedByMe
+    isBookmarkedByMe
     user {
       id
       handle_name
@@ -811,6 +834,41 @@ export const UserProfileDocument = gql`
 
 export function useUserProfileQuery(options: Omit<Urql.UseQueryArgs<UserProfileQueryVariables>, 'query'>) {
   return Urql.useQuery<UserProfileQuery, UserProfileQueryVariables>({ query: UserProfileDocument, ...options });
+};
+export const DashboardDocument = gql`
+    query Dashboard($handle_name: String!) {
+  UserProfile(handle_name: $handle_name) {
+    name
+    artworks {
+      slug_id
+      title
+      favoritesCount
+      created_at
+      artwork_file {
+        file_path
+      }
+    }
+    comments {
+      body
+      created_at
+      artwork {
+        slug_id
+        title
+      }
+    }
+    following {
+      followed_by_id
+    }
+  }
+  getMyTotalFavorites
+  getMyTotalBookmarks
+  getMyFavoritesGiven
+  getMyBookmarksGiven
+}
+    `;
+
+export function useDashboardQuery(options: Omit<Urql.UseQueryArgs<DashboardQueryVariables>, 'query'>) {
+  return Urql.useQuery<DashboardQuery, DashboardQueryVariables>({ query: DashboardDocument, ...options });
 };
 export const MeDocument = gql`
     query me {

@@ -225,6 +225,7 @@ export default function Artwork(){
                             artwork={artwork}
                             handleIsEditing={handleIsEditing}
                             isEditing={isEditing}
+                            onRefresh={() => reExecuteArtwork({ requestPolicy: 'network-only' })}
                             featureTextareaEl={
                                 <Grid>
                                     <FormControl fullWidth sx={{mt: 2}}>

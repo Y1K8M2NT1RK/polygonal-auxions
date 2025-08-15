@@ -8,9 +8,6 @@ import {
     Fab,
 } from '@mui/material';
 import {
-    ArtworkRanks,
-    GetArtworkRanksDocument,
-    GetAuthArtworkRanksDocument,
     AddArtworkRankDocument,
     RemoveArtworkRankDocument,
     type Artwork,
@@ -28,7 +25,7 @@ import Link from 'next/link';
 import { toast } from "react-toastify";
 import { RemoveArtworkDocument } from '@/generated/generated-graphql';
 import DefaultUserIcon from '@/components/DefaultUserIcon';
-import { AnyVariables, useQuery, useMutation } from 'urql';
+import { AnyVariables, useMutation } from 'urql';
 import RankButton from '@/components/RankButton';
 import AlertDialog from '@/components/AlertDialog';
 import { useAuth } from '@/contexts/AuthContexts';
@@ -39,46 +36,35 @@ type Props = {
     handleIsEditing?: (isEditing: boolean) => void,
     isEditing?: boolean,
     featureTextareaEl?: ReactElement,
+    onRefresh?: () => void,
 }
 
-export default function ArtworkDetail({artwork, handleIsEditing, isEditing, featureTextareaEl}: Props){
+export default function ArtworkDetail({artwork, handleIsEditing, isEditing, featureTextareaEl, onRefresh}: Props){
 
     const isDarkMode = useDarkMode();
     const { user } = useAuth();
 
-    const [resultArtworkRanks, reExecuteArtworkRanksQuery] = useQuery({
-        query: GetArtworkRanksDocument,
-        variables:{ artwork_id: artwork?.id },
-    });
-    const [resultAuthArtworkRanks, reExecuteAuthArtworkRanksQuery] = useQuery({
-        query: GetAuthArtworkRanksDocument,
-        variables:{ artwork_id: artwork?.id },
-    });
+    // Rank counts and my flags are available directly on artwork via Artwork query
 
     const [, AddArtworkRank] = useMutation<AnyVariables>(AddArtworkRankDocument);
     const [, RemoveArtworkRank] = useMutation<AnyVariables>(RemoveArtworkRankDocument);
 
     const [, RemoveArtwork] = useMutation<AnyVariables>(RemoveArtworkDocument);
 
-    const numOfFavorites = resultArtworkRanks.data?.getArtworkRanks.filter((val: ArtworkRanks) => val.rank_id == '3').length;
-    const numOfBookmarks = resultArtworkRanks.data?.getArtworkRanks.filter((val: ArtworkRanks) => val.rank_id == '4').length;
+    const numOfFavorites = artwork.favoritesCount;
+    const numOfBookmarks = artwork.bookmarksCount;
     
     const [openDialog, setOpenDialog] = useState(false);
     const handleDialogOpen = () => setOpenDialog(true);
     const handleDialogClose = () => setOpenDialog(false);
 
-    const { data: dataAuthArtworkRanks } = resultAuthArtworkRanks;
-
-    let artworkRanks: ArtworkRanks[]|null = null;
-    artworkRanks = dataAuthArtworkRanks?.getAuthArtworkRanks as ArtworkRanks[];
-
     let isFavorited: boolean = false;
     let isBookmarked: boolean = false; 
     let isOwner: boolean = false;
 
-    if(!!user && !!artworkRanks){
-        isFavorited = artworkRanks?.filter((val: ArtworkRanks) => val.rank_id == '3' && val.artwork_id == artwork?.id && val.user_id == user?.id).length > 0;
-        isBookmarked = artworkRanks?.filter((val: ArtworkRanks) => val.rank_id == '4' && val.artwork_id == artwork?.id && val.user_id == user?.id).length > 0;
+    if(!!user){
+        isFavorited = artwork.isFavoritedByMe;
+        isBookmarked = artwork.isBookmarkedByMe;
         isOwner = artwork.user.handle_name == user.handle_name;
     }
 
@@ -88,8 +74,7 @@ export default function ArtworkDetail({artwork, handleIsEditing, isEditing, feat
             ?   await AddArtworkRank({ artwork_id, rank_id })
             :   await RemoveArtworkRank({ artwork_id, rank_id })
         ;
-        reExecuteArtworkRanksQuery({ requestPolicy: 'network-only' });
-        reExecuteAuthArtworkRanksQuery({ requestPolicy: 'network-only' });
+    onRefresh?.();
         return result;
     };
 

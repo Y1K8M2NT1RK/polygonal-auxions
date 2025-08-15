@@ -72,7 +72,7 @@ const getBlobDatasetUrl = async (file: File, dirname: string): Promise<{ image_u
 export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDialogProps) {
     const {profile, reExecuteProfile} = useUserProfile();
 
-    const userForEdit: User = profile;
+    const userForEdit: User = profile as User;
     const userImages = {
         bg: userForEdit?.user_files.filter((val) => val.purpose_id=='1')[0],
         icon: userForEdit?.user_files.filter((val) => val.purpose_id=='2')[0],

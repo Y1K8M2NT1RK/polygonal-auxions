@@ -9,6 +9,10 @@ query Artworks(
         slug_id,
         feature,
         created_at,
+    favoritesCount,
+    bookmarksCount,
+    isFavoritedByMe,
+    isBookmarkedByMe,
         user {
             id
             handle_name
@@ -41,6 +45,10 @@ query Artwork($slug_id: String!) {
         feature
         deleted
         created_at
+    favoritesCount
+    bookmarksCount
+    isFavoritedByMe
+    isBookmarkedByMe
         user {
             id
             handle_name

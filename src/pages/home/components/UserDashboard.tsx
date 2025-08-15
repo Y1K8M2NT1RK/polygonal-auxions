@@ -21,31 +21,30 @@ import Link from 'next/link';
 import Head from 'next/head';
 import { useAuth } from '@/contexts/AuthContexts';
 import { useQuery } from 'urql';
-import { UserProfileDocument } from '@/generated/generated-graphql';
+import { User, DashboardDocument } from '@/generated/generated-graphql';
+import Preparing from '@/components/Preparing';
 import DefaultUserIcon from '@/components/DefaultUserIcon';
 
 export default function UserDashboard() {
   const { user } = useAuth();
   
-  // Get full user profile data including artworks and comments
-  const [{ data: profileData, fetching: profileFetching }] = useQuery({
-    query: UserProfileDocument,
+  const [{ data: dashboardData, fetching: dashboardFetching }] = useQuery({
+    query: DashboardDocument,
     variables: user?.handle_name ? { handle_name: user.handle_name } : undefined,
     pause: !user?.handle_name,
   });
 
   if (!user) return null;
+  if (dashboardFetching) return <Preparing />;
 
-  const profile = profileData?.UserProfile;
+  const profile = dashboardData?.UserProfile as User | undefined;
   const artworksCount = profile?.artworks?.length || 0;
   const commentsCount = profile?.comments?.length || 0;
   const followingCount = profile?.following?.length || 0;
-
-  // Calculate total likes across all artworks
-  const totalLikes = profile?.artworks?.reduce((sum, artwork) => sum + artwork.likes, 0) || 0;
-  
-  // Calculate total bookmarks - placeholder for future implementation
-  const totalBookmarks = 0; // This will be implemented when bookmarks are added to the GraphQL schema
+  const totalLikesReceived: number = dashboardData?.getMyTotalFavorites ?? 0;
+  const totalBookmarksReceived: number = dashboardData?.getMyTotalBookmarks ?? 0;
+  const totalLikesGiven: number = dashboardData?.getMyFavoritesGiven ?? 0;
+  const totalBookmarksGiven: number = dashboardData?.getMyBookmarksGiven ?? 0;
 
   const statsData = [
     {
@@ -66,17 +65,32 @@ export default function UserDashboard() {
       icon: <FollowIcon sx={{ fontSize: 40 }} />,
       color: '#f57c00',
     },
+  ];
+
+  const rankStatsData = [
     {
-      title: '総いいね数',
-      value: totalLikes.toString(),
+      title: '受け取ったお気に入り',
+      value: totalLikesReceived.toString(),
       icon: <ViewIcon sx={{ fontSize: 40 }} />,
       color: '#9c27b0',
     },
     {
-      title: '総ブックマーク数',
-      value: totalBookmarks.toString(),
+      title: '付けたお気に入り',
+      value: totalLikesGiven.toString(),
+      icon: <ViewIcon sx={{ fontSize: 40 }} />,
+      color: '#7b1fa2',
+    },
+    {
+      title: '受け取ったブックマーク',
+      value: totalBookmarksReceived.toString(),
       icon: <BookmarkIcon sx={{ fontSize: 40 }} />,
       color: '#e91e63',
+    },
+    {
+      title: '付けたブックマーク',
+      value: totalBookmarksGiven.toString(),
+      icon: <BookmarkIcon sx={{ fontSize: 40 }} />,
+      color: '#ad1457',
     },
   ];
 
@@ -103,6 +117,7 @@ export default function UserDashboard() {
       color: '#f57c00',
     },
   ];
+
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -137,12 +152,37 @@ export default function UserDashboard() {
       {/* Statistics Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {statsData.map((stat, index) => (
-          <Grid key={index} size={{ xs: 6, sm: 6, md: 2.4 }}>
+          <Grid key={index} size={{ xs: 6, sm: 6, md: 4 }}>
             <Card>
               <CardContent>
                 <Box display="flex" alignItems="center" justifyContent="space-between">
                   <Box>
                     <Typography variant="h6" color="textSecondary">
+                      {stat.title}
+                    </Typography>
+                    <Typography variant="h4" color="primary">
+                      {stat.value}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ color: stat.color }}>
+                    {stat.icon}
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+
+      {/* Rank Statistics (separate row) */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        {rankStatsData.map((stat, index) => (
+          <Grid key={index} size={{ xs: 6, sm: 6, md: 3 }}>
+            <Card>
+              <CardContent>
+                <Box display="flex" alignItems="center" justifyContent="space-between">
+                  <Box>
+                    <Typography variant="subtitle1" color="textSecondary">
                       {stat.title}
                     </Typography>
                     <Typography variant="h4" color="primary">
@@ -210,7 +250,7 @@ export default function UserDashboard() {
                   <Typography variant="h6" gutterBottom>
                     最新の作品
                   </Typography>
-                  {profile.artworks.length > 0 ? (
+                  {profile?.artworks && profile.artworks.length > 0 ? (
                     <Box>
                       {profile.artworks.slice(0, 3).map((artwork) => (
                         <Box key={artwork.slug_id} sx={{ mb: 2, pb: 2, borderBottom: '1px solid #eee' }}>
@@ -218,7 +258,7 @@ export default function UserDashboard() {
                             {artwork.title}
                           </Typography>
                           <Typography variant="body2" color="textSecondary">
-                            {artwork.likes} いいね • {new Date(artwork.created_at).toLocaleDateString('ja-JP')}
+                            {artwork.favoritesCount} お気に入り • {new Date(artwork.created_at).toLocaleDateString('ja-JP')}
                           </Typography>
                         </Box>
                       ))}
@@ -244,7 +284,7 @@ export default function UserDashboard() {
                   <Typography variant="h6" gutterBottom>
                     最近のコメント
                   </Typography>
-                  {profile.comments.length > 0 ? (
+                  {profile?.comments && profile.comments.length > 0 ? (
                     <Box>
                       {profile.comments.slice(0, 3).map((comment, index) => (
                         <Box key={index} sx={{ mb: 2, pb: 2, borderBottom: '1px solid #eee' }}>

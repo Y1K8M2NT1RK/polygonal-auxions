@@ -19,21 +19,20 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import WarningIcon from '@mui/icons-material/Warning';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { AnyVariables, useMutation } from 'urql';
-import { AddArtworkRankDocument, RemoveArtworkRankDocument, RemoveArtworkDocument, Artwork, ArtworkRanks } from '@/generated/generated-graphql';
+import { AddArtworkRankDocument, RemoveArtworkRankDocument, RemoveArtworkDocument, Artwork } from '@/generated/generated-graphql';
 import { useAuth } from '@/contexts/AuthContexts';
 import RankButton from '@/components/RankButton';
 import AlertDialog from '@/components/AlertDialog';
 
 type ArtworkPopoverProps = {
     artwork: Artwork & {deletedInFront: boolean;};
-    artworkRanks: ArtworkRanks[]|null;
     setDeletedArtworksInFront?: Dispatch<SetStateAction<{
         artwork_id: number;
         deleted: boolean;
     }[]>>;
 };
 
-export default function ArtworkPopover({artwork, artworkRanks, setDeletedArtworksInFront}: ArtworkPopoverProps){
+export default function ArtworkPopover({artwork, setDeletedArtworksInFront}: ArtworkPopoverProps){
 
     const { user } = useAuth();
 
@@ -48,15 +47,9 @@ export default function ArtworkPopover({artwork, artworkRanks, setDeletedArtwork
   
     const open = Boolean(anchorEl);
 
-    let isFavorited: boolean = false;
-    let isBookmarked: boolean = false;
-    let isOwner: boolean = false;
-
-    if(!!user && !!artworkRanks){
-        isFavorited = artworkRanks?.filter((val: ArtworkRanks) => val.rank_id == '3' && val.artwork_id == artwork.id && val.user_id == user.id).length > 0;
-        isBookmarked = artworkRanks?.filter((val: ArtworkRanks) => val.rank_id == '4' && val.artwork_id == artwork.id && val.user_id == user.id).length > 0;
-        isOwner = artwork.user.handle_name == user.handle_name;
-    }
+    const isFavorited = !!user ? artwork.isFavoritedByMe : false;
+    const isBookmarked = !!user ? artwork.isBookmarkedByMe : false;
+    const isOwner = !!user ? artwork.user.handle_name == user.handle_name : false;
 
     const [, AddArtworkRank] = useMutation<AnyVariables>(AddArtworkRankDocument);
     const [, RemoveArtworkRank] = useMutation<AnyVariables>(RemoveArtworkRankDocument);

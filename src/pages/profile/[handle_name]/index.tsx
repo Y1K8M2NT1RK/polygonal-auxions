@@ -5,11 +5,13 @@ import ProfileArtworks from '@/pages/profile/components/profile-artworks';
 import ProfileComments from '@/pages/profile/components/profile-comments';
 import Head from 'next/head';
 import { useUserProfile } from '@/contexts/Profile/ProfileContext';
+import NotFound from '@/components/NotFound';
 
 export default function Profile(){
     const {profile, fetching} = useUserProfile();
 
     if (fetching) return (<CircularProgress color="inherit" />);
+    if (!profile) return (<NotFound />);
 
     return (
         <Container sx={{my:2}}>
@@ -20,9 +22,9 @@ export default function Profile(){
                     +`のプロフィール`
                 }</title>
             </Head>
-            <ProfileHeader viewing_user={profile}/>
-            <ProfileArtworks user={profile}/>
-            <ProfileComments user={profile}/>
+            {!!profile && <ProfileHeader viewing_user={profile}/>}
+            {!!profile && <ProfileArtworks user={profile}/>}
+            {!!profile && <ProfileComments user={profile}/>}
         </Container>
     )
 }

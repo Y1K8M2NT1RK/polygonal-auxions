@@ -4,8 +4,8 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useQuery } from 'urql';
-import { type Artwork, type ArtworkRanks } from '@/generated/generated-graphql';
-import { ArtworksDocument, GetAuthArtworkRanksDocument } from '@/generated/generated-graphql';
+import { type Artwork } from '@/generated/generated-graphql';
+import { ArtworksDocument } from '@/generated/generated-graphql';
 import ArtworkListUnit from './components/artwork-list-unit';
 import { useEffect, useState } from 'react';
 import { usePause } from '@/contexts/PauseContexts';
@@ -41,12 +41,7 @@ export default function Artworks() {
     if( deletedArtworksInFront.length > 0 ) setPaused(true);
   }, [deletedArtworksInFront, artworks, setPaused]);
 
-  let artworkRanks: ArtworkRanks[]|null = null;
-
-  const [resultArtworkRanks] = useQuery({query: GetAuthArtworkRanksDocument});
-
-  const { data: dataArtworkRanks } = resultArtworkRanks;
-  artworkRanks = dataArtworkRanks?.getAuthArtworkRanks as ArtworkRanks[];
+  // Per-artwork auth flags are included in Artworks query; no extra ranks query
 
   const hasError = !!error;
 
@@ -70,7 +65,6 @@ export default function Artworks() {
                     <ArtworkPopover
                       key={artwork.slug_id}
                       artwork={artwork}
-                      artworkRanks={artworkRanks}
                       setDeletedArtworksInFront={setDeletedArtworksInFront}
                     />
                   </ArtworkListUnit>

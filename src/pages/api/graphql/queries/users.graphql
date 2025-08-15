@@ -38,6 +38,38 @@ query UserProfile($handle_name: String!) {
     }
 }
 
+## Removed unused queries: GetUserTotalFavorites / GetUserTotalBookmarks
+
+query Dashboard($handle_name: String!) {
+    UserProfile(handle_name: $handle_name) {
+        name
+        artworks {
+            slug_id
+            title
+            favoritesCount
+            created_at
+            artwork_file {
+                file_path
+            }
+        }
+        comments {
+            body
+            created_at
+            artwork {
+                slug_id
+                title
+            }
+        }
+        following {
+            followed_by_id
+        }
+    }
+    getMyTotalFavorites
+    getMyTotalBookmarks
+    getMyFavoritesGiven
+    getMyBookmarksGiven
+}
+
 query me{
     me {
         id

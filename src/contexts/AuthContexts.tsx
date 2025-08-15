@@ -1,6 +1,6 @@
 import { FC, createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useQuery, useMutation } from 'urql';
-import { MeDocument, LoginDocument, LogoutDocument, UserProfileDocument, User } from '@/generated/generated-graphql';
+import { MeDocument, LoginDocument, LogoutDocument, User } from '@/generated/generated-graphql';
 import { toast } from 'react-toastify';
 
 type AuthContextType = {
@@ -21,13 +21,7 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
   const [auth, setAuth] = useState<User | null>(null);
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [{ data, fetching }, reexecuteQuery] = useQuery({ query: MeDocument });
-  const [{ /* profileState unused intentionally */ }, reExecuteProfile] = useQuery({
-    query: UserProfileDocument,
-    // 適切な変数が揃うまでクエリ実行を停止
-    variables: data?.me?.handle_name ? { handle_name: data.me.handle_name } : (undefined as any),
-    pause: !data?.me?.handle_name,
-    requestPolicy: 'network-only',
-  });
+  // Remove redundant eager profile query: pages fetch profiles on demand
 
   useEffect(() => {
     setIsLoggedIn(!!data?.me);
@@ -108,11 +102,8 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
   useEffect(() => {
     if (isLoggedIn) {
       reexecuteQuery({ requestPolicy: 'network-only' });
-      if (data?.me?.handle_name) {
-        reExecuteProfile({ requestPolicy: 'network-only' });
-      }
     }
-  }, [isLoggedIn, reexecuteQuery, reExecuteProfile, data?.me?.handle_name]);
+  }, [isLoggedIn, reexecuteQuery]);
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, user: auth, fetching, handleLogin, handleLogout, formErrors }}>

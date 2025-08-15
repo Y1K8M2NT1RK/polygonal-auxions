@@ -76,6 +76,45 @@ export const Artwork = builder.prismaObject('Artwork', {
         comments: t.relation('comments'),
         artwork_ranks: t.relation('artwork_ranks'),
         artwork_file: t.relation('artwork_file'),
+        // Computed fields for rank counts and auth-aware flags
+        favoritesCount: t.int({
+            resolve: async (artwork: any) =>
+                prisma.artworkRanks.count({
+                    where: { artwork_id: Number(artwork.id), rank_id: 3 },
+                }),
+        }),
+        bookmarksCount: t.int({
+            resolve: async (artwork: any) =>
+                prisma.artworkRanks.count({
+                    where: { artwork_id: Number(artwork.id), rank_id: 4 },
+                }),
+        }),
+        isFavoritedByMe: t.boolean({
+            resolve: async (artwork: any, _args: unknown, ctx: any) => {
+                if (!ctx?.auth?.id) return false;
+                const c = await prisma.artworkRanks.count({
+                    where: {
+                        artwork_id: Number(artwork.id),
+                        user_id: ctx.auth.id,
+                        rank_id: 3,
+                    },
+                });
+                return c > 0;
+            },
+        }),
+        isBookmarkedByMe: t.boolean({
+            resolve: async (artwork: any, _args: unknown, ctx: any) => {
+                if (!ctx?.auth?.id) return false;
+                const c = await prisma.artworkRanks.count({
+                    where: {
+                        artwork_id: Number(artwork.id),
+                        user_id: ctx.auth.id,
+                        rank_id: 4,
+                    },
+                });
+                return c > 0;
+            },
+        }),
      }),
 });
 
