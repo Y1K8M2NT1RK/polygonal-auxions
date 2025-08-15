@@ -111,14 +111,21 @@ export default function UserDashboard() {
       </Head>
       
       {/* Welcome Section */}
-      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Box sx={{ 
+        mb: 4, 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: 2,
+        flexDirection: { xs: 'column', sm: 'row' },
+        textAlign: { xs: 'center', sm: 'left' }
+      }}>
         <DefaultUserIcon
           name={user.handle_name}
           imagePath={user.user_files?.[0]?.file_path}
           furtherProp={{ width: 56, height: 56, fontSize: 28 }}
         />
         <Box>
-          <Typography variant="h4" gutterBottom>
+          <Typography variant="h4" gutterBottom sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}>
             こんにちは、{profile?.name || user.handle_name}さん
           </Typography>
           <Typography variant="body1" color="textSecondary">
@@ -128,10 +135,24 @@ export default function UserDashboard() {
       </Box>
 
       {/* Statistics Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Grid container spacing={3} sx={{ mb: 4, justifyContent: 'center' }}>
         {statsData.map((stat, index) => (
-          <Grid key={index} item xs={6} sm={6} md={4} lg={2}>
-            <Card>
+          <Grid 
+            key={index} 
+            item 
+            xs={6}        // Mobile: 2 columns (2-2-1 layout)
+            sm={4}        // Small: 3 columns (3-2 layout) 
+            md={2}        // Medium: 6 columns but only 5 items, so they'll be centered
+            lg={2}        // Large: 6 columns but only 5 items, so they'll be centered  
+            sx={{
+              // For medium screens and up, make it 5 equal columns
+              '@media (min-width:900px)': {
+                flexBasis: '20%',
+                maxWidth: '20%'
+              }
+            }}
+          >
+            <Card sx={{ height: '100%' }}>
               <CardContent>
                 <Box display="flex" alignItems="center" justifyContent="space-between">
                   <Box>
@@ -157,9 +178,9 @@ export default function UserDashboard() {
         <Typography variant="h5" gutterBottom>
           クイックアクション
         </Typography>
-        <Grid container spacing={3}>
+        <Grid container spacing={3} sx={{ justifyContent: 'center' }}>
           {quickActions.map((action, index) => (
-            <Grid key={index} item xs={12} md={4}>
+            <Grid key={index} item xs={12} sm={6} md={4}>
               <Card sx={{ height: '100%' }}>
                 <CardContent>
                   <Box display="flex" alignItems="center" gap={2} mb={2}>
@@ -195,10 +216,10 @@ export default function UserDashboard() {
           <Typography variant="h5" gutterBottom>
             最近の活動
           </Typography>
-          <Grid container spacing={3}>
+          <Grid container spacing={3} sx={{ justifyContent: 'center' }}>
             {/* Recent Artworks */}
             <Grid item xs={12} md={6}>
-              <Card>
+              <Card sx={{ height: 'fit-content' }}>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
                     最新の作品
@@ -216,7 +237,7 @@ export default function UserDashboard() {
                         </Box>
                       ))}
                       {profile.artworks.length > 3 && (
-                        <Button component={Link} href={`/profile/${user.handle_name}`} variant="text">
+                        <Button component={Link} href={`/profile/${user.handle_name}`} variant="text" fullWidth>
                           すべての作品を見る
                         </Button>
                       )}
@@ -232,7 +253,7 @@ export default function UserDashboard() {
 
             {/* Recent Comments */}
             <Grid item xs={12} md={6}>
-              <Card>
+              <Card sx={{ height: 'fit-content' }}>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
                     最近のコメント
@@ -250,7 +271,7 @@ export default function UserDashboard() {
                         </Box>
                       ))}
                       {profile.comments.length > 3 && (
-                        <Button component={Link} href={`/profile/${user.handle_name}`} variant="text">
+                        <Button component={Link} href={`/profile/${user.handle_name}`} variant="text" fullWidth>
                           すべてのコメントを見る
                         </Button>
                       )}
