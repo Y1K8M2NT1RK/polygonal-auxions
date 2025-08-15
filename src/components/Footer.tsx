@@ -82,9 +82,9 @@ export default function Footer() {
                                 onClose={handleDrawerClose}
                             >
                                 <List>
-                                    <ListItemButton>
+                                    <ListItemButton LinkComponent={Link} href="/">
                                         <ListItemIcon><DashboardIcon /></ListItemIcon>
-                                        <ListItemText primary={'ダッシュボード'}/>
+                                        <ListItemText primary={'ダッシュボード'} onClick={handleDrawerClose} />
                                     </ListItemButton>
                                     <ListItemButton LinkComponent={Link} href={`/profile/${user.handle_name}`}>
                                         <ListItemIcon><AccountBoxIcon /></ListItemIcon>

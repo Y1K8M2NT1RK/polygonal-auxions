@@ -1,8 +1,8 @@
 import React from 'react'
-import Preparing from '@/components/Preparing'
+import UserDashboard from './UserDashboard'
 
 export default function LoggedIn() {
     return (
-        <Preparing />
+        <UserDashboard />
     )
 }
