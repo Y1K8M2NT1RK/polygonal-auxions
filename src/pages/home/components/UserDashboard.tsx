@@ -72,21 +72,24 @@ export default function UserDashboard() {
   const quickActions = [
     {
       title: '新しい作品を投稿',
-      description: '作品を投稿して皆と共有しましょう',
+      description: '新しい作品を投稿しよう',
+      buttonText: '投稿する',
       icon: <AddIcon />,
       href: '/artworks/add',
       color: '#1976d2',
     },
     {
       title: '作品を探す',
-      description: '他のユーザーの素敵な作品を発見',
+      description: '他のユーザーの作品を見つけよう',
+      buttonText: '探す',
       icon: <ViewIcon />,
       href: '/artworks',
       color: '#388e3c',
     },
     {
       title: 'プロフィール編集',
-      description: 'あなたのプロフィールを更新',
+      description: 'プロフィール情報を更新',
+      buttonText: '編集する',
       icon: <EditIcon />,
       href: `/profile/${user.handle_name}`,
       color: '#f57c00',
@@ -166,7 +169,7 @@ export default function UserDashboard() {
                     fullWidth
                     sx={{ backgroundColor: action.color }}
                   >
-                    開始
+                    {action.buttonText}
                   </Button>
                 </CardContent>
               </Card>
