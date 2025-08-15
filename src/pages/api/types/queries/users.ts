@@ -1,6 +1,6 @@
 import { builder } from '../../builder';
 import { prisma } from '../../db';
-import { User, userIncludeFile } from '../consts';
+import { User, userIncludeFile, AdminUsersListResponse } from '../consts';
 
 // ユーザープロフィール
 builder.queryField("UserProfile", (t) =>
@@ -134,6 +134,103 @@ builder.queryField("getMyBookmarksGiven", (t) =>
       const userId = ctx.auth?.id as number;
       if (!userId) return 0;
       return prisma.artworkRanks.count({ where: { rank_id: 4, user_id: userId } });
+    },
+  })
+);
+
+// Admin User Management Queries
+builder.queryField("adminUsersList", (t) =>
+  t.field({
+    type: AdminUsersListResponse,
+    authScopes: { isAdmin: true },
+    args: {
+      page: t.arg.int({ required: false, defaultValue: 1 }),
+      limit: t.arg.int({ required: false, defaultValue: 10 }),
+      search: t.arg.string({ required: false }),
+    },
+    resolve: async (_parent, args, _ctx) => {
+      const page = Math.max(args.page || 1, 1);
+      const limit = Math.min(Math.max(args.limit || 10, 1), 100);
+      const offset = (page - 1) * limit;
+
+      // Build where clause for search and USER role filter
+      const where: any = {
+        role: 'USER', // Only show USER role users
+      };
+
+      if (args.search) {
+        const searchTerm = args.search.trim();
+        where.OR = [
+          { handle_name: { contains: searchTerm, mode: 'insensitive' } },
+          { name: { contains: searchTerm, mode: 'insensitive' } },
+          { email: { contains: searchTerm, mode: 'insensitive' } },
+        ];
+      }
+
+      // Get users and total count
+      const [users, totalCount] = await Promise.all([
+        prisma.user.findMany({
+          where,
+          skip: offset,
+          take: limit,
+          orderBy: { created_at: 'desc' },
+          select: {
+            id: true,
+            handle_name: true,
+            name: true,
+            name_kana: true,
+            email: true,
+            phone_number: true,
+            address: true,
+            introduction: true,
+            birthday: true,
+            role: true,
+            created_at: true,
+            updated_at: true,
+          },
+        }),
+        prisma.user.count({ where }),
+      ]);
+
+      return {
+        users,
+        totalCount,
+        hasNextPage: totalCount > offset + limit,
+        hasPreviousPage: page > 1,
+      };
+    },
+  })
+);
+
+builder.queryField("adminUserDetail", (t) =>
+  t.prismaField({
+    type: User,
+    authScopes: { isAdmin: true },
+    args: { id: t.arg.string({ required: true }) },
+    resolve: (query, _parent, args, _ctx) => {
+      return prisma.user.findUniqueOrThrow({
+        ...query,
+        where: { id: parseInt(args.id) },
+        include: {
+          user_files: {
+            orderBy: { created_at: 'desc' },
+          },
+          artworks: {
+            orderBy: { created_at: 'desc' },
+            take: 10,
+            include: { artwork_file: true },
+          },
+          comments: {
+            orderBy: { created_at: 'desc' },
+            take: 10,
+            include: {
+              artwork: {
+                select: { slug_id: true, title: true }
+              }
+            }
+          },
+        },
+      });
     },
   })
 );

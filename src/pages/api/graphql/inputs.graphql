@@ -4,3 +4,11 @@ input ImageInput {
   image_url: String
   content_type: String
 }
+
+# Admin User List Response Type  
+type AdminUsersListResponse {
+  users: [User!]!
+  totalCount: Int!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}

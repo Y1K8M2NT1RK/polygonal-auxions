@@ -78,3 +78,102 @@ mutation followOrUnfollow($following_id: String!, $mode: String!){
      __typename
   }
 }
+
+# Admin User Management Mutations
+mutation AdminCreateUser(
+  $handle_name: String!,
+  $name: String!,
+  $name_kana: String,
+  $email: String!,
+  $password: String!,
+  $phone_number: String,
+  $address: String,
+  $introduction: String,
+  $birthday: String
+) {
+  adminCreateUser(
+    handle_name: $handle_name,
+    name: $name,
+    name_kana: $name_kana,
+    email: $email,
+    password: $password,
+    phone_number: $phone_number,
+    address: $address,
+    introduction: $introduction,
+    birthday: $birthday
+  ) {
+    ... on MutationAdminCreateUserSuccess {
+      __typename
+      data {
+        id
+        handle_name
+        name
+        email
+      }
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors {
+        message
+      }
+    }
+  }
+}
+
+mutation AdminUpdateUser(
+  $id: String!,
+  $handle_name: String,
+  $name: String,
+  $name_kana: String,
+  $email: String,
+  $phone_number: String,
+  $address: String,
+  $introduction: String,
+  $birthday: String
+) {
+  adminUpdateUser(
+    id: $id,
+    handle_name: $handle_name,
+    name: $name,
+    name_kana: $name_kana,
+    email: $email,
+    phone_number: $phone_number,
+    address: $address,
+    introduction: $introduction,
+    birthday: $birthday
+  ) {
+    ... on MutationAdminUpdateUserSuccess {
+      __typename
+      data {
+        id
+        handle_name
+        name
+        email
+      }
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors {
+        message
+      }
+    }
+  }
+}
+
+mutation AdminDeleteUser($id: String!) {
+  adminDeleteUser(id: $id) {
+    ... on MutationAdminDeleteUserSuccess {
+      __typename
+      data
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors {
+        message
+      }
+    }
+  }
+}

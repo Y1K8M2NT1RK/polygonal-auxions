@@ -155,6 +155,16 @@ export const ImageInput = builder.inputType('ImageInput', {
     }),
 })
 
+// Admin Users List Response Type
+export const AdminUsersListResponse = builder.simpleObject('AdminUsersListResponse', {
+    fields: (t: any) => ({
+        users: t.field({ type: [User], required: true }),
+        totalCount: t.int({ required: true }),
+        hasNextPage: t.boolean({ required: true }),
+        hasPreviousPage: t.boolean({ required: true }),
+    }),
+});
+
 import { randomBytes } from 'crypto';
 
 // (cookieModule removed from this file)
