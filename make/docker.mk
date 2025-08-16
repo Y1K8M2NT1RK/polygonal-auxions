@@ -52,6 +52,9 @@ SERVICES ?=
 # ログの追跡行数 (logs ターゲット)
 TAIL ?= 120
 
+# ホストで Next.js を起動している可能性のあるポート（compose の app: "3001:3000" に合わせる）
+HOST_APP_PORT ?= 3001
+
 ## プロジェクト名推定 (compose の named volume 名に利用)
 COMPOSE_PROJECT_NAME ?= $(shell basename $(CURDIR))
 NODE_MODULES_VOLUME := $(COMPOSE_PROJECT_NAME)_node_modules
@@ -74,6 +77,8 @@ studio-app:
 
 # すべてのコンテナ (db, app, prisma-studio) をバックグラウンド起動
 up:
+	@# ホスト側で 3001 を占有している Next を停止（compose のポートバインド競合を防止）
+	@STOP_PORT=$(HOST_APP_PORT) sh scripts/stop.sh || true
 	docker compose --profile dev up -d db app prisma-studio
 
 # 起動中コンテナを停止 (ボリュームは保持)
@@ -92,8 +97,10 @@ containers-stop: stop
 restart:
 	@# dev プロファイルを明示しないと profiles: ["dev"] の app/prisma-studio が対象外になり "省略" されたように見える
 	@if [ -n "$(SERVICES)" ]; then \
+	  if echo "$(SERVICES)" | grep -qw app; then STOP_PORT=$(HOST_APP_PORT) sh scripts/stop.sh || true; fi; \
 	  docker compose --profile dev stop $(SERVICES) && docker compose --profile dev up -d $(SERVICES); \
 	else \
+	  STOP_PORT=$(HOST_APP_PORT) sh scripts/stop.sh || true; \
 	  docker compose --profile dev stop || true; \
 	  docker compose --profile dev up -d; \
 	fi

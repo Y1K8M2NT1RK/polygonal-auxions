@@ -91,7 +91,20 @@ services:
     env_file: .env
     command: >-
       /bin/sh -lc "
-        npm run prisma:generate && \
+        set -eu; \
+        LOCK=/tmp/prisma-generate.lock; \
+        if [ ! -d node_modules/@prisma/client ]; then \
+          if ( set -o noclobber; echo $$$$ > \"$$LOCK\" ) 2>/dev/null; then \
+            echo '[prisma-studio] acquiring lock and generating prisma client'; \
+            npm run prisma:generate; \
+            rm -f \"$$LOCK\"; \
+          else \
+            echo '[prisma-studio] waiting for prisma generate lock...'; \
+            while [ -f \"$$LOCK\" ]; do sleep 1; done; \
+          fi; \
+        else \
+          echo '[prisma-studio] prisma client exists -> skip generate'; \
+        fi && \
         npx prisma migrate deploy && \
         npx prisma studio --port 5555 --browser none
       "
