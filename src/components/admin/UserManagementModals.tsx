@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 // Note: ja locale might not be available, using default
 import { useForm, Controller } from 'react-hook-form';
 
@@ -381,7 +381,7 @@ export function UserCreateModal({ open, onClose, onCreate, loading }: UserCreate
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <LocalizationProvider dateAdapter={AdapterDateFns} >
+              <LocalizationProvider dateAdapter={AdapterLuxon} >
                 <Controller
                   name="birthday"
                   control={control}
@@ -563,7 +563,7 @@ export function UserEditModal({ open, onClose, user, onSave, loading }: UserEdit
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <LocalizationProvider dateAdapter={AdapterDateFns} >
+              <LocalizationProvider dateAdapter={AdapterLuxon} >
                 <Controller
                   name="birthday"
                   control={control}
