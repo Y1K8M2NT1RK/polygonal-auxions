@@ -9,4 +9,4 @@ set -eu
 HOST="${HOST:-0.0.0.0}"
 PORT="${PORT:-3000}"
 
-exec next start -H "$HOST" -p "$PORT"
+exec npx next start -H "$HOST" -p "$PORT"
