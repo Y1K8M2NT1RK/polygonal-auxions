@@ -265,3 +265,324 @@ builder.mutationField('followOrUnfollow', (t) =>
         }
     })
 );
+
+// Admin User Management Mutations
+builder.mutationField("adminCreateUser", (t) =>
+    t.prismaField({
+        type: User,
+        errors: { types: [ZodError] },
+        authScopes: { isAdmin: true },
+        args: {
+            handle_name: t.arg.string({
+                required: true,
+                validate: {
+                    type: 'string',
+                    maxLength: [60, { message: 'ハンドルネームは60文字以内で入力してください。' }],
+                    minLength: [1, { message: 'ハンドルネームを入力してください。' }],
+                    refine: [
+                        (val: string) => /^[a-zA-Z0-9_-]+$/.test(val),
+                        { message: 'ハンドルネームは英数字、アンダースコア、ハイフンのみ使用できます。' }
+                    ],
+                },
+            }),
+            name: t.arg.string({
+                required: true,
+                validate: {
+                    type: 'string',
+                    maxLength: [25, { message: '名前は25文字以内で入力してください。' }],
+                    minLength: [1, { message: '名前を入力してください。' }],
+                },
+            }),
+            name_kana: t.arg.string({
+                required: false,
+                validate: {
+                    type: 'string',
+                    maxLength: [50, { message: 'ふりがなは50文字以内で入力してください。' }],
+                },
+            }),
+            email: t.arg.string({
+                required: true,
+                validate: {
+                    type: 'string',
+                    maxLength: [150, { message: 'メールアドレスは150文字以内で入力してください。' }],
+                    email: [true, { message: '正しいメールアドレスを入力してください。' }],
+                },
+            }),
+            password: t.arg.string({
+                required: true,
+                validate: {
+                    type: 'string',
+                    minLength: [4, { message: 'パスワードは4文字以上で入力してください。' }],
+                    maxLength: [100, { message: 'パスワードは100文字以内で入力してください。' }],
+                },
+            }),
+            phone_number: t.arg.string({
+                required: false,
+                validate: {
+                    type: 'string',
+                    maxLength: [15, { message: '電話番号は15文字以内で入力してください。' }],
+                    refine: [
+                        (val: string) => val === '' || /^\d+$/.test(val),
+                        { message: '電話番号は数字のみで入力してください。' }
+                    ],
+                },
+            }),
+            address: t.arg.string({
+                required: false,
+                validate: {
+                    type: 'string',
+                    maxLength: [150, { message: '住所は150文字以内で入力してください。' }],
+                },
+            }),
+            introduction: t.arg.string({
+                required: false,
+                validate: {
+                    type: 'string',
+                    maxLength: [500, { message: '自己紹介は500文字以内で入力してください。' }],
+                },
+            }),
+            birthday: t.arg.string({
+                required: false,
+                validate: {
+                    type: 'string',
+                    refine: [
+                        (val: string) => {
+                            if (!val) return true;
+                            const date = new Date(val);
+                            return !isNaN(date.getTime());
+                        },
+                        { message: '正しい日付を入力してください。' }
+                    ],
+                },
+            }),
+        },
+        validate: [
+            async (args) => {
+                // Check for unique handle_name
+                const existingHandleName = await prisma.user.findUnique({
+                    where: { handle_name: args.handle_name },
+                });
+                if (existingHandleName) {
+                    return false;
+                }
+                // Check for unique email
+                const existingEmail = await prisma.user.findUnique({
+                    where: { email: args.email },
+                });
+                if (existingEmail) {
+                    return false;
+                }
+                return true;
+            },
+            { message: 'このハンドルネームまたはメールアドレスは既に使用されています。' }
+        ],
+        resolve: async (query, _parent, args, _ctx) => {
+            const hashedPassword = hashSync(args.password, 10);
+            
+            return prisma.user.create({
+                ...query,
+                data: {
+                    handle_name: args.handle_name,
+                    name: args.name,
+                    name_kana: args.name_kana || '',
+                    email: args.email,
+                    password: hashedPassword,
+                    phone_number: args.phone_number || '',
+                    address: args.address || '',
+                    introduction: args.introduction || '',
+                    birthday: args.birthday ? new Date(args.birthday) : new Date(),
+                    role: 'USER',
+                },
+            });
+        },
+    })
+);
+
+builder.mutationField("adminUpdateUser", (t) =>
+    t.prismaField({
+        type: User,
+        errors: { types: [ZodError] },
+        authScopes: { isAdmin: true },
+        args: {
+            id: t.arg.string({ required: true }),
+            handle_name: t.arg.string({
+                required: false,
+                validate: {
+                    type: 'string',
+                    maxLength: [60, { message: 'ハンドルネームは60文字以内で入力してください。' }],
+                    refine: [
+                        (val: string) => !val || /^[a-zA-Z0-9_-]+$/.test(val),
+                        { message: 'ハンドルネームは英数字、アンダースコア、ハイフンのみ使用できます。' }
+                    ],
+                },
+            }),
+            name: t.arg.string({
+                required: false,
+                validate: {
+                    type: 'string',
+                    maxLength: [25, { message: '名前は25文字以内で入力してください。' }],
+                },
+            }),
+            name_kana: t.arg.string({
+                required: false,
+                validate: {
+                    type: 'string',
+                    maxLength: [50, { message: 'ふりがなは50文字以内で入力してください。' }],
+                },
+            }),
+            email: t.arg.string({
+                required: false,
+                validate: {
+                    type: 'string',
+                    maxLength: [150, { message: 'メールアドレスは150文字以内で入力してください。' }],
+                    email: [true, { message: '正しいメールアドレスを入力してください。' }],
+                },
+            }),
+            phone_number: t.arg.string({
+                required: false,
+                validate: {
+                    type: 'string',
+                    maxLength: [15, { message: '電話番号は15文字以内で入力してください。' }],
+                    refine: [
+                        (val: string) => !val || /^\d+$/.test(val),
+                        { message: '電話番号は数字のみで入力してください。' }
+                    ],
+                },
+            }),
+            address: t.arg.string({
+                required: false,
+                validate: {
+                    type: 'string',
+                    maxLength: [150, { message: '住所は150文字以内で入力してください。' }],
+                },
+            }),
+            introduction: t.arg.string({
+                required: false,
+                validate: {
+                    type: 'string',
+                    maxLength: [500, { message: '自己紹介は500文字以内で入力してください。' }],
+                },
+            }),
+            birthday: t.arg.string({
+                required: false,
+                validate: {
+                    type: 'string',
+                    refine: [
+                        (val: string) => {
+                            if (!val) return true;
+                            const date = new Date(val);
+                            return !isNaN(date.getTime());
+                        },
+                        { message: '正しい日付を入力してください。' }
+                    ],
+                },
+            }),
+        },
+        validate: [
+            async (args) => {
+                const userId = parseInt(args.id);
+                
+                // Check if user exists and has USER role
+                const existingUser = await prisma.user.findUnique({
+                    where: { id: userId },
+                    select: { role: true },
+                });
+                if (!existingUser || existingUser.role !== 'USER') {
+                    return false;
+                }
+
+                // Check for unique handle_name if being updated
+                if (args.handle_name) {
+                    const existingHandleName = await prisma.user.findUnique({
+                        where: { 
+                            handle_name: args.handle_name,
+                            NOT: { id: userId }
+                        },
+                    });
+                    if (existingHandleName) {
+                        return false;
+                    }
+                }
+
+                // Check for unique email if being updated
+                if (args.email) {
+                    const existingEmail = await prisma.user.findUnique({
+                        where: { 
+                            email: args.email,
+                            NOT: { id: userId }
+                        },
+                    });
+                    if (existingEmail) {
+                        return false;
+                    }
+                }
+
+                return true;
+            },
+            { message: 'ユーザーが見つからないか、ハンドルネーム/メールアドレスが既に使用されています。' }
+        ],
+        resolve: async (query, _parent, args, _ctx) => {
+            const userId = parseInt(args.id);
+            
+            // Prepare update data - only include fields that were provided
+            const updateData: any = {};
+            if (args.handle_name !== undefined) updateData.handle_name = args.handle_name;
+            if (args.name !== undefined) updateData.name = args.name;
+            if (args.name_kana !== undefined) updateData.name_kana = args.name_kana;
+            if (args.email !== undefined) updateData.email = args.email;
+            if (args.phone_number !== undefined) updateData.phone_number = args.phone_number;
+            if (args.address !== undefined) updateData.address = args.address;
+            if (args.introduction !== undefined) updateData.introduction = args.introduction;
+            if (args.birthday !== undefined) {
+                const b = args.birthday;
+                updateData.birthday = b ? new Date(b) : null;
+            }
+
+            return prisma.user.update({
+                ...query,
+                where: { id: userId },
+                data: updateData,
+            });
+        },
+    })
+);
+
+builder.mutationField("adminDeleteUser", (t) =>
+    t.boolean({
+        errors: { types: [ZodError] },
+        authScopes: { isAdmin: true },
+        args: {
+            id: t.arg.string({ required: true }),
+        },
+        validate: [
+            async (args) => {
+                const userId = parseInt(args.id);
+                
+                // Check if user exists and has USER role
+                const existingUser = await prisma.user.findUnique({
+                    where: { id: userId },
+                    select: { role: true },
+                });
+                if (!existingUser || existingUser.role !== 'USER') {
+                    return false;
+                }
+                return true;
+            },
+            { message: 'ユーザーが見つからないか、削除できません。' }
+        ],
+        resolve: async (_parent, args, _ctx) => {
+            const userId = parseInt(args.id);
+            
+            try {
+                // Delete user (this will cascade to related data based on schema)
+                await prisma.user.delete({
+                    where: { id: userId },
+                });
+                return true;
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                return false;
+            }
+        },
+    })
+);

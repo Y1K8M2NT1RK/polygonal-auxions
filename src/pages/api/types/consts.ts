@@ -25,6 +25,7 @@ export const User = builder.prismaObject('User', {
             resolve: (user: any) => (user?.role as any) ?? 'USER',
         }),
         created_at: t.expose('created_at', {type: 'Date'}),
+    updated_at: t.expose('updated_at', {type: 'Date'}),
         user_files: t.relation('user_files'),
         artworks: t.relation('artworks'),
         comments: t.relation('comments'),
@@ -154,6 +155,16 @@ export const ImageInput = builder.inputType('ImageInput', {
         content_type: t.string(),
     }),
 })
+
+// Admin Users List Response Type
+export const AdminUsersListResponse = builder.simpleObject('AdminUsersListResponse', {
+    fields: (t: any) => ({
+        users: t.field({ type: [User], required: true }),
+        totalCount: t.int({ required: true }),
+        hasNextPage: t.boolean({ required: true }),
+        hasPreviousPage: t.boolean({ required: true }),
+    }),
+});
 
 import { randomBytes } from 'crypto';
 

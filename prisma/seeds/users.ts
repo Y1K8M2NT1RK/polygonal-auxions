@@ -1,19 +1,20 @@
 import { faker } from '@faker-js/faker'
 import { hashSync, genSaltSync } from 'bcrypt'
 import { prisma } from '../../src/pages/api/db'
+import { Prisma, UserRole } from '@prisma/client'
 
-export const createUsersData = () => {
-    const usersData = [];
+export const createUsersData = (): Prisma.UserCreateManyInput[] => {
+    const usersData: Prisma.UserCreateManyInput[] = [];
     for (let i = 0; i < 50; i++) {
         const firstName = faker.person.firstName();
         const lastName = faker.person.lastName();
         const name = `${lastName} ${firstName}`.substring(0, 25); // VarChar(25)制限
-        const nameKana = faker.helpers.arrayElement([
+        const nameKana = faker.helpers.arrayElement<string>([
             'たなかたろう', 'すずきはなこ', 'さとうけんじ', 'わたなべゆうこ', 'いとうみのる',
             'やまもとあきら', 'たかはしなおみ', 'ももたまゆみ', 'いしかわしんじ', 'おおたにえみ',
             'あべゆうすけ', 'かとうりえ', 'きむらとしお', 'こばやしちえ', 'やまだひろし',
             'ささきまり', 'いのうえかずお', 'むらかみあい', 'くどうたけし', 'ふじわらさき'
-        ]);
+        ] as string[]);
         const handleName = faker.internet.username().toLowerCase().substring(0, 60); // VarChar(60)制限
         
         // 日本語の自己紹介文候補
@@ -49,8 +50,7 @@ export const createUsersData = () => {
             phone_number: faker.string.numeric(11), // VarChar(15)制限で11桁の数字
             email: faker.internet.email().substring(0, 150), // VarChar(150)制限
             address: `${faker.location.city()}-${faker.location.streetAddress()}`.substring(0, 150), // VarChar(150)制限
-            // @ts-ignore - role field may not be in types yet
-            role: 'USER'
+            role: UserRole.USER,
         });
     }
     return usersData;
@@ -61,7 +61,7 @@ export const seedUsers = async () => {
     // 固定テストユーザ (README 記載)
     usersData[0] = {
         name: 'テストユーザー',
-    name_kana: 'たなかたろう',
+        name_kana: 'たなかたろう',
         handle_name: 'testuser',
         password: hashSync('0000', genSaltSync(10)),
         birthday: new Date('1990-01-01').toISOString(),
@@ -69,8 +69,7 @@ export const seedUsers = async () => {
         phone_number: '09012345678',
         email: 'aaa@example.jp',
         address: 'テスト住所',
-        // @ts-ignore - role field may not be in types yet
-        role: 'USER'
+        role: UserRole.USER,
     };
     
     // 固定管理者ユーザ
@@ -84,8 +83,7 @@ export const seedUsers = async () => {
         phone_number: '09087654321',
         email: 'admin@example.com',
         address: '管理者住所',
-        // @ts-ignore - role field may not be in types yet  
-        role: 'ADMIN'
+        role: UserRole.ADMIN,
     };
     
     await prisma.user.createMany({ data: usersData });

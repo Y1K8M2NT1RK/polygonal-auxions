@@ -40,33 +40,17 @@ type Props = {
 }
 
 export default function ArtworkDetail({artwork, handleIsEditing, isEditing, featureTextareaEl, onRefresh}: Props){
-
     const isDarkMode = useDarkMode();
     const { user } = useAuth();
 
-    // Rank counts and my flags are available directly on artwork via Artwork query
-
+    // GraphQL操作は常に初期化（Hooks順序を固定）
     const [, AddArtworkRank] = useMutation<AnyVariables>(AddArtworkRankDocument);
     const [, RemoveArtworkRank] = useMutation<AnyVariables>(RemoveArtworkRankDocument);
-
     const [, RemoveArtwork] = useMutation<AnyVariables>(RemoveArtworkDocument);
 
-    const numOfFavorites = artwork.favoritesCount;
-    const numOfBookmarks = artwork.bookmarksCount;
-    
     const [openDialog, setOpenDialog] = useState(false);
     const handleDialogOpen = () => setOpenDialog(true);
     const handleDialogClose = () => setOpenDialog(false);
-
-    let isFavorited: boolean = false;
-    let isBookmarked: boolean = false; 
-    let isOwner: boolean = false;
-
-    if(!!user){
-        isFavorited = artwork.isFavoritedByMe;
-        isBookmarked = artwork.isBookmarkedByMe;
-        isOwner = artwork.user.handle_name == user.handle_name;
-    }
 
     const handleRankChange = async (artwork_id: string, rank_id: string, action: 'add' | 'remove') => {
         let result;
@@ -74,12 +58,22 @@ export default function ArtworkDetail({artwork, handleIsEditing, isEditing, feat
             ?   await AddArtworkRank({ artwork_id, rank_id })
             :   await RemoveArtworkRank({ artwork_id, rank_id })
         ;
-    onRefresh?.();
+        onRefresh?.();
         return result;
     };
 
+    // artworkが未定義なら何も描画しない（Hooksはすでに呼ばれている）
+    if (!artwork) return null;
+
+    const numOfFavorites = artwork.favoritesCount;
+    const numOfBookmarks = artwork.bookmarksCount;
+
+    const isFavorited = !!user ? artwork.isFavoritedByMe : false;
+    const isBookmarked = !!user ? artwork.isBookmarkedByMe : false;
+    const isOwner = !!user ? (artwork.user.handle_name == user.handle_name) : false;
+
     return (
-        <Card key={artwork?.slug_id} sx={{p: '10px', my: 1}}>
+        <Card key={artwork.slug_id} sx={{p: '10px', my: 1}}>
             {
                 isEditing
                 ? <>{featureTextareaEl}</>

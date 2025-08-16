@@ -101,3 +101,60 @@ query getFollowedBy {
         }
     }
 }
+
+# Admin User Management Queries
+query AdminUsersList($page: Int, $limit: Int, $search: String) {
+    adminUsersList(page: $page, limit: $limit, search: $search) {
+        users {
+            id
+            handle_name
+            name
+            name_kana
+            email
+            phone_number
+            address
+            introduction
+            birthday
+            role
+            created_at
+            updated_at
+        }
+        totalCount
+        hasNextPage
+        hasPreviousPage
+    }
+}
+
+query AdminUserDetail($id: String!) {
+    adminUserDetail(id: $id) {
+        id
+        handle_name
+        name
+        name_kana
+        email
+        phone_number
+        address
+        introduction
+        birthday
+        role
+        created_at
+        updated_at
+        user_files {
+            purpose_id
+            file_path
+        }
+        artworks {
+            slug_id
+            title
+            created_at
+        }
+        comments {
+            body
+            created_at
+            artwork {
+                slug_id
+                title
+            }
+        }
+    }
+}

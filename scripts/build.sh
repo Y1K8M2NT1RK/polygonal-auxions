@@ -16,4 +16,4 @@ sh scripts/clean.sh
 # PrismaやGraphQLコード生成が必要なら必要箇所で実行してください。
 # 例: prisma generate / graphql-codegen など（本プロジェクトではvercel-buildで実行）
 
-next build
+npx next build

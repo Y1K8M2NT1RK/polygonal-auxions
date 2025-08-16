@@ -14,7 +14,10 @@ import ValidationPlugin from '@pothos/plugin-validation';
 import ErrorsPlugin from '@pothos/plugin-errors';
 
 export const builder = new SchemaBuilder<{
-  AuthScopes: { isAuthenticated: boolean };
+  AuthScopes: { 
+    isAuthenticated: boolean;
+    isAdmin: boolean;
+  };
   Context: YogaContext;
   PrismaTypes: PrismaTypes;
   Scalars: {
@@ -35,6 +38,7 @@ export const builder = new SchemaBuilder<{
   scopeAuth: {
     authScopes: async (context) => ({ 
       isAuthenticated: !!context.auth,
+      isAdmin: context.auth?.role === 'ADMIN',
     }),
   },
   prisma: {
