@@ -90,10 +90,12 @@ containers-stop: stop
 
 # 再起動 (stop -> up) SERVICES 未指定なら全サービス
 restart:
+	@# dev プロファイルを明示しないと profiles: ["dev"] の app/prisma-studio が対象外になり "省略" されたように見える
 	@if [ -n "$(SERVICES)" ]; then \
-	  docker compose stop $(SERVICES) && docker compose up -d $(SERVICES); \
+	  docker compose --profile dev stop $(SERVICES) && docker compose --profile dev up -d $(SERVICES); \
 	else \
-	  docker compose stop && docker compose up -d; \
+	  docker compose --profile dev stop || true; \
+	  docker compose --profile dev up -d; \
 	fi
 
 # 稼働状況一覧 (docker compose ps)
