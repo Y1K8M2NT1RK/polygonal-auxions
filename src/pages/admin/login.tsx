@@ -23,8 +23,10 @@ export default function AdminLogin() {
   // Redirect to admin dashboard if already logged in as admin
   useEffect(() => {
     if (isAdminLoggedIn) {
-      console.log('Admin already logged in, redirecting to dashboard');
-      router.push('/admin/dashboard');
+      // returnTo があれば優先して戻す
+      const returnTo = typeof router.query.returnTo === 'string' ? router.query.returnTo : null;
+      const target = returnTo ? decodeURIComponent(returnTo) : '/admin/dashboard';
+      router.replace(target);
     }
   }, [isAdminLoggedIn, router]);
 
@@ -32,8 +34,8 @@ export default function AdminLogin() {
     e.preventDefault();
     setLoading(true);
     try {
-      console.log('Attempting admin login with:', { email });
       await handleAdminLogin(email, password);
+      // 成功時は AdminAuthContext 側で isAdminLoggedIn が true になり useEffect が遷移を処理
     } catch (error) {
       console.error('Admin login error:', error);
     } finally {

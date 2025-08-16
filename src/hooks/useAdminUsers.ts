@@ -42,7 +42,7 @@ interface UseAdminUserMutationsReturn {
   error: string | null;
   createUser: (data: UserFormData & { password: string }) => Promise<boolean>;
   updateUser: (id: string, data: UserFormData) => Promise<boolean>;
-  deleteUser: (id: string) => Promise<boolean>;
+  deleteUser: (id: string, onDeleted?: () => void) => Promise<boolean>;
 }
 
 // GraphQL は generated-graphql.ts の定義を使用
@@ -63,7 +63,11 @@ export function useAdminUsers(): UseAdminUsersReturn {
     setError(null);
     try {
       const { data, error } = await client
-        .query<AdminUsersListQuery, AdminUsersListQueryVariables>(AdminUsersListDocument, { page, limit, search })
+        .query<AdminUsersListQuery, AdminUsersListQueryVariables>(
+          AdminUsersListDocument,
+          { page, limit, search },
+          { requestPolicy: 'network-only' }
+        )
         .toPromise();
 
       if (error) throw error;
@@ -97,7 +101,11 @@ export function useAdminUserDetail(): UseAdminUserDetailReturn {
     setError(null);
     try {
       const { data, error } = await client
-        .query<AdminUserDetailQuery, AdminUserDetailQueryVariables>(AdminUserDetailDocument, { id })
+        .query<AdminUserDetailQuery, AdminUserDetailQueryVariables>(
+          AdminUserDetailDocument,
+          { id },
+          { requestPolicy: 'network-only' }
+        )
         .toPromise();
 
       if (error) throw error;
@@ -168,7 +176,7 @@ export function useAdminUserMutations(): UseAdminUserMutationsReturn {
     }
   }, [client]);
 
-  const deleteUser = useCallback(async (id: string): Promise<boolean> => {
+  const deleteUser = useCallback(async (id: string, onDeleted?: () => void): Promise<boolean> => {
     setLoading(true);
     setError(null);
     try {
@@ -180,6 +188,8 @@ export function useAdminUserMutations(): UseAdminUserMutationsReturn {
         setError(result.message || '入力エラーが発生しました。');
         return false;
       }
+      // 直後の一覧再取得を明示（caller に任せるハンドラも提供）
+      try { onDeleted?.(); } catch {}
       return true;
     } catch (e) {
       console.error('Failed to delete user:', e);

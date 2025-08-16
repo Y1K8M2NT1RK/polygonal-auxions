@@ -155,17 +155,17 @@ export default function AdminUsers() {
 
   const handleDeleteUser = async () => {
     if (!selectedUser) return;
-    
-    const success = await deleteUser(selectedUser.id);
-    if (success) {
-      showNotification('ユーザーが正常に削除されました。', 'success');
-      handleCloseModal();
-      // Refresh the list and adjust page if necessary
+    const success = await deleteUser(selectedUser.id, () => {
+      // 直後にネットワーク経由で一覧を再取得
       const newTotalCount = totalCount - 1;
-      const maxPage = Math.ceil(newTotalCount / rowsPerPage) - 1;
+      const maxPage = Math.ceil(Math.max(0, newTotalCount) / rowsPerPage) - 1;
       const newPage = Math.min(page, Math.max(0, maxPage));
       setPage(newPage);
       fetchUsers(newPage + 1, rowsPerPage, searchTerm);
+    });
+    if (success) {
+      showNotification('ユーザーが正常に削除されました。', 'success');
+      handleCloseModal();
     } else if (mutationError) {
       showNotification(mutationError, 'error');
     }

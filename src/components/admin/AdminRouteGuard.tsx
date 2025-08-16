@@ -12,14 +12,13 @@ export default function AdminRouteGuard({ children }: AdminRouteGuardProps) {
   const router = useRouter();
 
   useEffect(() => {
-    // Don't redirect if we're still loading or already on login page
-    if (fetching || router.pathname === '/admin/login') {
-      return;
-    }
+    // 初期化未完了やルーター未準備、ログインページ上では何もしない
+    if (fetching || !router.isReady || router.pathname === '/admin/login') return;
 
-    // Redirect to login if not admin
+    // 未ログイン（管理者権限なし）の場合は intended URL を付けてログインへ
     if (!isAdminLoggedIn) {
-      router.push('/admin/login');
+      const returnTo = encodeURIComponent(router.asPath);
+      router.replace(`/admin/login?returnTo=${returnTo}`);
     }
   }, [isAdminLoggedIn, fetching, router]);
 
@@ -37,7 +36,7 @@ export default function AdminRouteGuard({ children }: AdminRouteGuardProps) {
     );
   }
 
-  // Show nothing while redirecting
+  // Redirect中インジケータ
   if (!isAdminLoggedIn && router.pathname !== '/admin/login') {
     return (
       <Box
