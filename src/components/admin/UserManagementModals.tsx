@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -18,8 +18,9 @@ import {
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
-// Note: ja locale might not be available, using default
+import { DateTime } from 'luxon';
 import { useForm, Controller } from 'react-hook-form';
+import type { UserFormData as AdminUserFormData } from '@/types/admin';
 
 interface User {
   id?: string;
@@ -39,7 +40,8 @@ interface User {
   comments?: any[];
 }
 
-interface UserFormData {
+// Form values for DatePicker (Luxon)
+interface UserFormInputs {
   handle_name: string;
   name: string;
   name_kana: string;
@@ -47,7 +49,7 @@ interface UserFormData {
   phone_number: string;
   address: string;
   introduction: string;
-  birthday: Date | null;
+  birthday: DateTime | null;
   password?: string;
 }
 
@@ -61,14 +63,14 @@ interface UserEditModalProps {
   open: boolean;
   onClose: () => void;
   user: User | null;
-  onSave: (data: UserFormData) => void;
+  onSave: (data: AdminUserFormData) => void;
   loading?: boolean;
 }
 
 interface UserCreateModalProps {
   open: boolean;
   onClose: () => void;
-  onCreate: (data: UserFormData & { password: string }) => void;
+  onCreate: (data: AdminUserFormData & { password: string }) => void;
   loading?: boolean;
 }
 
@@ -80,126 +82,55 @@ interface DeleteConfirmModalProps {
   loading?: boolean;
 }
 
-// User Detail Modal
 export function UserDetailModal({ open, onClose, user }: UserDetailModalProps) {
   if (!user) return null;
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
-        ユーザー詳細: {user.name}
-      </DialogTitle>
+      <DialogTitle>ユーザー詳細: {user.name}</DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="ID"
-              value={user.id || ''}
-              fullWidth
-              disabled
-              size="small"
-            />
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField label="ID" value={user.id || ''} fullWidth disabled size="small" />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="ハンドルネーム"
-              value={user.handle_name || ''}
-              fullWidth
-              disabled
-              size="small"
-            />
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField label="ハンドルネーム" value={user.handle_name || ''} fullWidth disabled size="small" />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="名前"
-              value={user.name || ''}
-              fullWidth
-              disabled
-              size="small"
-            />
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField label="名前" value={user.name || ''} fullWidth disabled size="small" />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="ふりがな"
-              value={user.name_kana || ''}
-              fullWidth
-              disabled
-              size="small"
-            />
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField label="ふりがな" value={user.name_kana || ''} fullWidth disabled size="small" />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="メールアドレス"
-              value={user.email || ''}
-              fullWidth
-              disabled
-              size="small"
-            />
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField label="メールアドレス" value={user.email || ''} fullWidth disabled size="small" />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="電話番号"
-              value={user.phone_number || ''}
-              fullWidth
-              disabled
-              size="small"
-            />
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField label="電話番号" value={user.phone_number || ''} fullWidth disabled size="small" />
           </Grid>
-          <Grid item xs={12}>
-            <TextField
-              label="住所"
-              value={user.address || ''}
-              fullWidth
-              disabled
-              size="small"
-            />
+          <Grid size={{ xs: 12 }}>
+            <TextField label="住所" value={user.address || ''} fullWidth disabled size="small" />
           </Grid>
-          <Grid item xs={12}>
-            <TextField
-              label="自己紹介"
-              value={user.introduction || ''}
-              fullWidth
-              disabled
-              multiline
-              rows={3}
-              size="small"
-            />
+          <Grid size={{ xs: 12 }}>
+            <TextField label="自己紹介" value={user.introduction || ''} fullWidth disabled multiline rows={3} size="small" />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="生年月日"
-              value={user.birthday ? new Date(user.birthday).toLocaleDateString('ja-JP') : ''}
-              fullWidth
-              disabled
-              size="small"
-            />
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField label="生年月日" value={user.birthday ? new Date(user.birthday).toLocaleDateString('ja-JP') : ''} fullWidth disabled size="small" />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="body2" color="textSecondary">
-                ロール:
-              </Typography>
-              <Chip
-                label={user.role === 'ADMIN' ? '管理者' : 'ユーザー'}
-                color={user.role === 'ADMIN' ? 'primary' : 'default'}
-                size="small"
-              />
+              <Typography variant="body2" color="textSecondary">ロール:</Typography>
+              <Chip label={user.role === 'ADMIN' ? '管理者' : 'ユーザー'} color={user.role === 'ADMIN' ? 'primary' : 'default'} size="small" />
             </Box>
           </Grid>
-          
-          {/* Display related data */}
+
           {user.artworks && user.artworks.length > 0 && (
-            <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom>
-                最近の作品 ({user.artworks.length}件)
-              </Typography>
+            <Grid size={{ xs: 12 }}>
+              <Typography variant="h6" gutterBottom>最近の作品 ({user.artworks.length}件)</Typography>
               <List dense>
                 {user.artworks.slice(0, 5).map((artwork: any, index: number) => (
                   <ListItem key={index}>
-                    <ListItemText
-                      primary={artwork.title}
-                      secondary={new Date(artwork.created_at).toLocaleDateString('ja-JP')}
-                    />
+                    <ListItemText primary={artwork.title} secondary={new Date(artwork.created_at).toLocaleDateString('ja-JP')} />
                   </ListItem>
                 ))}
               </List>
@@ -207,10 +138,8 @@ export function UserDetailModal({ open, onClose, user }: UserDetailModalProps) {
           )}
 
           {user.comments && user.comments.length > 0 && (
-            <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom>
-                最近のコメント ({user.comments.length}件)
-              </Typography>
+            <Grid size={{ xs: 12 }}>
+              <Typography variant="h6" gutterBottom>最近のコメント ({user.comments.length}件)</Typography>
               <List dense>
                 {user.comments.slice(0, 3).map((comment: any, index: number) => (
                   <ListItem key={index}>
@@ -232,9 +161,8 @@ export function UserDetailModal({ open, onClose, user }: UserDetailModalProps) {
   );
 }
 
-// User Create Modal
 export function UserCreateModal({ open, onClose, onCreate, loading }: UserCreateModalProps) {
-  const { register, handleSubmit, control, formState: { errors }, reset } = useForm<UserFormData & { password: string }>({
+  const { register, handleSubmit, control, formState: { errors }, reset } = useForm<UserFormInputs & { password: string }>({
     defaultValues: {
       handle_name: '',
       name: '',
@@ -248,8 +176,19 @@ export function UserCreateModal({ open, onClose, onCreate, loading }: UserCreate
     },
   });
 
-  const onSubmit = (data: UserFormData & { password: string }) => {
-    onCreate(data);
+  const onSubmit = (data: UserFormInputs & { password: string }) => {
+    const payload: AdminUserFormData & { password: string } = {
+      handle_name: data.handle_name,
+      name: data.name,
+      name_kana: data.name_kana || undefined,
+      email: data.email,
+      phone_number: data.phone_number || undefined,
+      address: data.address || undefined,
+      introduction: data.introduction || undefined,
+      birthday: data.birthday ? data.birthday.toISODate() ?? data.birthday.toISO() ?? undefined : undefined,
+      password: data.password,
+    };
+    onCreate(payload);
   };
 
   const handleClose = () => {
@@ -263,49 +202,41 @@ export function UserCreateModal({ open, onClose, onCreate, loading }: UserCreate
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="ハンドルネーム *"
                 fullWidth
                 size="small"
                 {...register('handle_name', {
                   required: 'ハンドルネームは必須です',
-                  pattern: {
-                    value: /^[a-zA-Z0-9_-]+$/,
-                    message: '英数字、アンダースコア、ハイフンのみ使用できます'
-                  },
+                  pattern: { value: /^[a-zA-Z0-9_-]+$/, message: '英数字、アンダースコア、ハイフンのみ使用できます' },
                   maxLength: { value: 60, message: '60文字以内で入力してください' }
                 })}
                 error={!!errors.handle_name}
                 helperText={errors.handle_name?.message}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="名前 *"
                 fullWidth
                 size="small"
-                {...register('name', {
-                  required: '名前は必須です',
-                  maxLength: { value: 25, message: '25文字以内で入力してください' }
-                })}
+                {...register('name', { required: '名前は必須です', maxLength: { value: 25, message: '25文字以内で入力してください' } })}
                 error={!!errors.name}
                 helperText={errors.name?.message}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="ふりがな"
                 fullWidth
                 size="small"
-                {...register('name_kana', {
-                  maxLength: { value: 50, message: '50文字以内で入力してください' }
-                })}
+                {...register('name_kana', { maxLength: { value: 50, message: '50文字以内で入力してください' } })}
                 error={!!errors.name_kana}
                 helperText={errors.name_kana?.message}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="メールアドレス *"
                 type="email"
@@ -313,75 +244,58 @@ export function UserCreateModal({ open, onClose, onCreate, loading }: UserCreate
                 size="small"
                 {...register('email', {
                   required: 'メールアドレスは必須です',
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: '正しいメールアドレスを入力してください'
-                  },
+                  pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: '正しいメールアドレスを入力してください' },
                   maxLength: { value: 150, message: '150文字以内で入力してください' }
                 })}
                 error={!!errors.email}
                 helperText={errors.email?.message}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="パスワード *"
                 type="password"
                 fullWidth
                 size="small"
-                {...register('password', {
-                  required: 'パスワードは必須です',
-                  minLength: { value: 4, message: '4文字以上で入力してください' },
-                  maxLength: { value: 100, message: '100文字以内で入力してください' }
-                })}
+                {...register('password', { required: 'パスワードは必須です', minLength: { value: 4, message: '4文字以上で入力してください' }, maxLength: { value: 100, message: '100文字以内で入力してください' } })}
                 error={!!errors.password}
                 helperText={errors.password?.message}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="電話番号"
                 fullWidth
                 size="small"
-                {...register('phone_number', {
-                  pattern: {
-                    value: /^\d*$/,
-                    message: '数字のみで入力してください'
-                  },
-                  maxLength: { value: 15, message: '15文字以内で入力してください' }
-                })}
+                {...register('phone_number', { pattern: { value: /^\d*$/, message: '数字のみで入力してください' }, maxLength: { value: 15, message: '15文字以内で入力してください' } })}
                 error={!!errors.phone_number}
                 helperText={errors.phone_number?.message}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 label="住所"
                 fullWidth
                 size="small"
-                {...register('address', {
-                  maxLength: { value: 150, message: '150文字以内で入力してください' }
-                })}
+                {...register('address', { maxLength: { value: 150, message: '150文字以内で入力してください' } })}
                 error={!!errors.address}
                 helperText={errors.address?.message}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 label="自己紹介"
                 fullWidth
                 multiline
                 rows={3}
                 size="small"
-                {...register('introduction', {
-                  maxLength: { value: 500, message: '500文字以内で入力してください' }
-                })}
+                {...register('introduction', { maxLength: { value: 500, message: '500文字以内で入力してください' } })}
                 error={!!errors.introduction}
                 helperText={errors.introduction?.message}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <LocalizationProvider dateAdapter={AdapterLuxon} >
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <LocalizationProvider dateAdapter={AdapterLuxon}>
                 <Controller
                   name="birthday"
                   control={control}
@@ -406,9 +320,7 @@ export function UserCreateModal({ open, onClose, onCreate, loading }: UserCreate
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} disabled={loading}>
-            キャンセル
-          </Button>
+          <Button onClick={handleClose} disabled={loading}>キャンセル</Button>
           <Button type="submit" variant="contained" disabled={loading}>
             {loading ? '作成中...' : '作成'}
           </Button>
@@ -418,9 +330,8 @@ export function UserCreateModal({ open, onClose, onCreate, loading }: UserCreate
   );
 }
 
-// User Edit Modal
 export function UserEditModal({ open, onClose, user, onSave, loading }: UserEditModalProps) {
-  const { register, handleSubmit, control, formState: { errors }, reset, setValue } = useForm<UserFormData>({
+  const { register, handleSubmit, control, formState: { errors }, reset, setValue } = useForm<UserFormInputs>({
     defaultValues: {
       handle_name: '',
       name: '',
@@ -442,12 +353,22 @@ export function UserEditModal({ open, onClose, user, onSave, loading }: UserEdit
       setValue('phone_number', user.phone_number || '');
       setValue('address', user.address || '');
       setValue('introduction', user.introduction || '');
-      setValue('birthday', user.birthday ? new Date(user.birthday) : null);
+      setValue('birthday', user.birthday ? DateTime.fromISO(user.birthday as string) : null);
     }
   }, [user, setValue]);
 
-  const onSubmit = (data: UserFormData) => {
-    onSave(data);
+  const onSubmit = (data: UserFormInputs) => {
+    const payload: AdminUserFormData = {
+      handle_name: data.handle_name,
+      name: data.name,
+      name_kana: data.name_kana || undefined,
+      email: data.email,
+      phone_number: data.phone_number || undefined,
+      address: data.address || undefined,
+      introduction: data.introduction || undefined,
+      birthday: data.birthday ? data.birthday.toISODate() ?? data.birthday.toISO() ?? undefined : undefined,
+    };
+    onSave(payload);
   };
 
   const handleClose = () => {
@@ -463,107 +384,87 @@ export function UserEditModal({ open, onClose, user, onSave, loading }: UserEdit
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="ハンドルネーム"
                 fullWidth
                 size="small"
                 {...register('handle_name', {
-                  pattern: {
-                    value: /^[a-zA-Z0-9_-]+$/,
-                    message: '英数字、アンダースコア、ハイフンのみ使用できます'
-                  },
+                  pattern: { value: /^[a-zA-Z0-9_-]+$/, message: '英数字、アンダースコア、ハイフンのみ使用できます' },
                   maxLength: { value: 60, message: '60文字以内で入力してください' }
                 })}
                 error={!!errors.handle_name}
                 helperText={errors.handle_name?.message}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="名前"
                 fullWidth
                 size="small"
-                {...register('name', {
-                  maxLength: { value: 25, message: '25文字以内で入力してください' }
-                })}
+                {...register('name', { maxLength: { value: 25, message: '25文字以内で入力してください' } })}
                 error={!!errors.name}
                 helperText={errors.name?.message}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="ふりがな"
                 fullWidth
                 size="small"
-                {...register('name_kana', {
-                  maxLength: { value: 50, message: '50文字以内で入力してください' }
-                })}
+                {...register('name_kana', { maxLength: { value: 50, message: '50文字以内で入力してください' } })}
                 error={!!errors.name_kana}
                 helperText={errors.name_kana?.message}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="メールアドレス"
                 type="email"
                 fullWidth
                 size="small"
                 {...register('email', {
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: '正しいメールアドレスを入力してください'
-                  },
+                  pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: '正しいメールアドレスを入力してください' },
                   maxLength: { value: 150, message: '150文字以内で入力してください' }
                 })}
                 error={!!errors.email}
                 helperText={errors.email?.message}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="電話番号"
                 fullWidth
                 size="small"
-                {...register('phone_number', {
-                  pattern: {
-                    value: /^\d*$/,
-                    message: '数字のみで入力してください'
-                  },
-                  maxLength: { value: 15, message: '15文字以内で入力してください' }
-                })}
+                {...register('phone_number', { pattern: { value: /^\d*$/, message: '数字のみで入力してください' }, maxLength: { value: 15, message: '15文字以内で入力してください' } })}
                 error={!!errors.phone_number}
                 helperText={errors.phone_number?.message}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 label="住所"
                 fullWidth
                 size="small"
-                {...register('address', {
-                  maxLength: { value: 150, message: '150文字以内で入力してください' }
-                })}
+                {...register('address', { maxLength: { value: 150, message: '150文字以内で入力してください' } })}
                 error={!!errors.address}
                 helperText={errors.address?.message}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 label="自己紹介"
                 fullWidth
                 multiline
                 rows={3}
                 size="small"
-                {...register('introduction', {
-                  maxLength: { value: 500, message: '500文字以内で入力してください' }
-                })}
+                {...register('introduction', { maxLength: { value: 500, message: '500文字以内で入力してください' } })}
                 error={!!errors.introduction}
                 helperText={errors.introduction?.message}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <LocalizationProvider dateAdapter={AdapterLuxon} >
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <LocalizationProvider dateAdapter={AdapterLuxon}>
                 <Controller
                   name="birthday"
                   control={control}
@@ -588,9 +489,7 @@ export function UserEditModal({ open, onClose, user, onSave, loading }: UserEdit
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} disabled={loading}>
-            キャンセル
-          </Button>
+          <Button onClick={handleClose} disabled={loading}>キャンセル</Button>
           <Button type="submit" variant="contained" disabled={loading}>
             {loading ? '保存中...' : '保存'}
           </Button>
@@ -600,7 +499,6 @@ export function UserEditModal({ open, onClose, user, onSave, loading }: UserEdit
   );
 }
 
-// Delete Confirmation Modal
 export function DeleteConfirmModal({ open, onClose, onConfirm, userName, loading }: DeleteConfirmModalProps) {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -609,28 +507,17 @@ export function DeleteConfirmModal({ open, onClose, onConfirm, userName, loading
         <Alert severity="warning" sx={{ mb: 2 }}>
           この操作は元に戻すことができません。
         </Alert>
-        <Typography>
-          以下のユーザーを削除してもよろしいですか？
-        </Typography>
+        <Typography>以下のユーザーを削除してもよろしいですか？</Typography>
         <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-          <Typography variant="h6" color="error">
-            {userName}
-          </Typography>
+          <Typography variant="h6" color="error">{userName}</Typography>
         </Box>
         <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
           ※ ユーザーに関連するデータ（作品、コメント等）も削除される可能性があります。
         </Typography>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={loading}>
-          キャンセル
-        </Button>
-        <Button
-          onClick={onConfirm}
-          variant="contained"
-          color="error"
-          disabled={loading}
-        >
+        <Button onClick={onClose} disabled={loading}>キャンセル</Button>
+        <Button onClick={onConfirm} variant="contained" color="error" disabled={loading}>
           {loading ? '削除中...' : '削除'}
         </Button>
       </DialogActions>

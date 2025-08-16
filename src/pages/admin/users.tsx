@@ -193,9 +193,9 @@ export default function AdminUsers() {
         title="ユーザー管理"
         columns={columns}
         rows={users}
-        onView={handleView}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        onView={(row) => handleView(row as AdminUser)}
+        onEdit={(row) => handleEdit(row as AdminUser)}
+        onDelete={(row) => handleDelete(row as AdminUser)}
         onAdd={handleAdd}
         page={page}
         rowsPerPage={rowsPerPage}

@@ -305,7 +305,7 @@ builder.mutationField("adminCreateUser", (t) =>
                 validate: {
                     type: 'string',
                     maxLength: [150, { message: 'メールアドレスは150文字以内で入力してください。' }],
-                    email: [{ message: '正しいメールアドレスを入力してください。' }],
+                    email: [true, { message: '正しいメールアドレスを入力してください。' }],
                 },
             }),
             password: t.arg.string({
@@ -435,7 +435,7 @@ builder.mutationField("adminUpdateUser", (t) =>
                 validate: {
                     type: 'string',
                     maxLength: [150, { message: 'メールアドレスは150文字以内で入力してください。' }],
-                    email: [{ message: '正しいメールアドレスを入力してください。' }],
+                    email: [true, { message: '正しいメールアドレスを入力してください。' }],
                 },
             }),
             phone_number: t.arg.string({
@@ -533,7 +533,10 @@ builder.mutationField("adminUpdateUser", (t) =>
             if (args.phone_number !== undefined) updateData.phone_number = args.phone_number;
             if (args.address !== undefined) updateData.address = args.address;
             if (args.introduction !== undefined) updateData.introduction = args.introduction;
-            if (args.birthday !== undefined) updateData.birthday = new Date(args.birthday);
+            if (args.birthday !== undefined) {
+                const b = args.birthday;
+                updateData.birthday = b ? new Date(b) : null;
+            }
 
             return prisma.user.update({
                 ...query,

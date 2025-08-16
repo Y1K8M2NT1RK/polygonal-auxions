@@ -19,6 +19,14 @@ export type Scalars = {
   Date: { input: any; output: any; }
 };
 
+export type AdminUsersListResponse = {
+  __typename?: 'AdminUsersListResponse';
+  hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
+  totalCount: Scalars['Int']['output'];
+  users: Array<User>;
+};
+
 export type Artwork = {
   __typename?: 'Artwork';
   artwork_file: Array<ArtworkFile>;
@@ -100,6 +108,9 @@ export type ImageInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   addArtworkRank: ArtworkRanks;
+  adminCreateUser: MutationAdminCreateUserResult;
+  adminDeleteUser: MutationAdminDeleteUserResult;
+  adminUpdateUser: MutationAdminUpdateUserResult;
   followOrUnfollow: Follow;
   login: MutationLoginResult;
   logout: Scalars['Boolean']['output'];
@@ -117,6 +128,37 @@ export type Mutation = {
 export type MutationAddArtworkRankArgs = {
   artwork_id: Scalars['String']['input'];
   rank_id: Scalars['String']['input'];
+};
+
+
+export type MutationAdminCreateUserArgs = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  birthday?: InputMaybe<Scalars['String']['input']>;
+  email: Scalars['String']['input'];
+  handle_name: Scalars['String']['input'];
+  introduction?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  name_kana?: InputMaybe<Scalars['String']['input']>;
+  password: Scalars['String']['input'];
+  phone_number?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationAdminDeleteUserArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type MutationAdminUpdateUserArgs = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  birthday?: InputMaybe<Scalars['String']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  handle_name?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
+  introduction?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  name_kana?: InputMaybe<Scalars['String']['input']>;
+  phone_number?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -183,6 +225,27 @@ export type MutationUpsertCommentArgs = {
   comment_slug_id?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type MutationAdminCreateUserResult = MutationAdminCreateUserSuccess | ZodError;
+
+export type MutationAdminCreateUserSuccess = {
+  __typename?: 'MutationAdminCreateUserSuccess';
+  data: User;
+};
+
+export type MutationAdminDeleteUserResult = MutationAdminDeleteUserSuccess | ZodError;
+
+export type MutationAdminDeleteUserSuccess = {
+  __typename?: 'MutationAdminDeleteUserSuccess';
+  data: Scalars['Boolean']['output'];
+};
+
+export type MutationAdminUpdateUserResult = MutationAdminUpdateUserSuccess | ZodError;
+
+export type MutationAdminUpdateUserSuccess = {
+  __typename?: 'MutationAdminUpdateUserSuccess';
+  data: User;
+};
+
 export type MutationLoginResult = CsrfError | MutationLoginSuccess | ZodError;
 
 export type MutationLoginSuccess = {
@@ -221,6 +284,8 @@ export type MutationUpsertCommentSuccess = {
 export type Query = {
   __typename?: 'Query';
   UserProfile: User;
+  adminUserDetail: User;
+  adminUsersList: AdminUsersListResponse;
   artwork: Artwork;
   artworks: Array<Artwork>;
   getArtworkComments: Array<Comment>;
@@ -238,6 +303,18 @@ export type Query = {
 
 export type QueryUserProfileArgs = {
   handle_name: Scalars['String']['input'];
+};
+
+
+export type QueryAdminUserDetailArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type QueryAdminUsersListArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -282,6 +359,7 @@ export type User = {
   phone_number?: Maybe<Scalars['String']['output']>;
   role: UserRole;
   slug_id: Scalars['String']['output'];
+  updated_at: Scalars['Date']['output'];
   user_files: Array<UserFiles>;
 };
 
@@ -413,6 +491,43 @@ export type FollowOrUnfollowMutationVariables = Exact<{
 
 export type FollowOrUnfollowMutation = { __typename?: 'Mutation', followOrUnfollow: { __typename: 'Follow' } };
 
+export type AdminCreateUserMutationVariables = Exact<{
+  handle_name: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  name_kana?: InputMaybe<Scalars['String']['input']>;
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  phone_number?: InputMaybe<Scalars['String']['input']>;
+  address?: InputMaybe<Scalars['String']['input']>;
+  introduction?: InputMaybe<Scalars['String']['input']>;
+  birthday?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type AdminCreateUserMutation = { __typename?: 'Mutation', adminCreateUser: { __typename: 'MutationAdminCreateUserSuccess', data: { __typename?: 'User', id: string, handle_name: string, name: string, email: string } } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
+
+export type AdminUpdateUserMutationVariables = Exact<{
+  id: Scalars['String']['input'];
+  handle_name?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  name_kana?: InputMaybe<Scalars['String']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  phone_number?: InputMaybe<Scalars['String']['input']>;
+  address?: InputMaybe<Scalars['String']['input']>;
+  introduction?: InputMaybe<Scalars['String']['input']>;
+  birthday?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type AdminUpdateUserMutation = { __typename?: 'Mutation', adminUpdateUser: { __typename: 'MutationAdminUpdateUserSuccess', data: { __typename?: 'User', id: string, handle_name: string, name: string, email: string } } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
+
+export type AdminDeleteUserMutationVariables = Exact<{
+  id: Scalars['String']['input'];
+}>;
+
+
+export type AdminDeleteUserMutation = { __typename?: 'Mutation', adminDeleteUser: { __typename: 'MutationAdminDeleteUserSuccess', data: boolean } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
+
 export type ArtworksQueryVariables = Exact<{
   q?: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -476,6 +591,22 @@ export type GetFollowedByQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetFollowedByQuery = { __typename?: 'Query', getFollowedByUser: Array<{ __typename?: 'User', handle_name: string, introduction: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> }> };
+
+export type AdminUsersListQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type AdminUsersListQuery = { __typename?: 'Query', adminUsersList: { __typename?: 'AdminUsersListResponse', totalCount: number, hasNextPage: boolean, hasPreviousPage: boolean, users: Array<{ __typename?: 'User', id: string, handle_name: string, name: string, name_kana?: string | null, email: string, phone_number?: string | null, address: string, introduction: string, birthday?: any | null, role: UserRole, created_at: any, updated_at: any }> } };
+
+export type AdminUserDetailQueryVariables = Exact<{
+  id: Scalars['String']['input'];
+}>;
+
+
+export type AdminUserDetailQuery = { __typename?: 'Query', adminUserDetail: { __typename?: 'User', id: string, handle_name: string, name: string, name_kana?: string | null, email: string, phone_number?: string | null, address: string, introduction: string, birthday?: any | null, role: UserRole, created_at: any, updated_at: any, user_files: Array<{ __typename?: 'UserFiles', purpose_id: string, file_path: string }>, artworks: Array<{ __typename?: 'Artwork', slug_id: string, title: string, created_at: any }>, comments: Array<{ __typename?: 'Comment', body: string, created_at: any, artwork: { __typename?: 'Artwork', slug_id: string, title: string } }> } };
 
 
 export const UpsertArtworkDocument = gql`
@@ -670,6 +801,99 @@ export const FollowOrUnfollowDocument = gql`
 
 export function useFollowOrUnfollowMutation() {
   return Urql.useMutation<FollowOrUnfollowMutation, FollowOrUnfollowMutationVariables>(FollowOrUnfollowDocument);
+};
+export const AdminCreateUserDocument = gql`
+    mutation AdminCreateUser($handle_name: String!, $name: String!, $name_kana: String, $email: String!, $password: String!, $phone_number: String, $address: String, $introduction: String, $birthday: String) {
+  adminCreateUser(
+    handle_name: $handle_name
+    name: $name
+    name_kana: $name_kana
+    email: $email
+    password: $password
+    phone_number: $phone_number
+    address: $address
+    introduction: $introduction
+    birthday: $birthday
+  ) {
+    ... on MutationAdminCreateUserSuccess {
+      __typename
+      data {
+        id
+        handle_name
+        name
+        email
+      }
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors {
+        message
+      }
+    }
+  }
+}
+    `;
+
+export function useAdminCreateUserMutation() {
+  return Urql.useMutation<AdminCreateUserMutation, AdminCreateUserMutationVariables>(AdminCreateUserDocument);
+};
+export const AdminUpdateUserDocument = gql`
+    mutation AdminUpdateUser($id: String!, $handle_name: String, $name: String, $name_kana: String, $email: String, $phone_number: String, $address: String, $introduction: String, $birthday: String) {
+  adminUpdateUser(
+    id: $id
+    handle_name: $handle_name
+    name: $name
+    name_kana: $name_kana
+    email: $email
+    phone_number: $phone_number
+    address: $address
+    introduction: $introduction
+    birthday: $birthday
+  ) {
+    ... on MutationAdminUpdateUserSuccess {
+      __typename
+      data {
+        id
+        handle_name
+        name
+        email
+      }
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors {
+        message
+      }
+    }
+  }
+}
+    `;
+
+export function useAdminUpdateUserMutation() {
+  return Urql.useMutation<AdminUpdateUserMutation, AdminUpdateUserMutationVariables>(AdminUpdateUserDocument);
+};
+export const AdminDeleteUserDocument = gql`
+    mutation AdminDeleteUser($id: String!) {
+  adminDeleteUser(id: $id) {
+    ... on MutationAdminDeleteUserSuccess {
+      __typename
+      data
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors {
+        message
+      }
+    }
+  }
+}
+    `;
+
+export function useAdminDeleteUserMutation() {
+  return Urql.useMutation<AdminDeleteUserMutation, AdminDeleteUserMutationVariables>(AdminDeleteUserDocument);
 };
 export const ArtworksDocument = gql`
     query Artworks($q: String) {
@@ -916,4 +1140,70 @@ export const GetFollowedByDocument = gql`
 
 export function useGetFollowedByQuery(options?: Omit<Urql.UseQueryArgs<GetFollowedByQueryVariables>, 'query'>) {
   return Urql.useQuery<GetFollowedByQuery, GetFollowedByQueryVariables>({ query: GetFollowedByDocument, ...options });
+};
+export const AdminUsersListDocument = gql`
+    query AdminUsersList($page: Int, $limit: Int, $search: String) {
+  adminUsersList(page: $page, limit: $limit, search: $search) {
+    users {
+      id
+      handle_name
+      name
+      name_kana
+      email
+      phone_number
+      address
+      introduction
+      birthday
+      role
+      created_at
+      updated_at
+    }
+    totalCount
+    hasNextPage
+    hasPreviousPage
+  }
+}
+    `;
+
+export function useAdminUsersListQuery(options?: Omit<Urql.UseQueryArgs<AdminUsersListQueryVariables>, 'query'>) {
+  return Urql.useQuery<AdminUsersListQuery, AdminUsersListQueryVariables>({ query: AdminUsersListDocument, ...options });
+};
+export const AdminUserDetailDocument = gql`
+    query AdminUserDetail($id: String!) {
+  adminUserDetail(id: $id) {
+    id
+    handle_name
+    name
+    name_kana
+    email
+    phone_number
+    address
+    introduction
+    birthday
+    role
+    created_at
+    updated_at
+    user_files {
+      purpose_id
+      file_path
+    }
+    artworks {
+      slug_id
+      title
+      created_at
+    }
+    comments {
+      body
+      created_at
+      artwork {
+        slug_id
+        title
+      }
+    }
+  }
+}
+    `;
+
+export function useAdminUserDetailQuery(options: Omit<Urql.UseQueryArgs<AdminUserDetailQueryVariables>, 'query'>) {
+  return Urql.useQuery<AdminUserDetailQuery, AdminUserDetailQueryVariables>({ query: AdminUserDetailDocument, ...options });
 };
