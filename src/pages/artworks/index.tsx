@@ -130,12 +130,24 @@ export default function Artworks() {
             
             {/* Load More Button */}
             {shouldShowLoadMore && (
-              <Box sx={{ textAlign: 'center', mt: 4, mb: 2 }}>
+              <Box sx={{ mt: 4, mb: 2 }}>
                 <Button 
-                  variant="contained" 
+                  variant="text"
                   size="large"
                   onClick={handleLoadMore}
                   disabled={isLoadingMore}
+                  sx={{
+                    width: '100%',
+                    py: 2,
+                    borderRadius: 1,
+                    backgroundColor: 'transparent',
+                    '&:hover': {
+                      backgroundColor: (theme) => 
+                        theme.palette.mode === 'dark' 
+                          ? 'rgba(255, 255, 255, 0.08)' 
+                          : 'rgba(0, 0, 0, 0.04)',
+                    },
+                  }}
                 >
                   もっと見る
                 </Button>
@@ -146,6 +158,19 @@ export default function Artworks() {
             {isLoadingMore && (
               <Box sx={{ textAlign: 'center', mt: 2, mb: 2 }}>
                 <CircularProgress color="inherit" />
+              </Box>
+            )}
+
+            {/* No more results message */}
+            {!hasMore && !fetching && !isLoadingMore && !countFetching && allArtworks.length > 0 && (
+              <Box sx={{ textAlign: 'center', mt: 4, mb: 2 }}>
+                <Typography 
+                  variant="body2" 
+                  color="text.secondary"
+                  sx={{ fontStyle: 'italic' }}
+                >
+                  これ以上検索結果はありません。
+                </Typography>
               </Box>
             )}
           </>
