@@ -1,10 +1,10 @@
 import { faker } from '@faker-js/faker'
 import { hashSync, genSaltSync } from 'bcrypt'
 import { prisma } from '../../src/pages/api/db'
-import { Prisma } from '@prisma/client'
+// import { Prisma } from '@prisma/client'
 
-export const createUsersData = (): Prisma.UserCreateManyInput[] => {
-    const usersData: Prisma.UserCreateManyInput[] = [];
+export const createUsersData = (): any[] => {
+    const usersData: any[] = [];
     for (let i = 0; i < 50; i++) {
         const firstName = faker.person.firstName();
         const lastName = faker.person.lastName();
