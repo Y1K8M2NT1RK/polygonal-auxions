@@ -65,6 +65,13 @@ export default function Artworks() {
   // Add new artworks to the list when data is fetched
   useEffect(() => {
     if (dataArtworks?.artworks) {
+      console.log('Received artworks:', {
+        offset,
+        limit,
+        receivedCount: dataArtworks.artworks.length,
+        currentTotal: allArtworks.length
+      });
+      
       const newArtworks = dataArtworks.artworks.map(artwork => ({
         ...artwork,
         deletedInFront: false
@@ -72,9 +79,11 @@ export default function Artworks() {
 
       if (offset === 0) {
         // First load - replace all artworks
+        console.log('First load: replacing all artworks');
         setAllArtworks(newArtworks);
       } else {
         // Load more - append new artworks
+        console.log('Load more: appending artworks');
         setAllArtworks(prev => [...prev, ...newArtworks]);
       }
       setIsLoadingMore(false);
@@ -87,6 +96,7 @@ export default function Artworks() {
 
   // Handle load more
   const handleLoadMore = () => {
+    console.log('Load more clicked:', { currentOffset: offset, newOffset: offset + limit });
     setIsLoadingMore(true);
     setOffset(prev => prev + limit);
   };
@@ -117,7 +127,6 @@ export default function Artworks() {
                       deletedArtworksInFront={deletedArtworksInFront}
                     >
                       <ArtworkPopover
-                        key={artwork.slug_id}
                         artwork={artwork}
                         setDeletedArtworksInFront={setDeletedArtworksInFront}
                       />
