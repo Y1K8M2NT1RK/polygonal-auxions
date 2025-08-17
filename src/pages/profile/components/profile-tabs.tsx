@@ -160,7 +160,7 @@ export default function ProfileTabs({ user }: Props) {
     return (
         <Card sx={{ my: 1, py: '20px', px: '20px' }} elevation={9}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <Tabs value={value} onChange={handleChange} aria-label="profile tabs">
+                <Tabs value={value} onChange={handleChange} aria-label="profile tabs" variant="fullWidth">
                     <Tab label={`作品 (${user?.artworks?.length || 0})`} {...a11yProps(0)} />
                     <Tab label={`コメント (${user?.comments?.length || 0})`} {...a11yProps(1)} />
                 </Tabs>
