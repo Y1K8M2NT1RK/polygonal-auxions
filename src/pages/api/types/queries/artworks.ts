@@ -8,8 +8,8 @@ builder.queryField("artworks", (t) =>
     type: [Artwork], // 複数のデータを求める場合は[]で囲う
     args: {
       q: t.arg.string({ required: false }),
-      // page: t.arg.int({ required: false, defaultValue: 1 }),
-      // limit: t.arg.int({ required: false, defaultValue: 20 }),
+      offset: t.arg.int({ required: false, defaultValue: 0 }),
+      limit: t.arg.int({ required: false, defaultValue: 18 }),
     },
     resolve: (query, _parent, args, _ctx, _info) =>  {
       const keywords = (args.q || '').split(/\s+/).map(s => s.trim()).filter(Boolean);
@@ -26,7 +26,34 @@ builder.queryField("artworks", (t) =>
           })),
         },
         orderBy: { created_at: 'desc' },
-        include: { artwork_file: true, user: true }
+        include: { artwork_file: true, user: true },
+        skip: args.offset || 0,
+        take: args.limit || 18,
+      });
+    },
+  })
+);
+
+// 作品の総数を取得（検索条件を考慮）
+builder.queryField("artworksCount", (t) =>
+  t.field({
+    type: 'Int',
+    args: {
+      q: t.arg.string({ required: false }),
+    },
+    resolve: async (_parent, args, _ctx, _info) => {
+      const keywords = (args.q || '').split(/\s+/).map(s => s.trim()).filter(Boolean);
+
+      return prisma.artwork.count({
+        where: {
+          AND: keywords.map(keyword => ({
+            OR: [
+              { title: { contains: keyword, mode: 'insensitive' } },
+              { feature: { contains: keyword, mode: 'insensitive' } },
+              { user: { handle_name: { contains: keyword, mode: 'insensitive' } } }
+            ]
+          })),
+        },
       });
     },
   })

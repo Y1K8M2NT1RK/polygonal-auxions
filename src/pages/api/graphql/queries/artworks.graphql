@@ -1,8 +1,12 @@
 query Artworks(
     $q: String,
+    $offset: Int,
+    $limit: Int
 ) {
 	artworks (
-        q: $q
+        q: $q,
+        offset: $offset,
+        limit: $limit
     ) {
         id,
         title,
@@ -24,6 +28,12 @@ query Artworks(
             file_path
         }
     }
+}
+
+query ArtworksCount(
+    $q: String
+) {
+    artworksCount(q: $q)
 }
 
 query getAuthArtworkRanks($artwork_id: String) {
