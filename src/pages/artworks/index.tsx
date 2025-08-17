@@ -25,6 +25,7 @@ export default function Artworks() {
   const [offset, setOffset] = useState(0);
   const [allArtworks, setAllArtworks] = useState<(Artwork & {deletedInFront: boolean;})[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const limit = 18; // 18件ずつ表示
 
   // Current page query
@@ -60,6 +61,7 @@ export default function Artworks() {
   useEffect(() => {
     setOffset(0);
     setAllArtworks([]);
+    setIsInitialLoad(true);
   }, [searchQuery]);
 
   // Add new artworks to the list when data is fetched
@@ -69,7 +71,8 @@ export default function Artworks() {
         offset,
         limit,
         receivedCount: dataArtworks.artworks.length,
-        currentTotal: allArtworks.length
+        currentTotal: allArtworks.length,
+        isInitialLoad
       });
       
       const newArtworks = dataArtworks.artworks.map(artwork => ({
@@ -77,10 +80,11 @@ export default function Artworks() {
         deletedInFront: false
       }));
 
-      if (offset === 0) {
+      if (isInitialLoad) {
         // First load - replace all artworks
-        console.log('First load: replacing all artworks');
+        console.log('Initial load: replacing all artworks');
         setAllArtworks(newArtworks);
+        setIsInitialLoad(false);
       } else {
         // Load more - append new artworks
         console.log('Load more: appending artworks');
@@ -88,7 +92,7 @@ export default function Artworks() {
       }
       setIsLoadingMore(false);
     }
-  }, [dataArtworks, offset]);
+  }, [dataArtworks]);
 
   useEffect(() => { 
     if( deletedArtworksInFront.length > 0 ) setPaused(true);
@@ -114,7 +118,7 @@ export default function Artworks() {
       {
         hasError ? (
           <div>Error! {error.message}</div>
-        ) : fetching && offset === 0 ? (
+        ) : fetching && isInitialLoad ? (
           <CircularProgress key={0} color="inherit" />
         ) : (
           <>

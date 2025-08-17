@@ -16,12 +16,15 @@ builder.queryField("artworks", (t) =>
         q: args.q,
         offset: args.offset,
         limit: args.limit,
-        skip: args.offset ?? 0,
-        take: args.limit ?? 18,
+        computedSkip: skipCount,
+        computedTake: takeCount,
       });
       
       const keywords = (args.q || '').split(/\s+/).map(s => s.trim()).filter(Boolean);
 
+      const skipCount = args.offset ?? 0;
+      const takeCount = args.limit ?? 18;
+      
       return prisma.artwork.findMany({
         ...query,
         where: {
@@ -35,8 +38,8 @@ builder.queryField("artworks", (t) =>
         },
         orderBy: { created_at: 'desc' },
         include: { artwork_file: true, user: true },
-        skip: args.offset ?? 0,
-        take: args.limit ?? 18,
+        skip: skipCount,
+        take: takeCount,
       });
     },
   })
