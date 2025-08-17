@@ -530,7 +530,15 @@ export type AdminDeleteUserMutation = { __typename?: 'Mutation', adminDeleteUser
 
 export type ArtworksQueryVariables = Exact<{
   q?: InputMaybe<Scalars['String']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
+
+export type ArtworksCountQueryVariables = Exact<{
+  q?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+export type ArtworksCountQuery = { __typename?: 'Query', artworksCount: number };
 
 
 export type ArtworksQuery = { __typename?: 'Query', artworks: Array<{ __typename?: 'Artwork', id: string, title: string, slug_id: string, feature: string, created_at: any, favoritesCount: number, bookmarksCount: number, isFavoritedByMe: boolean, isBookmarkedByMe: boolean, user: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> }, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }> }> };
@@ -896,8 +904,8 @@ export function useAdminDeleteUserMutation() {
   return Urql.useMutation<AdminDeleteUserMutation, AdminDeleteUserMutationVariables>(AdminDeleteUserDocument);
 };
 export const ArtworksDocument = gql`
-    query Artworks($q: String) {
-  artworks(q: $q) {
+    query Artworks($q: String, $offset: Int, $limit: Int) {
+  artworks(q: $q, offset: $offset, limit: $limit) {
     id
     title
     slug_id
@@ -923,6 +931,16 @@ export const ArtworksDocument = gql`
 
 export function useArtworksQuery(options?: Omit<Urql.UseQueryArgs<ArtworksQueryVariables>, 'query'>) {
   return Urql.useQuery<ArtworksQuery, ArtworksQueryVariables>({ query: ArtworksDocument, ...options });
+};
+
+export const ArtworksCountDocument = gql`
+    query ArtworksCount($q: String) {
+  artworksCount(q: $q)
+}
+    `;
+
+export function useArtworksCountQuery(options?: Omit<Urql.UseQueryArgs<ArtworksCountQueryVariables>, 'query'>) {
+  return Urql.useQuery<ArtworksCountQuery, ArtworksCountQueryVariables>({ query: ArtworksCountDocument, ...options });
 };
 export const GetAuthArtworkRanksDocument = gql`
     query getAuthArtworkRanks($artwork_id: String) {
