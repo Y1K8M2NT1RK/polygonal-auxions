@@ -12,16 +12,7 @@ builder.queryField("artworks", (t) =>
       limit: t.arg.int({ required: false, defaultValue: 18 }),
     },
     resolve: (query, _parent, args, _ctx, _info) =>  {
-      console.log('Artworks query called with:', {
-        q: args.q,
-        offset: args.offset,
-        limit: args.limit,
-        computedSkip: skipCount,
-        computedTake: takeCount,
-      });
-      
       const keywords = (args.q || '').split(/\s+/).map(s => s.trim()).filter(Boolean);
-
       const skipCount = args.offset ?? 0;
       const takeCount = args.limit ?? 18;
       

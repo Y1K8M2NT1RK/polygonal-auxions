@@ -67,14 +67,6 @@ export default function Artworks() {
   // Add new artworks to the list when data is fetched
   useEffect(() => {
     if (dataArtworks?.artworks) {
-      console.log('Received artworks:', {
-        offset,
-        limit,
-        receivedCount: dataArtworks.artworks.length,
-        currentTotal: allArtworks.length,
-        isInitialLoad
-      });
-      
       const newArtworks = dataArtworks.artworks.map(artwork => ({
         ...artwork,
         deletedInFront: false
@@ -82,12 +74,10 @@ export default function Artworks() {
 
       if (isInitialLoad) {
         // First load - replace all artworks
-        console.log('Initial load: replacing all artworks');
         setAllArtworks(newArtworks);
         setIsInitialLoad(false);
       } else {
         // Load more - append new artworks
-        console.log('Load more: appending artworks');
         setAllArtworks(prev => [...prev, ...newArtworks]);
       }
       setIsLoadingMore(false);
@@ -100,7 +90,6 @@ export default function Artworks() {
 
   // Handle load more
   const handleLoadMore = () => {
-    console.log('Load more clicked:', { currentOffset: offset, newOffset: offset + limit });
     setIsLoadingMore(true);
     setOffset(prev => prev + limit);
   };
