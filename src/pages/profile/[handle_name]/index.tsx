@@ -1,8 +1,7 @@
 import React from 'react';
 import { Container, CircularProgress } from '@mui/material';
 import ProfileHeader from '@/pages/profile/components/profile-header';
-import ProfileArtworks from '@/pages/profile/components/profile-artworks';
-import ProfileComments from '@/pages/profile/components/profile-comments';
+import ProfileTabs from '@/pages/profile/components/profile-tabs';
 import Head from 'next/head';
 import { useUserProfile } from '@/contexts/Profile/ProfileContext';
 import NotFound from '@/components/NotFound';
@@ -23,8 +22,7 @@ export default function Profile(){
                 }</title>
             </Head>
             {!!profile && <ProfileHeader viewing_user={profile}/>}
-            {!!profile && <ProfileArtworks user={profile}/>}
-            {!!profile && <ProfileComments user={profile}/>}
+            {!!profile && <ProfileTabs user={profile}/>}
         </Container>
     )
 }
