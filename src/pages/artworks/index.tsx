@@ -4,6 +4,7 @@ import {
   CircularProgress,
   Button,
   Box,
+  Typography
 } from '@mui/material';
 import { useQuery } from 'urql';
 import { type Artwork } from '@/generated/generated-graphql';
@@ -67,7 +68,7 @@ export default function Artworks() {
   // Add new artworks to the list when data is fetched
   useEffect(() => {
     if (dataArtworks?.artworks) {
-      const newArtworks = dataArtworks.artworks.map(artwork => ({
+      const newArtworks = dataArtworks.artworks.map((artwork: Artwork) => ({
         ...artwork,
         deletedInFront: false
       }));
