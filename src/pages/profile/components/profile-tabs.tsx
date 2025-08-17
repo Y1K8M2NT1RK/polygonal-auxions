@@ -64,48 +64,46 @@ export default function ProfileTabs({ user }: Props) {
                 ? <CardContent><Typography>作品はありません</Typography></CardContent>
                 : user.artworks.map((artwork: Artwork, index: number) => (
                     <Grid key={index} size={{ xs: 12 }} sx={{ width: '100%' }}>
-                        <Card sx={{ p: '10px' }}>
-                            <Grid container>
-                                <Box sx={{ display: 'flex', width: '100%' }}>
-                                    <Link href={`/artworks/${artwork.slug_id}`} style={{ height: '100px', aspectRatio: '5 / 3' }} passHref>
-                                        <CardActionArea sx={{
-                                            textOverflow: "ellipsis",
-                                            overflow: "hidden",
-                                            height: '100px',
-                                        }}>
-                                            <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                {
-                                                    !!(artwork?.artwork_file) && artwork?.artwork_file.length > 0
-                                                        ? <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                                            <Image
-                                                                fill
-                                                                priority
-                                                                src={`${artwork.artwork_file[0]?.file_path}`}
-                                                                alt={artwork?.title}
-                                                                style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }}
-                                                            />
-                                                        </Box>
-                                                        : <Typography variant="h5" sx={{
-                                                            display: 'flex',
-                                                            justifyContent: 'center',
-                                                            opacity: 0.3,
-                                                        }}>NO IMAGE</Typography>
-                                                }
-                                            </CardContent>
-                                        </CardActionArea>
-                                    </Link>
-                                    <CardContent sx={{ py: 0, flex: 1 }}>
-                                        <Typography variant="subtitle1" sx={{
-                                            overflow: "hidden",
-                                            textOverflow: "ellipsis",
-                                            display: "-webkit-box",
-                                            WebkitLineClamp: "1",
-                                            WebkitBoxOrient: "vertical",
-                                        }}>{artwork.title}</Typography>
-                                        <Typography variant="subtitle2">{DateTime.fromISO(artwork.created_at).toFormat('yyyy年MM月dd日')}にアップロード</Typography>
-                                    </CardContent>
-                                </Box>
-                            </Grid>
+                        <Card sx={{ p: '10px', mb: 1 }}>
+                            <Box sx={{ display: 'flex', width: '100%' }}>
+                                <Link href={`/artworks/${artwork.slug_id}`} style={{ height: '100px', aspectRatio: '5 / 3', flexShrink: 0 }} passHref>
+                                    <CardActionArea sx={{
+                                        textOverflow: "ellipsis",
+                                        overflow: "hidden",
+                                        height: '100px',
+                                    }}>
+                                        <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            {
+                                                !!(artwork?.artwork_file) && artwork?.artwork_file.length > 0
+                                                    ? <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                        <Image
+                                                            fill
+                                                            priority
+                                                            src={`${artwork.artwork_file[0]?.file_path}`}
+                                                            alt={artwork?.title}
+                                                            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }}
+                                                        />
+                                                    </Box>
+                                                    : <Typography variant="h5" sx={{
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        opacity: 0.3,
+                                                    }}>NO IMAGE</Typography>
+                                            }
+                                        </CardContent>
+                                    </CardActionArea>
+                                </Link>
+                                <CardContent sx={{ py: 0, flex: 1 }}>
+                                    <Typography variant="subtitle1" sx={{
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        display: "-webkit-box",
+                                        WebkitLineClamp: "1",
+                                        WebkitBoxOrient: "vertical",
+                                    }}>{artwork.title}</Typography>
+                                    <Typography variant="subtitle2">{DateTime.fromISO(artwork.created_at).toFormat('yyyy年MM月dd日')}にアップロード</Typography>
+                                </CardContent>
+                            </Box>
                         </Card>
                     </Grid>
                 ))}
@@ -118,43 +116,41 @@ export default function ProfileTabs({ user }: Props) {
                 ? <CardContent><Typography>投稿したコメントはありません</Typography></CardContent>
                 : user.comments.map((comment: Comment, index: number) => (
                     <Grid key={index} size={{ xs: 12 }} sx={{ width: '100%' }}>
-                        <Card sx={{ p: '10px' }}>
-                            <Grid container>
-                                <Box sx={{ display: 'flex', width: '100%' }}>
-                                    <Link href={`/artworks/${comment.artwork.slug_id}`} style={{ height: '100px', aspectRatio: '5 / 3' }} passHref>
-                                        <CardActionArea sx={{ height: '100px' }}>
-                                            <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                {
-                                                    !!(comment.artwork?.artwork_file) && comment.artwork?.artwork_file.length > 0
-                                                        ? <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                                            <Image
-                                                                fill
-                                                                priority
-                                                                src={`${comment.artwork.artwork_file[0]?.file_path}`}
-                                                                alt={comment.artwork?.title}
-                                                                style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }}
-                                                            />
-                                                        </Box>
-                                                        : <Typography variant="h5" sx={{
-                                                            display: 'flex',
-                                                            justifyContent: 'center',
-                                                            opacity: 0.3,
-                                                        }}>NO IMAGE</Typography>
-                                                }
-                                            </CardContent>
-                                        </CardActionArea>
-                                    </Link>
-                                    <CardContent sx={{ py: 0, flex: 1 }}>
-                                        <Typography sx={{
-                                            overflow: "hidden",
-                                            textOverflow: "ellipsis",
-                                            display: "-webkit-box",
-                                            WebkitLineClamp: "3",
-                                            WebkitBoxOrient: "vertical",
-                                        }}>{comment.body}</Typography>
-                                    </CardContent>
-                                </Box>
-                            </Grid>
+                        <Card sx={{ p: '10px', mb: 1 }}>
+                            <Box sx={{ display: 'flex', width: '100%' }}>
+                                <Link href={`/artworks/${comment.artwork.slug_id}`} style={{ height: '100px', aspectRatio: '5 / 3', flexShrink: 0 }} passHref>
+                                    <CardActionArea sx={{ height: '100px' }}>
+                                        <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            {
+                                                !!(comment.artwork?.artwork_file) && comment.artwork?.artwork_file.length > 0
+                                                    ? <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                        <Image
+                                                            fill
+                                                            priority
+                                                            src={`${comment.artwork.artwork_file[0]?.file_path}`}
+                                                            alt={comment.artwork?.title}
+                                                            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }}
+                                                        />
+                                                    </Box>
+                                                    : <Typography variant="h5" sx={{
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        opacity: 0.3,
+                                                    }}>NO IMAGE</Typography>
+                                            }
+                                        </CardContent>
+                                    </CardActionArea>
+                                </Link>
+                                <CardContent sx={{ py: 0, flex: 1 }}>
+                                    <Typography sx={{
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        display: "-webkit-box",
+                                        WebkitLineClamp: "3",
+                                        WebkitBoxOrient: "vertical",
+                                    }}>{comment.body}</Typography>
+                                </CardContent>
+                            </Box>
                         </Card>
                     </Grid>
                 ))}
