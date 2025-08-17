@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker'
 import { hashSync, genSaltSync } from 'bcrypt'
 import { prisma } from '../../src/pages/api/db'
-import { Prisma, UserRole } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 
 export const createUsersData = (): Prisma.UserCreateManyInput[] => {
     const usersData: Prisma.UserCreateManyInput[] = [];
@@ -50,7 +50,7 @@ export const createUsersData = (): Prisma.UserCreateManyInput[] => {
             phone_number: faker.string.numeric(11), // VarChar(15)制限で11桁の数字
             email: faker.internet.email().substring(0, 150), // VarChar(150)制限
             address: `${faker.location.city()}-${faker.location.streetAddress()}`.substring(0, 150), // VarChar(150)制限
-            role: UserRole.USER,
+            role: 'USER' as const,
         });
     }
     return usersData;
@@ -69,7 +69,7 @@ export const seedUsers = async () => {
         phone_number: '09012345678',
         email: 'aaa@example.jp',
         address: 'テスト住所',
-        role: UserRole.USER,
+        role: 'USER' as const,
     };
     
     // 固定管理者ユーザ
@@ -83,7 +83,7 @@ export const seedUsers = async () => {
         phone_number: '09087654321',
         email: 'admin@example.com',
         address: '管理者住所',
-        role: UserRole.ADMIN,
+        role: 'ADMIN' as const,
     };
     
     await prisma.user.createMany({ data: usersData });
