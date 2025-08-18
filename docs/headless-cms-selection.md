@@ -127,7 +127,33 @@
 - リアルタイム編集が重要
 - 新しい技術への積極的な取り組み
 
-### 4.4 Hygraph（旧GraphCMS）（推奨度: ★★★☆☆）
+### 4.4 microCMS（推奨度: ★★★★☆）
+
+**特徴:**
+- 日本製ヘッドレスCMS
+- 日本語完全対応
+- GraphQL API対応
+- 直感的な管理画面
+
+**メリット:**
+- 完全日本語インターフェース・サポート
+- 日本のビジネス慣行に対応した機能
+- 豊富な日本語ドキュメント
+- レスポンシブ対応の管理画面
+- 日本国内のデータセンター
+
+**デメリット:**
+- 海外展開時の制約可能性
+- エコシステムの規模（海外CMS比）
+- 高負荷時のパフォーマンス未知数
+
+**適用シナリオ:**
+- 日本市場重視の場合
+- 日本語コンテンツ管理がメイン
+- 日本語サポートが重要
+- 国内法規制への対応が必要
+
+### 4.5 Hygraph（旧GraphCMS）（推奨度: ★★★☆☆）
 
 **特徴:**
 - GraphQLネイティブ
@@ -232,6 +258,30 @@ export async function getStaticProps() {
 }
 ```
 
+```typescript
+// 例: microCMS統合
+import { createClient } from 'microcms-js-sdk'
+
+const client = createClient({
+  serviceDomain: process.env.MICROCMS_SERVICE_DOMAIN!,
+  apiKey: process.env.MICROCMS_API_KEY!,
+})
+
+export async function getStaticProps() {
+  const posts = await client.get({
+    endpoint: 'blog',
+    queries: {
+      limit: 10,
+    },
+  })
+  
+  return {
+    props: { posts: posts.contents },
+    revalidate: 60, // ISR設定
+  }
+}
+```
+
 #### 2. 基本ページの実装
 - [ ] ランディングページ
 - [ ] お知らせページ
@@ -319,7 +369,12 @@ export async function getStaticProps() {
 - **Team プラン**: $489/月（本格運用開始時）
 - **Scale プラン**: $879/月（成長期）
 
-### 9.2 その他コスト
+### 9.2 microCMS
+- **Hobby プラン**: 無料（10,000 API コール/月まで）
+- **Team プラン**: ¥4,980/月（100,000 API コール/月まで）
+- **Business プラン**: ¥49,800/月（1,000,000 API コール/月まで）
+
+### 9.3 その他コスト
 - 開発工数: 8-12週間（1-2名体制）
 - 運用工数: 月10-20時間
 - CDN・帯域幅: 月$50-200（トラフィック依存）
@@ -343,7 +398,13 @@ export async function getStaticProps() {
 
 ## 11. まとめ
 
-本プラットフォームの特性と技術スタックを考慮し、**Contentful** を第一推奨とします。GraphQL との親和性、Next.js との豊富な統合実績、および企業レベルのセキュリティ・パフォーマンスが決定要因です。
+本プラットフォームの特性と技術スタックを考慮し、以下の優先順位で検討することを推奨します：
+
+1. **Contentful**（★★★★★）- 国際展開を重視し、豊富な機能と実績を求める場合
+2. **microCMS**（★★★★☆）- 日本市場重視で、日本語サポートと国内データセンターが重要な場合
+3. **Strapi**（★★★★☆）- コスト削減と高度なカスタマイズが必要な場合
+
+GraphQL との親和性、Next.js との豊富な統合実績、および企業レベルのセキュリティ・パフォーマンスを考慮すると、**Contentful** または **microCMS** が最適解となります。
 
 段階的な導入により、リスクを最小化しながら運用開始し、プラットフォームの成長に合わせてスケールアップする戦略が効果的です。
 
