@@ -7,6 +7,8 @@ import { CsrfError } from '../errors';
 import { cookieModule } from '../cookie';
 import { ImageInput } from '../consts';
 import { del } from '@vercel/blob';
+import { getEmailService } from '../../../../lib/email';
+import { createWelcomeEmail } from '../../../../lib/email/templates/common';
 
 type ImageInputValue = {
     is_image_deleted?: boolean;
@@ -379,7 +381,7 @@ builder.mutationField("adminCreateUser", (t) =>
         resolve: async (query, _parent, args, _ctx) => {
             const hashedPassword = hashSync(args.password, 10);
             
-            return prisma.user.create({
+            const newUser = await prisma.user.create({
                 ...query,
                 data: {
                     handle_name: args.handle_name,
@@ -394,6 +396,24 @@ builder.mutationField("adminCreateUser", (t) =>
                     role: 'USER',
                 },
             });
+
+            // Send welcome email (non-blocking)
+            try {
+                const emailService = getEmailService();
+                const { subject, html, text } = createWelcomeEmail(args.name, args.handle_name);
+                
+                // Send email asynchronously without blocking the user creation
+                emailService.send(args.email, subject, html, text).catch((error) => {
+                    console.error(`Failed to send welcome email to ${args.email}:`, error);
+                });
+                
+                console.log(`Welcome email queued for ${args.email}`);
+            } catch (error) {
+                // Log the error but don't fail the user creation
+                console.error(`Failed to queue welcome email for ${args.email}:`, error);
+            }
+
+            return newUser;
         },
     })
 );
