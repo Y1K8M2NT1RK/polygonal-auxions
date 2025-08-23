@@ -34,6 +34,55 @@ ALLOWED_EMAIL_DOMAINS=your-domain.com,another-domain.com
 | staging | resend | allowlistのみ | 限定的な実配送テスト |
 | production | resend | allowlistのみ | 本番運用 |
 
+## 開発環境でのメール送信テスト
+
+### CLIツールによるテスト
+
+1. **基本的なテストメール送信**
+```bash
+node scripts/email/simple-test.js
+```
+
+2. **ウェルカムメールテスト**
+```bash
+node scripts/email/test-welcome.js
+```
+
+3. **TypeScript版テストツール（完全版）**
+```bash
+# TypeScript設定が完了している場合
+node scripts/email/test-email.js --type test --subject "Test Email" --content "Hello World"
+
+# ウェルカムメール
+node scripts/email/test-email.js --type welcome --name "Test User" --handle "testuser"
+
+# パスワードリセットメール
+node scripts/email/test-email.js --type reset --name "Test User" --token "abc123"
+```
+
+### Mailpit Web UI
+
+ブラウザで http://localhost:8025 にアクセスして送信されたメールを確認できます。
+
+**機能:**
+- 受信メールの一覧表示
+- HTML/テキスト表示の切り替え
+- メールヘッダーの確認
+- 添付ファイルの表示
+- 検索・フィルタリング
+- タグ機能
+
+### 動作確認済み機能
+
+✅ SMTP Adapter Connection  
+✅ Mailpit Integration  
+✅ HTML Template Rendering  
+✅ Environment Configuration  
+✅ Japanese Character Support  
+✅ Welcome Email Template  
+✅ Test Email Generation  
+✅ Email Validation Logic  
+
 ## 開発環境セットアップ
 
 ### 1. Mailpitの起動
