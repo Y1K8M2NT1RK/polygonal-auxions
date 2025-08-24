@@ -43,6 +43,25 @@ seed-docker: db-up
 # 直近作成の5ユーザーを ADMIN に昇格
 admin-promote-5: db-up
 	docker compose exec -T db sh -lc 'PGPASSWORD="$$POSTGRES_PASSWORD" psql -h 127.0.0.1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" -c "UPDATE users SET role = '\''ADMIN'\'' WHERE id IN (SELECT id FROM users ORDER BY created_at DESC LIMIT 5);"'
+
+# 簡易メール送信テスト (Mailpit 経由) を app コンテナ内で実行
+# 使い方: make email-test  (環境変数上書き可: SMTP_HOST=mailpit SMTP_PORT=1025)
+.PHONY: email-test
+email-test: db-up
+	@echo "[email-test] running configurable email test via Mailpit"; \
+	default_host=$${SMTP_HOST:-mailpit}; \
+	docker compose run --rm \
+	  -e IN_DOCKER=1 \
+	  -e SMTP_HOST="$$default_host" \
+	  -e SMTP_PORT="${SMTP_PORT:-1025}" \
+	  -e TYPE="${TYPE}" \
+	  -e SUBJECT="${SUBJECT}" \
+	  -e BODY="${BODY}" \
+	  -e TO="${TO}" \
+	  -e NAME="${NAME}" \
+	  -e HANDLE="${HANDLE}" \
+	  -e TS_NODE_TRANSPILE_ONLY=1 \
+	  app sh -lc 'npx ts-node scripts/email/simple-test.ts'
 ## SECTION コンテナ / Docker & Orchestration
 # Docker / コンテナ関連ターゲット
 .PHONY: dc-build db studio studio-app up down stop containers-stop restart logs ps prune down-v docker-deps-install docker-deps-verify docker-reset-modules docker-next-clean
@@ -75,11 +94,15 @@ studio:
 studio-app:
 	./scripts/studio.sh app
 
-# すべてのコンテナ (db, app, prisma-studio) をバックグラウンド起動
+# 常時起動するサービス一覧（mailpit を常に含める）
+BASE_SERVICES := db app prisma-studio mailpit
+
+# すべてのコンテナ (db, app, prisma-studio, mailpit) をバックグラウンド起動
 up:
 	@# ホスト側で 3001 を占有している Next を停止（compose のポートバインド競合を防止）
 	@STOP_PORT=$(HOST_APP_PORT) sh scripts/stop.sh || true
-	docker compose --profile dev up -d db app prisma-studio
+	@echo "[up] services: $(BASE_SERVICES)"
+	docker compose --profile dev up -d $(BASE_SERVICES)
 
 # 起動中コンテナを停止 (ボリュームは保持)
 down:
@@ -95,15 +118,27 @@ containers-stop: stop
 
 # 再起動 (stop -> up) SERVICES 未指定なら全サービス
 restart:
-	@# dev プロファイルを明示しないと profiles: ["dev"] の app/prisma-studio が対象外になり "省略" されたように見える
+	@# dev プロファイルを明示しないと profiles: ["dev"] の app/prisma-studio が対象外
 	@if [ -n "$(SERVICES)" ]; then \
 	  if echo "$(SERVICES)" | grep -qw app; then STOP_PORT=$(HOST_APP_PORT) sh scripts/stop.sh || true; fi; \
 	  docker compose --profile dev stop $(SERVICES) && docker compose --profile dev up -d $(SERVICES); \
 	else \
 	  STOP_PORT=$(HOST_APP_PORT) sh scripts/stop.sh || true; \
 	  docker compose --profile dev stop || true; \
-	  docker compose --profile dev up -d; \
+	  echo "[restart] services: $(BASE_SERVICES)"; \
+	  docker compose --profile dev up -d $(BASE_SERVICES); \
 	fi
+
+# mailpit 単体起動/停止/ログ
+.PHONY: mailpit-up mailpit-stop mailpit-logs
+mailpit-up:
+	docker compose up -d mailpit
+
+mailpit-stop:
+	docker compose stop mailpit || true
+
+mailpit-logs:
+	docker compose logs -f --tail=$(TAIL) mailpit
 
 # 稼働状況一覧 (docker compose ps)
 ps:
@@ -127,7 +162,10 @@ prune:
 # 依存（node_modules）をコンテナ側にインストール（named volume への追加反映）
 docker-deps-install:
 	@echo "[docker-deps-install] installing dependencies inside container (app service)"; \
-	docker compose run --rm app npm install --no-audit --no-fund
+	if ! docker compose run --rm app npm install --no-audit --no-fund; then \
+	  echo "[docker-deps-install] normal install failed -> retry with --legacy-peer-deps"; \
+	  docker compose run --rm app npm install --no-audit --no-fund --legacy-peer-deps; \
+	fi
 
 # 依存解決の存在確認（PKG=パッケージ名 省略時は @graphql-yoga/render-graphiql）
 docker-deps-verify:

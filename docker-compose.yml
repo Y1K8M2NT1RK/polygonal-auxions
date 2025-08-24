@@ -38,6 +38,19 @@ services:
     env_file: .env
   # profiles removed to ensure availability for dependent services
 
+  mailpit:
+    image: axllent/mailpit:v1.14
+    ports:
+      - "8025:8025"  # Web UI
+      - "1025:1025"  # SMTP server
+    environment:
+      MP_DATA_FILE: /data/mailpit.db
+    volumes:
+      - mailpit_data:/data
+    networks:
+      - app_network
+    profiles: ["dev"]
+
   verify:
     build:
       context: .
@@ -112,6 +125,7 @@ services:
 volumes:
   node_modules:
   postgres_data:
+  mailpit_data:
 
 networks:
   app_network:
