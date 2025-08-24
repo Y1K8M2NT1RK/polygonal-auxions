@@ -2,59 +2,16 @@
  * Welcome email template for new users
  */
 export function createWelcomeEmail(userName: string, handleName: string): { subject: string; html: string; text: string } {
-  const subject = 'Polygonal Auxionsへようこそ！';
-  
-  const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <title>${subject}</title>
-      <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background-color: #f8f9fa; padding: 20px; text-align: center; }
-        .content { padding: 20px; }
-        .footer { background-color: #f8f9fa; padding: 10px; text-align: center; font-size: 12px; color: #666; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <h1>Polygonal Auxions</h1>
-        </div>
-        <div class="content">
-          <h2>${userName} さん、ようこそ！</h2>
-          <p>Polygonal Auxionsへのご登録ありがとうございます。</p>
-          <p>あなたのハンドルネーム: <strong>@${handleName}</strong></p>
-          <p>今すぐ作品の投稿や他のユーザーとの交流を始めることができます。</p>
-          <p>何かご質問がございましたら、お気軽にお問い合わせください。</p>
-        </div>
-        <div class="footer">
-          <p>© 2025 Polygonal Auxions. All rights reserved.</p>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
-
-  const text = `
-${subject}
-
-${userName} さん、ようこそ！
-
-Polygonal Auxionsへのご登録ありがとうございます。
-
-あなたのハンドルネーム: @${handleName}
-
-今すぐ作品の投稿や他のユーザーとの交流を始めることができます。
-
-何かご質問がございましたら、お気軽にお問い合わせください。
-
-© 2025 Polygonal Auxions. All rights reserved.
-  `;
-
-  return { subject, html, text };
+  try {
+    // Prefer React Email version if dependency installed
+    const { renderWelcomeEmail } = require('./react/WelcomeEmail');
+    return renderWelcomeEmail(userName, handleName);
+  } catch {
+    const subject = 'Polygonal Auxionsへようこそ！';
+    const html = `<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>${subject}</title></head><body><h1>${subject}</h1><p>${userName} さん、ようこそ！ (@${handleName})</p></body></html>`;
+    const text = `${subject}\n${userName} さん、ようこそ！\n@${handleName}`;
+    return { subject, html, text };
+  }
 }
 
 /**
@@ -63,6 +20,8 @@ Polygonal Auxionsへのご登録ありがとうございます。
 export function createPasswordResetEmail(userName: string, resetToken: string, baseUrl: string): { subject: string; html: string; text: string } {
   const subject = 'パスワードリセットのご案内';
   const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;
+  const currentYear = new Date().getFullYear();
+  const yearText = currentYear === 2025 ? '2025' : `2025-${currentYear}`;
   
   const html = `
     <!DOCTYPE html>
@@ -102,7 +61,7 @@ export function createPasswordResetEmail(userName: string, resetToken: string, b
           <p><small>${resetUrl}</small></p>
         </div>
         <div class="footer">
-          <p>© 2025 Polygonal Auxions. All rights reserved.</p>
+          <p>© ${yearText} Polygonal Auxions. All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -124,7 +83,7 @@ ${resetUrl}
 - このリンクは一度のみ使用可能です
 - 身に覚えのないリクエストの場合は、このメールを無視してください
 
-© 2025 Polygonal Auxions. All rights reserved.
+© ${yearText} Polygonal Auxions. All rights reserved.
   `;
 
   return { subject, html, text };
@@ -136,6 +95,8 @@ ${resetUrl}
 export function createEmailVerificationEmail(userName: string, verificationToken: string, baseUrl: string): { subject: string; html: string; text: string } {
   const subject = 'メールアドレスの確認';
   const verificationUrl = `${baseUrl}/verify-email?token=${verificationToken}`;
+  const currentYear = new Date().getFullYear();
+  const yearText = currentYear === 2025 ? '2025' : `2025-${currentYear}`;
   
   const html = `
     <!DOCTYPE html>
@@ -166,7 +127,7 @@ export function createEmailVerificationEmail(userName: string, verificationToken
           <p><small>${verificationUrl}</small></p>
         </div>
         <div class="footer">
-          <p>© 2025 Polygonal Auxions. All rights reserved.</p>
+          <p>© ${yearText} Polygonal Auxions. All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -183,7 +144,7 @@ ${userName} さん
 以下のURLにアクセスして、メールアドレスを確認してください：
 ${verificationUrl}
 
-© 2025 Polygonal Auxions. All rights reserved.
+© ${yearText} Polygonal Auxions. All rights reserved.
   `;
 
   return { subject, html, text };
