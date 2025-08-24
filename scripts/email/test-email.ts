@@ -141,10 +141,11 @@ async function main() {
   } catch (error) {
     console.error('❌ Error:', error instanceof Error ? error.message : 'Unknown error');
     console.log('');
-    console.log('Usage examples:');
-    console.log('  node scripts/email/test-email.js --type welcome --name "Test User" --handle testuser');
-    console.log('  node scripts/email/test-email.js --type test --subject "Test Email" --content "Hello World"');
-    console.log('  node scripts/email/test-email.js --to user@example.com --type reset --name "Test User"');
+  console.log('Usage examples:');
+  console.log('  npx ts-node scripts/email/test-email.ts --type welcome --name "Test User" --handle testuser');
+  console.log('  npx ts-node scripts/email/test-email.ts --type test --subject "Test Email" --content "Hello World"');
+  console.log('  npx ts-node scripts/email/test-email.ts --to user@example.com --type reset --name "Test User"');
+  console.log('  make email-test SUBJECT="Test" BODY="Hello" TO="user@example.com"');
     process.exit(1);
   }
 }

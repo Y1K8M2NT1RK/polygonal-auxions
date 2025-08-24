@@ -38,26 +38,34 @@ ALLOWED_EMAIL_DOMAINS=your-domain.com,another-domain.com
 
 ### CLIツールによるテスト
 
-1. **基本的なテストメール送信**
+1. **簡易テスト (環境変数で可変 / Mailpit 経由)**
 ```bash
-node scripts/email/simple-test.js
+make email-test SUBJECT="動作確認" BODY="Hello" TO="dev@example.com"
 ```
 
-2. **ウェルカムメールテスト**
+2. **シンプル送信スクリプト (TypeScript)**
 ```bash
-node scripts/email/test-welcome.js
+npx ts-node scripts/email/simple-test.ts
 ```
 
-3. **TypeScript版テストツール（完全版）**
+3. **ウェルカムメール テスト**
 ```bash
-# TypeScript設定が完了している場合
-node scripts/email/test-email.js --type test --subject "Test Email" --content "Hello World"
+npx ts-node scripts/email/test-welcome.ts
+```
+
+4. **汎用テストツール (test / welcome / reset / verification)**
+```bash
+# 任意メール (test)
+npx ts-node scripts/email/test-email.ts --type test --subject "Test Email" --content "Hello World"
 
 # ウェルカムメール
-node scripts/email/test-email.js --type welcome --name "Test User" --handle "testuser"
+npx ts-node scripts/email/test-email.ts --type welcome --name "Test User" --handle "testuser"
 
 # パスワードリセットメール
-node scripts/email/test-email.js --type reset --name "Test User" --token "abc123"
+npx ts-node scripts/email/test-email.ts --type reset --name "Test User" --token "abc123"
+
+# メールアドレス検証メール
+npx ts-node scripts/email/test-email.ts --type verification --name "Test User" --token "verify123"
 ```
 
 ### Mailpit Web UI
@@ -111,11 +119,14 @@ SMTP_PORT=1025
 ### 3. メール送信テスト
 
 ```bash
-# CLIツールでテストメール送信
-node scripts/email/test-email.js --type test --subject "テストメール" --content "Hello World"
+# make コマンド (最も簡単)
+make email-test SUBJECT="テストメール" BODY="Hello World" TO="dev@example.com"
 
-# ウェルカムメールのテスト
-node scripts/email/test-email.js --type welcome --name "テストユーザー" --handle "testuser"
+# CLIツール (test)
+npx ts-node scripts/email/test-email.ts --type test --subject "テストメール" --content "Hello World"
+
+# ウェルカムメール
+npx ts-node scripts/email/test-email.ts --type welcome --name "テストユーザー" --handle "testuser"
 ```
 
 ### 4. Mailpit Web UI確認
@@ -232,14 +243,17 @@ const testEmail = generateTestEmail('user', 'welcome-test');
 ### 3. CLIツールによるテスト
 
 ```bash
-# 基本的なテストメール
-node scripts/email/test-email.js --type test --subject "Test" --content "Hello"
+# 基本 (test)
+npx ts-node scripts/email/test-email.ts --type test --subject "Test" --content "Hello"
 
-# 特定のメールアドレスに送信
-node scripts/email/test-email.js --to user@example.com --type welcome --name "Test User" --handle "testuser"
+# 特定アドレス宛 (welcome)
+npx ts-node scripts/email/test-email.ts --to user@example.com --type welcome --name "Test User" --handle "testuser"
 
-# パスワードリセットメール
-node scripts/email/test-email.js --type reset --name "Test User" --token "abc123" --baseUrl "http://localhost:3000"
+# パスワードリセット
+npx ts-node scripts/email/test-email.ts --type reset --name "Test User" --token "abc123" --baseUrl "http://localhost:3000"
+
+# メール検証
+npx ts-node scripts/email/test-email.ts --type verification --name "Test User" --token "verify123" --baseUrl "http://localhost:3000"
 ```
 
 ## 本番運用
