@@ -90,6 +90,7 @@ npx ts-node scripts/email/test-email.ts --type verification --name "Test User" -
 ✅ Welcome Email Template  
 ✅ Test Email Generation  
 ✅ Email Validation Logic  
+✅ React Email Templates (Welcome / Password Reset / Verification)  
 
 ## 開発環境セットアップ
 
@@ -162,6 +163,8 @@ mutation SendPasswordResetEmail($email: String!, $userName: String!, $resetToken
 ```
 
 #### 3. テストメール送信（開発環境のみ）
+React Email を利用したテンプレート: Welcome / Password Reset / Verification は自動的に利用可能で、パッケージが存在しない場合はフォールバックのシンプルHTMLに切り替わります。
+
 
 ```graphql
 mutation SendTestEmail($to: String!, $subject: String!, $content: String!) {

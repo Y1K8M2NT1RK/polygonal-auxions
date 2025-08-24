@@ -69,7 +69,7 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
   try { window.dispatchEvent(new CustomEvent('authBusyChange', { detail: null as any })); } catch {}
       }
     }
-  }, [login, reexecuteQuery]);
+  }, [login]);
 
   const handleLogout = useCallback(async () => {
     if (typeof window !== 'undefined') {
@@ -91,7 +91,7 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
   try { window.dispatchEvent(new CustomEvent('authBusyChange', { detail: null as any })); } catch {}
       }
     }
-  }, [logout, reexecuteQuery]);
+  }, [logout]);
 
   // 認証方式A (Cookie セッション純化) 前提: クライアント側定期 refresh は不要
   // サーバ側の rolling セッション / 期限切れ時 401 応答で十分

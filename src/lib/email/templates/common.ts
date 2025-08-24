@@ -18,6 +18,12 @@ export function createWelcomeEmail(userName: string, handleName: string): { subj
  * Password reset email template
  */
 export function createPasswordResetEmail(userName: string, resetToken: string, baseUrl: string): { subject: string; html: string; text: string } {
+  try {
+    const { renderPasswordResetEmail } = require('./react/PasswordResetEmail');
+    return renderPasswordResetEmail(userName, resetToken, baseUrl);
+  } catch {
+    // fallback below
+  }
   const subject = 'パスワードリセットのご案内';
   const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;
   const currentYear = new Date().getFullYear();
@@ -93,6 +99,12 @@ ${resetUrl}
  * Email verification template
  */
 export function createEmailVerificationEmail(userName: string, verificationToken: string, baseUrl: string): { subject: string; html: string; text: string } {
+  try {
+    const { renderEmailVerificationEmail } = require('./react/EmailVerificationEmail');
+    return renderEmailVerificationEmail(userName, verificationToken, baseUrl);
+  } catch {
+    // fallback below
+  }
   const subject = 'メールアドレスの確認';
   const verificationUrl = `${baseUrl}/verify-email?token=${verificationToken}`;
   const currentYear = new Date().getFullYear();
