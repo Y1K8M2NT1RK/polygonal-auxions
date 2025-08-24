@@ -51,7 +51,7 @@ const styles = {
   notice: { backgroundColor: '#fff3cd', border: '1px solid #ffeaa7', padding: '12px', borderRadius: '4px', marginTop: '16px' },
   noticeTitle: { fontWeight: 'bold', marginBottom: '4px' },
   ul: { paddingLeft: '20px', margin: '4px 0' },
-  code: { fontFamily: 'monospace', fontSize: '12px', wordBreak: 'break-all' },
+  code: { fontFamily: 'monospace', fontSize: '12px' } as any,
   footer: { fontSize: '12px', color: '#666', marginTop: '24px' },
 };
 
