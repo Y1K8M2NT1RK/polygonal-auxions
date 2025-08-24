@@ -18,9 +18,12 @@ import CloseIcon from '@mui/icons-material/Close';
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useMutation } from 'urql';
 import { useAuth } from '@/contexts/AuthContexts';
 import useResponsive from "@/hooks/useResponsive";
 import useDarkMode from "@/hooks/useDarkMode";
+import PasswordResetDialog from "@/components/PasswordResetDialog";
+import { RequestPasswordResetDocument } from '@/generated/generated-graphql';
 
 type LoginDialogProps = {
     sxProps?: {
@@ -43,8 +46,31 @@ export default function LoginDialog({ sxProps }: LoginDialogProps) {
     const onSubmit = handleSubmit(async (data: FormData) => await handleLogin(data.email, data.password));
 
     const [open, setOpen] = useState(false);
+    const [passwordResetOpen, setPasswordResetOpen] = useState(false);
+    
+    const [, requestPasswordReset] = useMutation(RequestPasswordResetDocument);
+
     const handleClickOpen = () => setOpen(true);
     const handleClose = () => {clearErrors(); setOpen(false);};
+    const handlePasswordResetOpen = () => {
+        setPasswordResetOpen(true);
+        setOpen(false); // Close login dialog
+    };
+    const handlePasswordResetClose = () => setPasswordResetOpen(false);
+
+    const handleRequestPasswordReset = async (emailOrHandle: string): Promise<boolean> => {
+        const result = await requestPasswordReset({ emailOrHandle });
+        
+        if (result.error) {
+            throw new Error('パスワードリセットの送信に失敗しました。');
+        }
+
+        if (result.data?.requestPasswordReset.__typename === 'ZodError') {
+            throw new Error('入力内容に問題があります。');
+        }
+
+        return result.data?.requestPasswordReset.__typename === 'MutationRequestPasswordResetSuccess';
+    };
 
     const isDarkMode = useDarkMode();
     const {isSmallScreen, isMediumScreen} = useResponsive();
@@ -125,8 +151,8 @@ export default function LoginDialog({ sxProps }: LoginDialogProps) {
                                     sx={{ mt: 2, backgroundColor: isDarkMode?'#444444':'#CCCCCC'}}
                                 >アカウント作成</Fab>
                                 <Fab
-                                    component={Link}
-                                    href="#"
+                                    component={Button}
+                                    onClick={handlePasswordResetOpen}
                                     size="small"
                                     color="inherit"
                                     variant="extended"
@@ -137,6 +163,12 @@ export default function LoginDialog({ sxProps }: LoginDialogProps) {
                     </CardContent>
                 </Card>
             </Dialog>
+            
+            <PasswordResetDialog 
+                open={passwordResetOpen}
+                onClose={handlePasswordResetClose}
+                onRequestPasswordReset={handleRequestPasswordReset}
+            />
         </Box>
     );
 }
