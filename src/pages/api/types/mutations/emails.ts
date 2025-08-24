@@ -32,7 +32,7 @@ builder.mutationFields((t) => ({
       },
       { message: '有効なメールアドレスを入力してください。' }
     ],
-    resolve: async (query, _parent, args, _ctx) => {
+  resolve: async (_parent, args, _ctx) => {
       try {
         const emailService = getEmailService();
         const { subject, html, text } = createWelcomeEmail(args.userName, args.handleName);
@@ -74,7 +74,7 @@ builder.mutationFields((t) => ({
       },
       { message: '有効なメールアドレスを入力してください。' }
     ],
-    resolve: async (query, _parent, args, _ctx) => {
+  resolve: async (_parent, args, _ctx) => {
       try {
         const emailService = getEmailService();
         const { subject, html, text } = createPasswordResetEmail(args.userName, args.resetToken, args.baseUrl);
@@ -116,7 +116,7 @@ builder.mutationFields((t) => ({
       },
       { message: '有効なメールアドレスを入力してください。' }
     ],
-    resolve: async (query, _parent, args, _ctx) => {
+  resolve: async (_parent, args, _ctx) => {
       try {
         const emailService = getEmailService();
         const { subject, html, text } = createEmailVerificationEmail(args.userName, args.verificationToken, args.baseUrl);
@@ -163,7 +163,7 @@ builder.mutationFields((t) => ({
       },
       { message: 'テストメール送信は開発環境でのみ利用可能です。' }
     ],
-    resolve: async (query, _parent, args, _ctx) => {
+  resolve: async (_parent, args, _ctx) => {
       try {
         const emailService = getEmailService();
         
