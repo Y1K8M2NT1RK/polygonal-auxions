@@ -528,6 +528,20 @@ export type AdminDeleteUserMutationVariables = Exact<{
 
 export type AdminDeleteUserMutation = { __typename?: 'Mutation', adminDeleteUser: { __typename: 'MutationAdminDeleteUserSuccess', data: boolean } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
 
+export type RequestPasswordResetMutationVariables = Exact<{
+  emailOrHandle: Scalars['String']['input'];
+}>;
+
+export type RequestPasswordResetMutation = { __typename?: 'Mutation', requestPasswordReset: { __typename: 'MutationRequestPasswordResetSuccess', data: boolean } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
+
+export type ResetPasswordMutationVariables = Exact<{
+  token: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  passwordConfirmation: Scalars['String']['input'];
+}>;
+
+export type ResetPasswordMutation = { __typename?: 'Mutation', resetPassword: { __typename: 'MutationResetPasswordSuccess', data: boolean } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
+
 export type ArtworksQueryVariables = Exact<{
   q?: InputMaybe<Scalars['String']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -902,6 +916,50 @@ export const AdminDeleteUserDocument = gql`
 
 export function useAdminDeleteUserMutation() {
   return Urql.useMutation<AdminDeleteUserMutation, AdminDeleteUserMutationVariables>(AdminDeleteUserDocument);
+};
+
+export const RequestPasswordResetDocument = gql`
+    mutation RequestPasswordReset($emailOrHandle: String!) {
+  requestPasswordReset(emailOrHandle: $emailOrHandle) {
+    ... on MutationRequestPasswordResetSuccess {
+      __typename
+      data
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors {
+        message
+      }
+    }
+  }
+}
+    `;
+
+export function useRequestPasswordResetMutation() {
+  return Urql.useMutation<RequestPasswordResetMutation, RequestPasswordResetMutationVariables>(RequestPasswordResetDocument);
+};
+
+export const ResetPasswordDocument = gql`
+    mutation ResetPassword($token: String!, $password: String!, $passwordConfirmation: String!) {
+  resetPassword(token: $token, password: $password, passwordConfirmation: $passwordConfirmation) {
+    ... on MutationResetPasswordSuccess {
+      __typename
+      data
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors {
+        message
+      }
+    }
+  }
+}
+    `;
+
+export function useResetPasswordMutation() {
+  return Urql.useMutation<ResetPasswordMutation, ResetPasswordMutationVariables>(ResetPasswordDocument);
 };
 export const ArtworksDocument = gql`
     query Artworks($q: String, $offset: Int, $limit: Int) {
