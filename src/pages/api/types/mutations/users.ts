@@ -8,7 +8,8 @@ import { cookieModule } from '../cookie';
 import { ImageInput } from '../consts';
 import { del } from '@vercel/blob';
 import { getEmailService } from '../../../../lib/email';
-import { createWelcomeEmail } from '../../../../lib/email/templates/common';
+import { createWelcomeEmail, createPasswordResetEmail } from '../../../../lib/email/templates/common';
+import crypto from 'crypto';
 
 type ImageInputValue = {
     is_image_deleted?: boolean;
@@ -602,6 +603,173 @@ builder.mutationField("adminDeleteUser", (t) =>
             } catch (error) {
                 console.error('Error deleting user:', error);
                 return false;
+            }
+        },
+    })
+);
+
+// Password Reset Request Mutation
+builder.mutationField("requestPasswordReset", (t) =>
+    t.field({
+        type: 'Boolean',
+        errors: { types: [ZodError] },
+        args: {
+            emailOrHandle: t.arg.string({
+                required: true,
+                validate: {
+                    type: 'string',
+                    maxLength: [150, { message: '入力が長すぎます。' }],
+                    minLength: [1, { message: '入力してください。' }],
+                },
+            }),
+        },
+        resolve: async (_parent, args, ctx) => {
+            const { emailOrHandle } = args;
+            
+            // Find user by email or handle_name
+            const user = await prisma.user.findFirst({
+                where: {
+                    OR: [
+                        { email: emailOrHandle },
+                        { handle_name: emailOrHandle }
+                    ]
+                }
+            });
+
+            // Always return true for security (don't reveal if user exists)
+            if (!user) {
+                return true;
+            }
+
+            try {
+                // Invalidate existing tokens for this user
+                await prisma.passwordResetToken.updateMany({
+                    where: {
+                        user_id: user.id,
+                        used: false,
+                        expires_at: { gt: new Date() }
+                    },
+                    data: { used: true }
+                });
+
+                // Generate secure token
+                const token = crypto.randomBytes(32).toString('hex');
+                const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+                // Create password reset token
+                await prisma.passwordResetToken.create({
+                    data: {
+                        token: token,
+                        user_id: user.id,
+                        expires_at: expiresAt,
+                    }
+                });
+
+                // Send password reset email
+                const emailService = getEmailService();
+                const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+                const { subject, html, text } = createPasswordResetEmail(user.name, token, baseUrl);
+                
+                await emailService.send(user.email, subject, html, text);
+                
+                return true;
+            } catch (error) {
+                console.error('Password reset request error:', error);
+                return true; // Still return true for security
+            }
+        },
+    })
+);
+
+// Reset Password with Token Mutation
+builder.mutationField("resetPassword", (t) =>
+    t.field({
+        type: 'Boolean',
+        errors: { types: [ZodError] },
+        args: {
+            token: t.arg.string({
+                required: true,
+                validate: {
+                    type: 'string',
+                    minLength: [1, { message: 'トークンが必要です。' }],
+                },
+            }),
+            password: t.arg.string({
+                required: true,
+                validate: {
+                    type: 'string',
+                    maxLength: [100, { message: 'パスワードが長すぎます。' }],
+                    minLength: [4, { message: 'パスワードは4文字以上で入力してください。' }],
+                    refine: [
+                        (val: string) => val.trim().length > 0,
+                        { message: 'パスワードを入力してください。' },
+                    ],
+                },
+            }),
+            passwordConfirmation: t.arg.string({
+                required: true,
+                validate: {
+                    type: 'string',
+                    maxLength: [100, { message: 'パスワード確認が長すぎます。' }],
+                    minLength: [1, { message: 'パスワード確認を入力してください。' }],
+                },
+            }),
+        },
+        validate: [
+            (args) => args.password === args.passwordConfirmation,
+            { message: 'パスワードが一致しません。', path: ['passwordConfirmation'] },
+        ],
+        resolve: async (_parent, args, ctx) => {
+            const { token, password } = args;
+
+            // Find valid token
+            const resetToken = await prisma.passwordResetToken.findFirst({
+                where: {
+                    token: token,
+                    used: false,
+                    expires_at: { gt: new Date() }
+                },
+                include: {
+                    user: true
+                }
+            });
+
+            if (!resetToken) {
+                throw new ZodError([{
+                    code: 'custom',
+                    message: 'トークンが無効か期限切れです。',
+                    path: ['token']
+                }]);
+            }
+
+            try {
+                // Hash new password
+                const hashedPassword = hashSync(password, 10);
+
+                // Update user password
+                await prisma.user.update({
+                    where: { id: resetToken.user_id },
+                    data: { password: hashedPassword }
+                });
+
+                // Mark token as used
+                await prisma.passwordResetToken.update({
+                    where: { id: resetToken.id },
+                    data: { used: true }
+                });
+
+                // Invalidate all existing sessions for this user
+                await prisma.authPayload.deleteMany({
+                    where: { user_id: resetToken.user_id }
+                });
+
+                // Create new session for auto-login
+                await cookieModule.setCookie(resetToken.user_id, ctx);
+
+                return true;
+            } catch (error) {
+                console.error('Password reset error:', error);
+                throw new Error('パスワードリセットに失敗しました。');
             }
         },
     })

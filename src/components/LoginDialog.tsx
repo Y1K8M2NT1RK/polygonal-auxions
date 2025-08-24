@@ -16,9 +16,12 @@ import CloseIcon from '@mui/icons-material/Close';
 import Link from "next/link";
 import { ReactElement, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useMutation } from 'urql';
 import { useAuth } from '@/contexts/AuthContexts';
 import useResponsive from "@/hooks/useResponsive";
-import useDarkMode from "../hooks/useDarkMode";
+import useDarkMode from "@/hooks/useDarkMode";
+import PasswordResetDialog from "./PasswordResetDialog";
+import { RequestPasswordResetDocument } from '@/generated/generated-graphql';
 
 type LoginDialogProps = {
     button?: ReactElement;
@@ -48,6 +51,9 @@ export default function LoginDialog({
     });
 
     const [lockInput, setLockInput] = useState(false);
+    const [passwordResetOpen, setPasswordResetOpen] = useState(false);
+    
+    const [, requestPasswordReset] = useMutation(RequestPasswordResetDocument);
 
     const { handleLogin, formErrors, isLoggedIn } = useAuth();
 
@@ -60,6 +66,26 @@ export default function LoginDialog({
     });
 
     const handleClose = useCallback(() => { clearErrors(); setOpenDialog(false); }, [clearErrors, setOpenDialog]);
+    
+    const handlePasswordResetOpen = () => {
+        setPasswordResetOpen(true);
+        setOpenDialog(false); // Close login dialog
+    };
+    const handlePasswordResetClose = () => setPasswordResetOpen(false);
+
+    const handleRequestPasswordReset = async (emailOrHandle: string): Promise<boolean> => {
+        const result = await requestPasswordReset({ emailOrHandle });
+        
+        if (result.error) {
+            throw new Error('パスワードリセットの送信に失敗しました。');
+        }
+
+        if (result.data?.requestPasswordReset.__typename === 'ZodError') {
+            throw new Error('入力内容に問題があります。');
+        }
+
+        return result.data?.requestPasswordReset.__typename === 'MutationRequestPasswordResetSuccess';
+    };
 
     const isDarkMode = useDarkMode();
     const {isSmallScreen, isMediumScreen} = useResponsive();
@@ -146,8 +172,8 @@ export default function LoginDialog({
                                     アカウント作成
                                 </Fab>
                                 <Fab
-                                    component={Link}
-                                    href="#"
+                                    component={Button}
+                                    onClick={handlePasswordResetOpen}
                                     size="small"
                                     color="inherit"
                                     variant="extended"
@@ -161,6 +187,12 @@ export default function LoginDialog({
                     </CardContent>
                 </Card>
             </Dialog>
+            
+            <PasswordResetDialog 
+                open={passwordResetOpen}
+                onClose={handlePasswordResetClose}
+                onRequestPasswordReset={handleRequestPasswordReset}
+            />
         </Box>
     );
 }
