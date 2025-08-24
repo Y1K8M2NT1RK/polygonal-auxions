@@ -83,7 +83,7 @@ export default function Artworks() {
       }
       setIsLoadingMore(false);
     }
-  }, [dataArtworks]);
+  }, [dataArtworks, isInitialLoad]);
 
   useEffect(() => { 
     if( deletedArtworksInFront.length > 0 ) setPaused(true);
