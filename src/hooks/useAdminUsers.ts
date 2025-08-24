@@ -151,7 +151,7 @@ export function useAdminUserMutations(): UseAdminUserMutationsReturn {
     } finally {
       setLoading(false);
     }
-  }, [client]);
+  }, [execCreate]);
 
   const updateUser = useCallback(async (id: string, data: UserFormData): Promise<boolean> => {
     setLoading(true);
@@ -174,7 +174,7 @@ export function useAdminUserMutations(): UseAdminUserMutationsReturn {
     } finally {
       setLoading(false);
     }
-  }, [client]);
+  }, [execUpdate]);
 
   const deleteUser = useCallback(async (id: string, onDeleted?: () => void): Promise<boolean> => {
     setLoading(true);
@@ -198,7 +198,7 @@ export function useAdminUserMutations(): UseAdminUserMutationsReturn {
     } finally {
       setLoading(false);
     }
-  }, [client]);
+  }, [execDelete]);
 
   return { loading, error, createUser, updateUser, deleteUser };
 }
