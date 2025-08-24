@@ -48,7 +48,7 @@
     "@pothos/plugin-simple-objects": "^3.7.0",
     "@pothos/plugin-validation": "^3.10.1",
     "@prisma/client": "^6.6.0",
-    "@react-email/components": "^0.0.22",
+    "@react-email/components": "^0.5.1",
     "@refinedev/core": "^4.57.11",
     "@refinedev/inferencer": "^5.1.1",
     "@refinedev/mui": "^6.2.2",
