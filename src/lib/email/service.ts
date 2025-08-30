@@ -14,17 +14,33 @@ class EmailService {
   }
 
   private createAdapter(): EmailSender {
-    const provider = (process.env.EMAIL_PROVIDER || 'smtp') as EmailProvider;
+    // If explicitly set, honor it. Otherwise choose default per environment:
+    // development/test => smtp (Mailpit), staging/production => resend
+    let provider = process.env.EMAIL_PROVIDER as EmailProvider | undefined;
+    if (!provider) {
+      provider = (this.environment === 'development' || this.environment === 'test')
+        ? 'smtp'
+        : 'resend';
+    }
 
-    switch (provider) {
-      case 'resend':
-        return new ResendAdapter();
-      case 'smtp':
+    try {
+      switch (provider) {
+        case 'resend':
+          return new ResendAdapter();
+        case 'smtp':
+          return new SmtpAdapter();
+        case 'inmemory':
+          return new InMemoryAdapter();
+        default:
+          throw new Error(`Unsupported email provider: ${provider}`);
+      }
+    } catch (e) {
+      // Graceful fallback: if resend selected but missing API key in non-prod envs, fall back to SMTP
+      if (provider === 'resend' && (this.environment === 'development' || this.environment === 'test')) {
+        console.warn('[EmailService] Falling back to SMTP adapter because Resend initialization failed:', e);
         return new SmtpAdapter();
-      case 'inmemory':
-        return new InMemoryAdapter();
-      default:
-        throw new Error(`Unsupported email provider: ${provider}`);
+      }
+      throw e;
     }
   }
 
