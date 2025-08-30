@@ -25,8 +25,10 @@
     "docker:deps": "make docker-deps-install",
     "docker:deps:verify": "make docker-deps-verify",
     "docker:modules:reset": "make docker-reset-modules",
-    "studio": "npx prisma studio --port 5555 --browser none",
-    "email:test": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/email/simple-test.ts"
+  "studio": "npx prisma studio --port 5555 --browser none",
+  "email:test": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/email/simple-test.ts",
+  "email:reset:test": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/dev-send-password-reset.ts",
+  "email:raw-smtp": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/raw-smtp-send.ts"
   },
   "dependencies": {
     "@emotion/cache": "^11.11.0",
