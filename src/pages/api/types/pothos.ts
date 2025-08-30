@@ -1,5 +1,5 @@
 /* eslint-disable */
-import type { Prisma, User, UserFiles, Purpose, AuthPayload, Follow, Artwork, ArtworkFile, ArtworkGizmo, Comment, ArtworkRanks, Ranks, RankTypes } from "@prisma/client";
+import type { Prisma, User, UserFiles, Purpose, AuthPayload, PasswordResetToken, Follow, Artwork, ArtworkFile, ArtworkGizmo, Comment, ArtworkRanks, Ranks, RankTypes } from "@prisma/client";
 export default interface PrismaTypes {
     User: {
         Name: "User";
@@ -11,13 +11,18 @@ export default interface PrismaTypes {
         Where: Prisma.UserWhereInput;
         Create: {};
         Update: {};
-        RelationName: "auth_payload" | "user_files" | "artworks" | "artwork_ranks" | "comments" | "followed_by" | "following";
-        ListRelations: "user_files" | "artworks" | "artwork_ranks" | "comments" | "followed_by" | "following";
+        RelationName: "auth_payload" | "password_reset_tokens" | "user_files" | "artworks" | "artwork_ranks" | "comments" | "followed_by" | "following";
+        ListRelations: "password_reset_tokens" | "user_files" | "artworks" | "artwork_ranks" | "comments" | "followed_by" | "following";
         Relations: {
             auth_payload: {
                 Shape: AuthPayload | null;
                 Name: "AuthPayload";
                 Nullable: true;
+            };
+            password_reset_tokens: {
+                Shape: PasswordResetToken[];
+                Name: "PasswordResetToken";
+                Nullable: false;
             };
             user_files: {
                 Shape: UserFiles[];
@@ -104,6 +109,26 @@ export default interface PrismaTypes {
         OrderBy: Prisma.AuthPayloadOrderByWithRelationInput;
         WhereUnique: Prisma.AuthPayloadWhereUniqueInput;
         Where: Prisma.AuthPayloadWhereInput;
+        Create: {};
+        Update: {};
+        RelationName: "user";
+        ListRelations: never;
+        Relations: {
+            user: {
+                Shape: User;
+                Name: "User";
+                Nullable: false;
+            };
+        };
+    };
+    PasswordResetToken: {
+        Name: "PasswordResetToken";
+        Shape: PasswordResetToken;
+        Include: Prisma.PasswordResetTokenInclude;
+        Select: Prisma.PasswordResetTokenSelect;
+        OrderBy: Prisma.PasswordResetTokenOrderByWithRelationInput;
+        WhereUnique: Prisma.PasswordResetTokenWhereUniqueInput;
+        Where: Prisma.PasswordResetTokenWhereInput;
         Create: {};
         Update: {};
         RelationName: "user";

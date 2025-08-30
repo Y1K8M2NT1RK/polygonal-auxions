@@ -111,7 +111,20 @@ down:
 # コンテナを停止 (削除せず: 状態保持) => docker compose stop 相当
 # SERVICES 未指定なら全停止
 stop:
-	@if [ -n "$(SERVICES)" ]; then docker compose stop $(SERVICES); else docker compose stop; fi
+	@if [ -n "$(SERVICES)" ]; then \
+	  echo "[stop] stopping specified services: $(SERVICES)"; \
+	  docker compose stop $(SERVICES); \
+	else \
+	  echo "[stop] stopping all running services"; \
+	  running=$$(docker compose ps --services 2>/dev/null | tr '\n' ' ' | sed 's/ *$$//'); \
+	  if [ -n "$$running" ]; then \
+	    echo "[stop] running services: $$running"; \
+	    docker compose stop $$running; \
+	  else \
+	    echo "[stop] no running services detected -> attempting broad stop"; \
+	    docker compose stop || true; \
+	  fi; \
+	fi
 
 # 後方互換エイリアス
 containers-stop: stop

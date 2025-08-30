@@ -46,7 +46,8 @@ model User {
   created_at        DateTime   @default(now()) @db.Timestamp()
   updated_at        DateTime   @default(now()) @db.Timestamp() @updatedAt
 
-  auth_payload      AuthPayload?
+  auth_payload         AuthPayload?
+  password_reset_tokens PasswordResetToken[]
 
   user_files        UserFiles[]     @relation("user_files_fk")
   artworks          Artwork[]       @relation("artworks_fk")
@@ -93,6 +94,19 @@ model AuthPayload {
   user               User       @relation(fields: [user_id], references: [id])
 
   @@map(name: "auth_payload")
+}
+
+model PasswordResetToken {
+  id         String   @id @default(uuid())
+  token      String   @unique
+  user_id    Int
+  used       Boolean  @default(false)
+  created_at DateTime @default(now())
+  expires_at DateTime
+
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map(name: "password_reset_tokens")
 }
 
 model Follow {

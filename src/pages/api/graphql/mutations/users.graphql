@@ -177,3 +177,35 @@ mutation AdminDeleteUser($id: String!) {
     }
   }
 }
+
+mutation RequestPasswordReset($emailOrHandle: String!) {
+  requestPasswordReset(emailOrHandle: $emailOrHandle) {
+    ... on MutationRequestPasswordResetSuccess {
+      __typename
+      data
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors {
+        message
+      }
+    }
+  }
+}
+
+mutation ResetPassword($token: String!, $password: String!, $passwordConfirmation: String!) {
+  resetPassword(token: $token, password: $password, passwordConfirmation: $passwordConfirmation) {
+    ... on MutationResetPasswordSuccess {
+      __typename
+      data
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors {
+        message
+      }
+    }
+  }
+}
