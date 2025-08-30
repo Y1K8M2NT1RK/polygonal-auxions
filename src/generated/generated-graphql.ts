@@ -86,6 +86,13 @@ export type CsrfError = Error & {
   message: Scalars['String']['output'];
 };
 
+export type EmailSendResult = {
+  __typename?: 'EmailSendResult';
+  error?: Maybe<Scalars['String']['output']>;
+  messageId?: Maybe<Scalars['String']['output']>;
+  success: Scalars['Boolean']['output'];
+};
+
 export type Error = {
   message: Scalars['String']['output'];
 };
@@ -118,6 +125,12 @@ export type Mutation = {
   removeArtwork: Artwork;
   removeArtworkRank: ArtworkRanks;
   removeComment: Comment;
+  requestPasswordReset: MutationRequestPasswordResetResult;
+  resetPassword: MutationResetPasswordResult;
+  sendEmailVerificationEmail: EmailSendResult;
+  sendPasswordResetEmail: EmailSendResult;
+  sendTestEmail: EmailSendResult;
+  sendWelcomeEmail: EmailSendResult;
   updateMyProfile: MutationUpdateMyProfileResult;
   updatePassword: MutationUpdatePasswordResult;
   upsertArtwork: MutationUpsertArtworkResult;
@@ -190,6 +203,48 @@ export type MutationRemoveCommentArgs = {
 };
 
 
+export type MutationRequestPasswordResetArgs = {
+  emailOrHandle: Scalars['String']['input'];
+};
+
+
+export type MutationResetPasswordArgs = {
+  password: Scalars['String']['input'];
+  passwordConfirmation: Scalars['String']['input'];
+  token: Scalars['String']['input'];
+};
+
+
+export type MutationSendEmailVerificationEmailArgs = {
+  baseUrl: Scalars['String']['input'];
+  email: Scalars['String']['input'];
+  userName: Scalars['String']['input'];
+  verificationToken: Scalars['String']['input'];
+};
+
+
+export type MutationSendPasswordResetEmailArgs = {
+  baseUrl: Scalars['String']['input'];
+  email: Scalars['String']['input'];
+  resetToken: Scalars['String']['input'];
+  userName: Scalars['String']['input'];
+};
+
+
+export type MutationSendTestEmailArgs = {
+  content: Scalars['String']['input'];
+  subject: Scalars['String']['input'];
+  to: Scalars['String']['input'];
+};
+
+
+export type MutationSendWelcomeEmailArgs = {
+  email: Scalars['String']['input'];
+  handleName: Scalars['String']['input'];
+  userName: Scalars['String']['input'];
+};
+
+
 export type MutationUpdateMyProfileArgs = {
   address?: InputMaybe<Scalars['String']['input']>;
   bg?: InputMaybe<ImageInput>;
@@ -253,6 +308,20 @@ export type MutationLoginSuccess = {
   data: AuthPayload;
 };
 
+export type MutationRequestPasswordResetResult = MutationRequestPasswordResetSuccess | ZodError;
+
+export type MutationRequestPasswordResetSuccess = {
+  __typename?: 'MutationRequestPasswordResetSuccess';
+  data: Scalars['Boolean']['output'];
+};
+
+export type MutationResetPasswordResult = MutationResetPasswordSuccess | ZodError;
+
+export type MutationResetPasswordSuccess = {
+  __typename?: 'MutationResetPasswordSuccess';
+  data: Scalars['Boolean']['output'];
+};
+
 export type MutationUpdateMyProfileResult = MutationUpdateMyProfileSuccess | ZodError;
 
 export type MutationUpdateMyProfileSuccess = {
@@ -288,6 +357,7 @@ export type Query = {
   adminUsersList: AdminUsersListResponse;
   artwork: Artwork;
   artworks: Array<Artwork>;
+  artworksCount: Scalars['Int']['output'];
   getArtworkComments: Array<Comment>;
   getArtworkRanks: Array<ArtworkRanks>;
   getAuthArtworkRanks: Array<ArtworkRanks>;
@@ -324,6 +394,13 @@ export type QueryArtworkArgs = {
 
 
 export type QueryArtworksArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  q?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryArtworksCountArgs = {
   q?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -532,6 +609,7 @@ export type RequestPasswordResetMutationVariables = Exact<{
   emailOrHandle: Scalars['String']['input'];
 }>;
 
+
 export type RequestPasswordResetMutation = { __typename?: 'Mutation', requestPasswordReset: { __typename: 'MutationRequestPasswordResetSuccess', data: boolean } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
 
 export type ResetPasswordMutationVariables = Exact<{
@@ -539,6 +617,7 @@ export type ResetPasswordMutationVariables = Exact<{
   password: Scalars['String']['input'];
   passwordConfirmation: Scalars['String']['input'];
 }>;
+
 
 export type ResetPasswordMutation = { __typename?: 'Mutation', resetPassword: { __typename: 'MutationResetPasswordSuccess', data: boolean } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
 
@@ -548,14 +627,15 @@ export type ArtworksQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
+
+export type ArtworksQuery = { __typename?: 'Query', artworks: Array<{ __typename?: 'Artwork', id: string, title: string, slug_id: string, feature: string, created_at: any, favoritesCount: number, bookmarksCount: number, isFavoritedByMe: boolean, isBookmarkedByMe: boolean, user: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> }, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }> }> };
+
 export type ArtworksCountQueryVariables = Exact<{
   q?: InputMaybe<Scalars['String']['input']>;
 }>;
 
+
 export type ArtworksCountQuery = { __typename?: 'Query', artworksCount: number };
-
-
-export type ArtworksQuery = { __typename?: 'Query', artworks: Array<{ __typename?: 'Artwork', id: string, title: string, slug_id: string, feature: string, created_at: any, favoritesCount: number, bookmarksCount: number, isFavoritedByMe: boolean, isBookmarkedByMe: boolean, user: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> }, artwork_file: Array<{ __typename?: 'ArtworkFile', file_path: string }> }> };
 
 export type GetAuthArtworkRanksQueryVariables = Exact<{
   artwork_id?: InputMaybe<Scalars['String']['input']>;
@@ -917,7 +997,6 @@ export const AdminDeleteUserDocument = gql`
 export function useAdminDeleteUserMutation() {
   return Urql.useMutation<AdminDeleteUserMutation, AdminDeleteUserMutationVariables>(AdminDeleteUserDocument);
 };
-
 export const RequestPasswordResetDocument = gql`
     mutation RequestPasswordReset($emailOrHandle: String!) {
   requestPasswordReset(emailOrHandle: $emailOrHandle) {
@@ -939,10 +1018,13 @@ export const RequestPasswordResetDocument = gql`
 export function useRequestPasswordResetMutation() {
   return Urql.useMutation<RequestPasswordResetMutation, RequestPasswordResetMutationVariables>(RequestPasswordResetDocument);
 };
-
 export const ResetPasswordDocument = gql`
     mutation ResetPassword($token: String!, $password: String!, $passwordConfirmation: String!) {
-  resetPassword(token: $token, password: $password, passwordConfirmation: $passwordConfirmation) {
+  resetPassword(
+    token: $token
+    password: $password
+    passwordConfirmation: $passwordConfirmation
+  ) {
     ... on MutationResetPasswordSuccess {
       __typename
       data
@@ -990,7 +1072,6 @@ export const ArtworksDocument = gql`
 export function useArtworksQuery(options?: Omit<Urql.UseQueryArgs<ArtworksQueryVariables>, 'query'>) {
   return Urql.useQuery<ArtworksQuery, ArtworksQueryVariables>({ query: ArtworksDocument, ...options });
 };
-
 export const ArtworksCountDocument = gql`
     query ArtworksCount($q: String) {
   artworksCount(q: $q)

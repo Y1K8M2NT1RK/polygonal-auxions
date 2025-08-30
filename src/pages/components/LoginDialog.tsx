@@ -58,18 +58,29 @@ export default function LoginDialog({ sxProps }: LoginDialogProps) {
     };
     const handlePasswordResetClose = () => setPasswordResetOpen(false);
 
+    const ensureCsrf = async () => {
+        if (typeof document === 'undefined') return;
+        const has = (document.cookie || '').split('; ').some(c => c.startsWith('csrfToken='));
+        if (!has) {
+            try { await fetch('/api/csrf', { credentials: 'include' }); } catch {}
+        }
+    };
+
     const handleRequestPasswordReset = async (emailOrHandle: string): Promise<boolean> => {
+        await ensureCsrf();
         const result = await requestPasswordReset({ emailOrHandle });
-        
         if (result.error) {
+            // CSRF mismatch returns 403 plain text -> result.error.networkError likely set
             throw new Error('パスワードリセットの送信に失敗しました。');
         }
-
-        if (result.data?.requestPasswordReset.__typename === 'ZodError') {
+        const payload: any = result.data?.requestPasswordReset;
+        // Accept multiple schema shapes: boolean true OR success object OR ZodError
+        if (payload === true) return true; // current server boolean implementation
+        if (payload?.__typename === 'MutationRequestPasswordResetSuccess') return !!payload.data;
+        if (payload?.__typename === 'ZodError') {
             throw new Error('入力内容に問題があります。');
         }
-
-        return result.data?.requestPasswordReset.__typename === 'MutationRequestPasswordResetSuccess';
+        return false;
     };
 
     const isDarkMode = useDarkMode();

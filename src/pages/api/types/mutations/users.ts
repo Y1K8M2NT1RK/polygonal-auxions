@@ -9,6 +9,7 @@ import { ImageInput } from '../consts';
 import { del } from '@vercel/blob';
 import { getEmailService } from '../../../../lib/email';
 import { createWelcomeEmail, createPasswordResetEmail } from '../../../../lib/email/templates/common';
+import { getAppBaseUrl } from '../../../../lib/url/baseUrl';
 import crypto from 'crypto';
 
 type ImageInputValue = {
@@ -609,6 +610,11 @@ builder.mutationField("adminDeleteUser", (t) =>
 );
 
 // Password Reset Request Mutation
+// Simple in-memory rate limiter (process lifetime scope) retained but not exposed to client
+const passwordResetRateMap: Record<string, { windowStart: number; count: number }> = {};
+const RATE_WINDOW_MS = parseInt(process.env.PASSWORD_RESET_RATE_LIMIT_WINDOW_MS || '60000', 10); // default 60s
+const RATE_MAX = parseInt(process.env.PASSWORD_RESET_RATE_LIMIT_MAX || '3', 10); // max per window
+
 builder.mutationField("requestPasswordReset", (t) =>
     t.field({
         type: 'Boolean',
@@ -625,57 +631,44 @@ builder.mutationField("requestPasswordReset", (t) =>
         },
         resolve: async (_parent, args, ctx) => {
             const { emailOrHandle } = args;
-            
-            // Find user by email or handle_name
             const user = await prisma.user.findFirst({
-                where: {
-                    OR: [
-                        { email: emailOrHandle },
-                        { handle_name: emailOrHandle }
-                    ]
-                }
+                where: { OR: [{ email: emailOrHandle }, { handle_name: emailOrHandle }] },
             });
 
-            // Always return true for security (don't reveal if user exists)
-            if (!user) {
-                return true;
+            // Rate limiting (conceals existence): key is user id or provided identifier
+            const key = user ? `u:${user.id}` : `e:${emailOrHandle.toLowerCase()}`;
+            const now = Date.now();
+            const entry = passwordResetRateMap[key];
+            if (!entry || now - entry.windowStart > RATE_WINDOW_MS) {
+                passwordResetRateMap[key] = { windowStart: now, count: 1 };
+            } else {
+                if (entry.count >= RATE_MAX) {
+                    return true; // silently accept
+                } else {
+                    entry.count += 1;
+                }
             }
 
+            if (!user) return true; // conceal absence
+
             try {
-                // Invalidate existing tokens for this user
                 await prisma.passwordResetToken.updateMany({
-                    where: {
-                        user_id: user.id,
-                        used: false,
-                        expires_at: { gt: new Date() }
-                    },
-                    data: { used: true }
+                    where: { user_id: user.id, used: false, expires_at: { gt: new Date() } },
+                    data: { used: true },
                 });
-
-                // Generate secure token
                 const token = crypto.randomBytes(32).toString('hex');
-                const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-
-                // Create password reset token
-                await prisma.passwordResetToken.create({
-                    data: {
-                        token: token,
-                        user_id: user.id,
-                        expires_at: expiresAt,
-                    }
-                });
-
-                // Send password reset email
+                const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+                await prisma.passwordResetToken.create({ data: { token, user_id: user.id, expires_at: expiresAt } });
                 const emailService = getEmailService();
-                const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+                const baseUrl = getAppBaseUrl();
                 const { subject, html, text } = createPasswordResetEmail(user.name, token, baseUrl);
-                
-                await emailService.send(user.email, subject, html, text);
-                
+                emailService.send(user.email, subject, html, text).catch(err => {
+                    console.error('[password-reset] send failed user:' + user.id, err);
+                });
                 return true;
             } catch (error) {
                 console.error('Password reset request error:', error);
-                return true; // Still return true for security
+                return true;
             }
         },
     })
