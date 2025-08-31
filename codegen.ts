@@ -1,4 +1,4 @@
-import { schema } from './src/pages/api/schema';
+import { schema } from './src/server/graphql/schema';
 import type { CodegenConfig } from '@graphql-codegen/cli';
 import { printSchema } from 'graphql';
 

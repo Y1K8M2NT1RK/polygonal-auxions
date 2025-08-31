@@ -23,7 +23,8 @@
     ],
     "paths": {
   "@/*": ["./src/*"],
-  "@/server/*": ["./src/server/*"]
+  "@/server/*": ["./src/server/*"],
+  "@/api-types/*": ["./src/pages/api/types/*"]
     },
     "typeRoots": [
       "./node_modules/@types"
