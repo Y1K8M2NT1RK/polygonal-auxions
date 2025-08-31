@@ -1,4 +1,5 @@
 import SchemaBuilder from '@pothos/core';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import { DateTimeResolver } from "graphql-scalars";
 import type PrismaTypes from '@/pages/api/types/pothos';
 import { prisma } from './db';
@@ -60,4 +61,10 @@ builder.queryType({});
 
 // GraphQL Mutation = INSERT UPDATE DELETE
 builder.mutationType({});
+
+// Next.js 15 の型検証で API Route 判定され default export が無いと型エラーになるため
+// 直接利用させないダミーエンドポイントを提供 (GraphQL は /api/graphql を使用)。
+export default function _unusedBuilderEndpoint(_req: NextApiRequest, res: NextApiResponse) {
+  res.status(405).json({ error: 'Use /api/graphql endpoint' });
+}
 
