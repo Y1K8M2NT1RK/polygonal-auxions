@@ -22,6 +22,7 @@ import useResponsive from "@/hooks/useResponsive";
 import useDarkMode from "@/hooks/useDarkMode";
 import PasswordResetDialog from "./PasswordResetDialog";
 import { RequestPasswordResetDocument } from '@/generated/generated-graphql';
+import { shouldShowPasswordReset } from '@/utils/passwordResetConditions';
 
 type LoginDialogProps = {
     button?: ReactElement;
@@ -171,17 +172,19 @@ export default function LoginDialog({
                                 >
                                     アカウント作成
                                 </Fab>
-                                <Fab
-                                    component={Button}
-                                    onClick={handlePasswordResetOpen}
-                                    size="small"
-                                    color="inherit"
-                                    variant="extended"
-                                    sx={{ mt: 2, backgroundColor: isDarkMode?'#444444':'#CCCCCC'}}
-                                    disabled={lockInput}
-                                >
-                                    パスワードを忘れたときは
-                                </Fab>
+                                {shouldShowPasswordReset() && (
+                                    <Fab
+                                        component={Button}
+                                        onClick={handlePasswordResetOpen}
+                                        size="small"
+                                        color="inherit"
+                                        variant="extended"
+                                        sx={{ mt: 2, backgroundColor: isDarkMode?'#444444':'#CCCCCC'}}
+                                        disabled={lockInput}
+                                    >
+                                        パスワードを忘れたときは
+                                    </Fab>
+                                )}
                             </Box>
                         </Box>
                     </CardContent>
