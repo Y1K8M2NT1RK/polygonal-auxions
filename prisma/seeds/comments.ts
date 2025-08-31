@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import { prisma } from '../../src/pages/api/db'
+import { prisma } from '../../src/server/db'
 
 export const createCommentsData = () => {
     const commentsData = [];

@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { hashSync, genSaltSync } from 'bcrypt'
-import { prisma } from '../../src/pages/api/db'
+import { prisma } from '../../src/server/db'
 // import { Prisma } from '@prisma/client'
 
 export const createUsersData = (): any[] => {

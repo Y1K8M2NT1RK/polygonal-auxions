@@ -1,11 +1,11 @@
-import { schema } from '@/pages/api/schema';
+import { schema } from '@/server/graphql/schema';
 import { createYoga } from 'graphql-yoga';
 import { renderGraphiQL } from '@graphql-yoga/render-graphiql';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { YogaContext } from '@/server/graphql/context';
 import { GraphQLError } from 'graphql';
 import { ZodError } from 'zod';
-import { CsrfError } from './types/errors';
+import { CsrfError } from '@/server/graphql/types/errors';
 import { jwtVerify } from 'jose';
 import { prisma } from '@/server/db';
 import { readFileSync } from 'fs';

@@ -1,4 +1,4 @@
-import { prisma } from '../../src/pages/api/db'
+import { prisma } from '../../src/server/db'
 
 export const deleteAllData = async () => {
     console.log('データの削除を開始します。');

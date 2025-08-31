@@ -106,6 +106,7 @@
   "sideEffects": [
     "src/app/globals.css",
     "**/*.css",
-    "src/pages/api/types/**/*"
+  "src/pages/api/types/**/*",
+  "src/server/graphql/types/**/*"
   ]
 }

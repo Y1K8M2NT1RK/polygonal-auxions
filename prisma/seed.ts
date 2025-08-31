@@ -1,4 +1,4 @@
-import { prisma } from '../src/pages/api/db'
+import { prisma } from '../src/server/db'
 import {
     deleteAllData,
     seedMasterData,

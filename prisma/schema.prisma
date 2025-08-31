@@ -12,9 +12,7 @@ generator client {
 
 generator pothos {
   provider     = "prisma-pothos-types"
-  // Explicitly set clientOutput/import to keep stable import path in generated file
-  clientOutput = "../node_modules/@prisma/client"
-  output       = "../src/pages/api/types/pothos.ts"
+  output       = "../src/server/graphql/types/pothos.ts"
   clientImportPath = "@prisma/client"
 }
 
