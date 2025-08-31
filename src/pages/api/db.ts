@@ -21,3 +21,9 @@ export const prisma = (
 );
 
 if (process.env.NODE_ENV !== "production") global.prisma = prisma;
+
+// Next.js 15 型検証回避用のダミー default export (直接アクセス不要)
+import type { NextApiRequest, NextApiResponse } from 'next';
+export default function _unusedDbEndpoint(_req: NextApiRequest, res: NextApiResponse) {
+    res.status(405).json({ error: 'Unused db module' });
+}
