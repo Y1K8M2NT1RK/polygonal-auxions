@@ -6,9 +6,14 @@
 - Prisma
 
 ## 2. 配置原則
-- API 実装: `src/pages/api`
-- GraphQL エンドポイント: `src/pages/api/graphql.ts`
-- スキーマ/ビルダー: `src/pages/api/builder.ts`, `src/pages/api/schema.ts`
+- Runtime API Routes (最小限): `src/pages/api/`
+	- GraphQL エンドポイント: `src/pages/api/graphql.ts`
+	- CSRF トークン発行: `src/pages/api/csrf.ts`
+	- アップロード: `src/pages/api/upload.ts`
+	- （開発限定）デバッグ: `src/pages/api/debug.ts`, `src/pages/api/openssl.ts` ※ `ENABLE_DEBUG_ROUTES=true` でのみ 200
+- GraphQL 実装本体 (スキーマ/ビルダー/型定義/リゾルバ): `src/server/graphql/`
+	- `builder.ts`, `schema.ts`, `types/` 下へ移行済み
+	- 旧 `src/pages/api/{builder,schema}.ts` は削除済み（参照不要）
 
 ## 3. GraphQL ドキュメント (`.graphql`)
 - ルート: `src/pages/api/graphql/`
@@ -17,10 +22,10 @@
 - 命名: 機能を表す英語単語列 (`artworks.graphql` など)
 
 ## 4. Pothos (Code First) リゾルバ配置
-- ルート: `src/pages/api/types/`
+- ルート: `src/server/graphql/types/`
 - ミューテーション: `types/mutations/*.ts`
 - クエリ: `types/queries/*.ts`
-- 共通: `types/pothos.ts`, `types/consts.ts`, `types/errors.ts`
+- 共通: `types/pothos.ts`, `types/consts.ts`, `types/errors.ts`, `types/cookie.ts`
 - 命名: 対象ドメイン単位 (`artworks.ts`, `comments.ts`, `users.ts`)
 
 ## 5. 永続クエリ / Persisted Operations
@@ -73,7 +78,7 @@
 - code 体系: VALIDATION / AUTH / DOMAIN_CONSTRAINT / INTERNAL 等への標準化
 - ログ集約 (code + request id) / アラート閾値設定
 
-最終更新: 2025-08-11
+最終更新: 2025-08-31 (server/graphql への移行反映)
 
 ## 9. Prisma 命名
 - Model: 単数 PascalCase (`User`)
