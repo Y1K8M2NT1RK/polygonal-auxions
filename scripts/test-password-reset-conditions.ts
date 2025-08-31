@@ -23,10 +23,12 @@ function testConditions() {
   console.log(`Password Reset Button should be: ${result ? 'VISIBLE' : 'HIDDEN'}`);
   console.log('');
   
-  console.log('Required conditions for visibility:');
-  console.log('  1. APP_ENV must be "production" or "staging"');
-  console.log('  2. EMAIL_PROVIDER must be "resend"');
-  console.log('  3. RESEND_FROM must be empty');
+  console.log('Visibility conditions:');
+  console.log('  - Development: Always visible');
+  console.log('  - Production/Staging: All conditions must be met:');
+  console.log('    1. APP_ENV must be "production" or "staging"');
+  console.log('    2. EMAIL_PROVIDER must be "resend"');
+  console.log('    3. RESEND_FROM must be empty');
   console.log('');
 
   // Test different scenarios
@@ -46,7 +48,12 @@ function testConditions() {
     {
       name: "Development + Resend + Empty RESEND_FROM",
       env: { APP_ENV: 'development', EMAIL_PROVIDER: 'resend', RESEND_FROM: '' },
-      expected: false
+      expected: true
+    },
+    {
+      name: "Development + SMTP + Non-empty RESEND_FROM (should still show)",
+      env: { APP_ENV: 'development', EMAIL_PROVIDER: 'smtp', RESEND_FROM: 'test@example.com' },
+      expected: true
     },
     {
       name: "Production + SMTP + Empty RESEND_FROM",
