@@ -1,5 +1,5 @@
-import { builder } from '../../builder';
-import { prisma } from '../../db';
+import { builder } from '../../../../server/graphql/builder';
+import { prisma } from '../../../../server/db';
 import { User, userIncludeFile, AdminUsersListResponse } from '../consts';
 
 // ユーザープロフィール

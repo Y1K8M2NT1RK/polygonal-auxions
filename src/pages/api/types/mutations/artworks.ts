@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
-import { builder } from '../../builder';
-import { prisma } from '../../db';
+import { builder } from '../../../../server/graphql/builder';
+import { prisma } from '../../../../server/db';
 import { ZodError } from 'zod';
 import { Artwork, ArtworkRanks } from '../consts';
 import { del } from '@vercel/blob';

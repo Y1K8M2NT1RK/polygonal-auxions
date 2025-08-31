@@ -1,4 +1,4 @@
-import { builder } from '../../builder';
+import { builder } from '../../../../server/graphql/builder';
 import { getEmailService } from '../../../../lib/email';
 import { createWelcomeEmail, createPasswordResetEmail, createEmailVerificationEmail } from '../../../../lib/email/templates/common';
 

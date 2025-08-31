@@ -1,5 +1,5 @@
-import { builder } from '../../builder';
-import { prisma } from '../../db';
+import { builder } from '../../../../server/graphql/builder';
+import { prisma } from '../../../../server/db';
 import { ZodError } from 'zod';
 import { compareSync, hashSync } from 'bcrypt';
 import { AuthPayload, Follows, User } from '../consts';
