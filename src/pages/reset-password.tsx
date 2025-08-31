@@ -13,7 +13,7 @@ import {
     CircularProgress
 } from '@mui/material';
 import { NextPage } from 'next';
-import { urql, useMutation } from 'urql';
+import { useMutation } from 'urql';
 import { ResetPasswordDocument } from '@/generated/generated-graphql';
 import useDarkMode from '@/hooks/useDarkMode';
 
@@ -67,7 +67,7 @@ const ResetPasswordPage: NextPage = () => {
             if (result.data?.resetPassword.__typename === 'ZodError') {
                 const zodError = result.data.resetPassword;
                 if (zodError.fieldErrors) {
-                    zodError.fieldErrors.forEach((fieldError) => {
+                    zodError.fieldErrors.forEach((fieldError: any) => {
                         if (fieldError.message) {
                             const field = fieldError.message.includes('確認') ? 'passwordConfirmation' : 'password';
                             setError(field, { type: 'server', message: fieldError.message });
