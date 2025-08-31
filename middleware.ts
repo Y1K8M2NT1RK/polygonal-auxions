@@ -64,13 +64,7 @@ export function middleware(request: NextRequest) {
         }
     }
 
-    // 本番環境で"/api/debug"と"/api/openssl"にアクセスした場合は404エラーを返す
-    if( process.env.NODE_ENV === 'production' ) {
-        const restrictedPaths = ['/api/debug', '/api/openssl'];
-        if (restrictedPaths.some(path => request.nextUrl.pathname.startsWith(path))) {
-            return NextResponse.json({error: 'Not Found'},  {status: 404});
-        }
-    }
+    // 以前存在した debug / openssl API は削除済み (保守コメント)
     
     return NextResponse.next();
 }

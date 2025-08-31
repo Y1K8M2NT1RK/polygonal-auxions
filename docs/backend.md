@@ -9,8 +9,8 @@
 - Runtime API Routes (最小限): `src/pages/api/`
 	- GraphQL エンドポイント: `src/pages/api/graphql.ts`
 	- CSRF トークン発行: `src/pages/api/csrf.ts`
-	- アップロード: `src/pages/api/upload.ts`
-	- （開発限定）デバッグ: `src/pages/api/debug.ts`, `src/pages/api/openssl.ts` ※ `ENABLE_DEBUG_ROUTES=true` でのみ 200
+		- アップロード: `src/pages/api/upload.ts`
+		- （開発限定）デバッグエンドポイント (debug.ts, openssl.ts) はセキュリティ簡素化のため削除済み
 - GraphQL 実装本体 (スキーマ/ビルダー/型定義/リゾルバ): `src/server/graphql/`
 	- `builder.ts`, `schema.ts`, `types/` 下へ移行済み
 	- 旧 `src/pages/api/{builder,schema}.ts` は削除済み（参照不要）
