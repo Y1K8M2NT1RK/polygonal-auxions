@@ -1,8 +1,8 @@
 import { SignJWT } from 'jose';
 import { serialize } from 'cookie';
 import { randomBytes } from 'crypto';
-import { prisma } from '../db';
-import { YogaContext } from '../context';
+import { prisma } from '../../../server/db';
+import { YogaContext } from '../../../server/graphql/context';
 
 export const cookieModule: {
   token: object;

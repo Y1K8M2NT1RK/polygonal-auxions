@@ -1,4 +1,4 @@
-import { builder } from '../builder';
+import { builder } from '../../../server/graphql/builder';
 import { ZodError, ZodFormattedError } from 'zod';
 
 // カスタム CSRF エラー (特定ミューテーションで 403 をフォームエラー表示に統合するため)
