@@ -1,5 +1,5 @@
-import { builder } from '@/server/graphql/builder';
-import { prisma } from '@/server/db';
+import { builder } from '../../../server/graphql/builder';
+import { prisma } from '../../../server/db';
 // cookie / auth helpers moved to cookie.ts
 
 // UserRole enum
