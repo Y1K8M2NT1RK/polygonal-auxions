@@ -1,279 +1,95 @@
+<div align="center">
+
 # Polygonal Auxions
-## 0. 目次
-1. [概要](https://github.com/Y1K8M2NT1RK/polygonal-auxions?tab=readme-ov-file#1-%E6%A6%82%E8%A6%81)
-2. [実装済の機能/画面（全16点）](https://github.com/Y1K8M2NT1RK/polygonal-auxions?tab=readme-ov-file#2-%E5%AE%9F%E8%A3%85%E6%B8%88%E3%81%AE%E6%A9%9F%E8%83%BD%E7%94%BB%E9%9D%A2%E5%85%A816%E7%82%B9)
-3. [使用技術](https://github.com/Y1K8M2NT1RK/polygonal-auxions?tab=readme-ov-file#3-%E4%BD%BF%E7%94%A8%E6%8A%80%E8%A1%93)
-4. [各種操作方法（全7点）](https://github.com/Y1K8M2NT1RK/polygonal-auxions?tab=readme-ov-file#4-%E5%90%84%E7%A8%AE%E6%93%8D%E4%BD%9C%E6%96%B9%E6%B3%95%E5%85%A87%E7%82%B9)
-5. [ローカル環境でのアプリケーションの起動方法（全6点）](https://github.com/Y1K8M2NT1RK/polygonal-auxions?tab=readme-ov-file#5-ローカル環境でのアプリケーションの起動方法全6点)
 
-## 1. 概要
-1. 現時点ではまだ途中段階ですが、3Dコンテンツを作品として共有するプラットフォームです。
-某イラストコミュニケーションプラットフォームに似たアプリを想定して開発しています。
-2025年5月18日時点ではまだ導入していませんが、将来的には下記2点の導入を予定しております。
-    1. WebGLの導入
-    2. 管理画面の導入
+3D / 画像作品を投稿・閲覧・お気に入り・ブックマーク・コメント・フォローできる Next.js + GraphQL プラットフォーム（開発継続中）
 
-2. 下記リンクから実際にご使用いただけます。 **（レスポンシブ画面でも操作可能です。）**
-    * https://polygonal-auxions.vercel.app/
+<a href="https://polygonal-auxions.vercel.app" target="_blank">本番サイト</a>
 
-[目次へ戻る](https://github.com/Y1K8M2NT1RK/polygonal-auxions?tab=readme-ov-file#0-%E7%9B%AE%E6%AC%A1)
+</div>
 
-## 2. 実装済の機能/画面（全16点）
-1. 機能（全10点）
-    1. ログイン機能
-    2. ログアウト機能
-    3. 作品追加機能
-    4. 作品のお気に入り追加機能
-    5. 作品のお気に入り追加解除機能
-    6. 作品のブックマーク機能
-    7. 作品のブックマーク解除機能
-    8. コメント一覧機能
-    9. フォロー機能
-    10. フォロー解除機能
-2. 画面とその主な特徴（全6点）
-    1. ホーム画面
-          1. ログインの有無で画面の内容が変わります。
-          2. 「検索しないで作品を見る」ボタンをクリックすると作品一覧画面へ遷移できます。
-    3. 作品一覧画面
-          1. お気に入り追加機能とブックマーク機能が使用できます。
-          2. 新しい順に作品のデータが並んでいます。    
-          3. 各作品の上側にあるユーザのアイコン、もしくはその隣のユーザネームをクリックすると、その作品のユーザのプロフィール画面に遷移できます。
-          4. 作品名の上にある大きな囲いをクリックすると、その作品の作品詳細画面に遷移できます。
-    4. 作品詳細画面
-          1. お気に入り追加機能とブックマーク機能が使用できます。
-          2. 各作品の上側にあるユーザのアイコン、もしくはその隣のユーザネームをクリックすると、その作品のユーザのプロフィール画面に遷移できます。
-          3. 作品に対するコメントが閲覧できます。
-    5. 作品追加画面
-          1. 作品名と説明文を両方入力することで作品が追加できます。
-    6. ユーザのプロフィール画面
-          1. ログイン中のユーザ以外の場合は、フォロー/フォロー解除機能が使用できます。
-          2. その画面と紐づくユーザの作品やコメントが閲覧できます。
-3. 各機能の操作方法については「4. 各種操作方法（全7点）」をご覧ください。
+## 主な機能
+- 認証: ログイン / ログアウト / パスワードリセット (メール: 24h トークン)
+- 作品: 一覧 / 詳細 / 追加 / お気に入り / ブックマーク
+- コメント: 作品コメント表示
+- ソーシャル: フォロー / 解除 / プロフィール表示・一部編集
+- Admin: ダッシュボード / ユーザ・作品管理 (今後拡張)
+- UX: レスポンシブ / ダークモード自動 / トースト通知
+- セキュリティ: CSRF (Double Submit) / JWT 15m / 全端末ログアウト
 
-[目次へ戻る](https://github.com/Y1K8M2NT1RK/polygonal-auxions?tab=readme-ov-file#0-%E7%9B%AE%E6%AC%A1)
+## 代表画面
+| 画面 | 用途 |
+|------|------|
+| ホーム | 状態別表示 |
+| /artworks | 作品一覧 (新着順) |
+| 作品詳細 | コメント / 操作 |
+| 作品追加 | 投稿フォーム |
+| プロフィール | 作品/コメント/フォロー |
+| /reset-password | パスワード再設定 |
+| /admin/* | 管理 (初期) |
 
-## 3. 使用技術
-* フロントエンド：Next.js、URQL
-* サーバーサイド：GraphQL Yoga, Pothos
-* CSS：MUI
-* DB：PostgreSQL
-* 言語：TypeScript
-* その他：Docker, Vercel
+## 技術スタック
+| 分類 | 採用 |
+|------|------|
+| Frontend | Next.js 15 / React 19 / MUI / URQL |
+| GraphQL | Yoga + Pothos / Codegen / Persisted Queries |
+| DB | PostgreSQL (Prisma) |
+| Email | Nodemailer / Resend / React Email |
+| 認証 | JWT + CSRF Double Submit |
+| Infra | Docker / Vercel (手動デプロイ) |
 
-[目次へ戻る](https://github.com/Y1K8M2NT1RK/polygonal-auxions?tab=readme-ov-file#0-%E7%9B%AE%E6%AC%A1)
+## 主要環境変数
+| 名称 | 説明 |
+|------|------|
+| DATABASE_URL | Postgres 接続 |
+| JWT_SECRET | JWT 署名キー |
+| APP_BASE_URL / HOST / PORT | メール等リンク生成 |
+| SMTP_HOST / PORT / USER / PASS | SMTP送信 |
+| RESEND_API_KEY | Resend 利用時 |
+| CSRF_ALLOWED_HOSTS | CSRF 許可ホスト |
+| BASIC_AUTH_USER/PASS | Basic 認証 (任意) |
 
-## 4. 各種操作方法（全7点）
-### 1. 注意
-* **もし操作した結果が反映されない場合は、お手数ですが画面の再読込をしていただきますようお願いいたします。**
-### 2. 操作方法
-1. ログイン
-    1. 「ログイン」ボタンをクリック
-    2. 下記の情報を入力する
-        * メールアドレス： `aaa@example.jp`
-        * パスワード： `0000`
-    3. Enterキーもしくは「ログイン」ボタンをクリック
-    4. 右上の「＋」ボタンとユーザアイコンボタンが表示出来たら成功
-2. ログアウト
-    1. ※1の操作を行ってから進めてください
-        * ∵ログインしていない状態だとログアウトボタンが表示されないため
-    2. 右上のユーザアイコンボタン（「＋」ボタンの右隣）をクリック
-    3. ログアウトボタンをクリック
-    4. 「ログイン」ボタンが表示出来たらログアウト成功
-3. 作品の追加
-    1. ※1の操作を行ってから進めてください
-        * ∵ログインしていない状態だと「＋」ボタンが表示されないため
-    2. 「＋」ボタンをクリックし、作品追加画面を開く
-    3. 「作品名」と「説明文」を入れる
-    4. 「追加」ボタンをクリック
-    5. 作品一覧画面に遷移され、入力した作品名と説明文が表示出来たら成功
-4. お気に入りに追加/ブックマーク
-    1. ※1の操作を行ってから進めてください
-        * ∵ログインしていない状態だと、エラーが表示されるため
-    2. 作品一覧画面を開く
-        * ※作品一覧画面URL：https://polygonal-auxions.vercel.app/artworks
-    3. 下記のいずれかのボタンをクリック
-        1. お気に入り：赤線のみのハートマーク
-        2. ブックマーク：青線のみのしおり
-    4. 上記操作の結果、下記のいずれかの通りに表示出来たら成功
-        1. お気に入り：赤塗りのハートマーク
-        2. ブックマーク：青塗りのしおり
-    5. ※もしクリックしても赤塗り/青塗りにならない場合は、お手数ですがブラウザリロードをお願いします。
-5. お気に入りに追加/ブックマークの解除
-    1. ※1→4の順に操作を行ってから進めてください
-        * ∵ログインかつお気に入りに追加/ブックマークしていない※状態だと、それらの解除ボタンが表示されないため
-            * ※お気に入りに追加/ブックマークしていない：いずれも線のみの状態
-    2. 作品一覧画面を開く
-        * ※作品一覧画面URL：https://polygonal-auxions.vercel.app/artworks/
-    3. 下記のいずれかのボタンをクリック
-        1. お気に入り：赤塗りのハートマーク
-        2. ブックマーク：青塗りのしおり
-    4. 上記操作の結果、下記のいずれかの通りに表示出来たら成功
-        1. お気に入り：赤線のみのハートマーク
-        2. ブックマーク：青線のみのしおり
-    5. ※もしクリックしても線のみにならない場合は、お手数ですがブラウザリロードをお願いします。
-6. ユーザーのフォロー
-    1. ※1の操作を行ってから進めてください
-        * ∵ログインしていない状態だと、エラーが表示されるため
-    2. 作品一覧画面を開く
-        * ※作品一覧画面URL：https://polygonal-auxions.vercel.app/artworks/
-    3. 各作品の上側にあるユーザのアイコン、もしくはその隣のユーザネームをクリックし、フォローしていない※ユーザのプロフィール画面を開く
-        1. ※フォローしていない：「フォロー」ボタンが表示されている状態
-        2. ※フォロー中のユーザであれば、お手数ですが一度作品一覧へ戻っていただき、別のフォローしていないユーザに対して上記操作をもう一度行うようお願いします。
-            * ※フォロー中：「フォロー解除」ボタンが表示されている状態
-    4. 「フォロー」ボタンをクリック
-    5. 「フォロー解除」ボタンが表示出来たら成功
-7. ユーザーのフォロー解除
-    1. ※1→6の順に操作を行ってから進めてください
-        * ∵ログインかつフォローしていない※状態だと、「フォロー解除」ボタンが表示されないため
-            * ※フォローしていない：「フォロー」ボタンが表示されている状態
-    2. 作品一覧画面を開く
-        * ※作品一覧画面URL：https://polygonal-auxions.vercel.app/artworks/
-    3. フォロー中※のユーザのプロフィール画面を開く
-        1. ※フォロー中：「フォロー解除」ボタンが表示されている状態
-        2. ※フォローしていないユーザであれば、お手数ですが一度作品一覧へ戻っていただき、別のフォロー中のユーザに対して上記操作をもう一度行うようお願いします。
-            * ※フォローしていない：「フォロー」ボタンが表示されている状態
-            * ※作品一覧画面URL：https://polygonal-auxions.vercel.app/artworks/
-    4. 「フォロー解除」ボタンをクリック
-    5. 「フォロー」ボタンが表示出来たら成功
-
-[目次へ戻る](https://github.com/Y1K8M2NT1RK/polygonal-auxions?tab=readme-ov-file#0-%E7%9B%AE%E6%AC%A1)
-
-## 5. ローカル環境でのアプリケーションの起動方法（全6点）
-### 1. 注意
-1. **Ubuntu/WSLでのコマンド操作を想定しております。**
-2. **DockerとNode/npmがインストールされていない場合は、お手数ですがインストールしていただきますようお願いいたします。**
-### 2. 操作手順
-1. Gitのクローン
-```
+## ローカル起動 (最短)
+```bash
 git clone https://github.com/Y1K8M2NT1RK/polygonal-auxions.git
-```
-
-2. プロジェクトのディレクトリへ移動
-```
-cd ./polygonal-auxions/
-```
-
-3. dockerコンテナのビルド/起動
-```
+cd polygonal-auxions
 docker compose up -d --build
+# 数分後 http://localhost:3001 へアクセス
 ```
 
-4. 起動中のコンテナを確認
+## パスワードリセット概要
+1. メール入力 → リンク送付 (24h)
+2. トークン付き URL で新パスワード入力
+3. 成功後セッション無効化
+
+## デプロイ (手動)
+```bash
+# Preview
+npm ci && npm run prisma:generate && npx graphql-codegen && npm run build
+vercel --prebuilt --confirm
+
+# Production
+vercel deploy --prod --prebuilt --confirm
 ```
-docker ps
-```
+ロールバック: Vercel Dashboard で前リリース Promote。
 
-5. ここまで操作したら、また約1,2分後に[http://localhost:3001/](http://localhost:3001/)をブラウザのURLに入力してEnterキーを押下
-    * ※なお、下の画像の画面が開いてしまった場合は、お手数ですが約1,2分後に下記のいずれかの方法で対処をお願いします。
-        1. ブラウザリロード（再読み込み）
-        2. URL入力部分をクリックしてもう一度Enterキーを押す
-    * ![スクリーンショット 2025-03-05 154740](https://github.com/user-attachments/assets/3d34dffc-1d86-4d57-ab9f-faf021ba5c86)
+## トラブルシュート
+| 症状 | 対処 |
+|------|------|
+| CSRF 403 | `/api/csrf` 取得後ヘッダ送付 | 
+| メール不達 | ENV/SMTP/Resend 設定再確認 |
+| Prisma バイナリエラー | Node 20 / `prisma generate` 再実行 |
 
-6. 下の画像の画面が開いたら起動に成功
-    * ![スクリーンショット 2025-02-18 151619](https://github.com/user-attachments/assets/56733872-b8b7-4b89-9c48-841a03547464)
+## 今後予定 (例)
+- WebGL 表示
+- 検索 / タグ / 絞り込み
+- レート制限 & 監査ログ
+- 画像最適化 / CDN
 
-[目次へ戻る](https://github.com/Y1K8M2NT1RK/polygonal-auxions?tab=readme-ov-file#0-%E7%9B%AE%E6%AC%A1)
+## 旧詳細版
+詳細な手順や操作説明は `docs/README_full_old.md` を参照。
 
-## 6. デプロイ (手動運用方針)
-自動デプロイを無効化し、明示操作のみで Vercel へ反映します。
-
-### 1. 前提
-`vercel.json` に `"git": { "deploymentEnabled": false }` を設定済み (push でデプロイされません)。
-
-### 2. Preview デプロイ
-```
-npm ci
-npx prisma generate
-npx graphql-codegen
-npm run build
-npx vercel --prebuilt --confirm
-```
-
-### 3. Production デプロイ
-```
-npm ci
-npx prisma generate
-npx graphql-codegen
-npm run build
-npx vercel deploy --prod --prebuilt --confirm
-```
-
-### 4. 推奨ワークフロー
-1. main ブランチへ merge
-2. Preview デプロイで動作確認
-3. 問題なければ Production デプロイ
-
-### 5. 失敗時リカバリ
-Vercel ダッシュボード > Deployments で前回 Production を Promote することで即座にロールバック可能。
-
-### 6. バンドル最適化メモ (Tree Shaking)
-- modularizeImports 設定で `@mui/material` / `@mui/icons-material` を個別 import 化
-- package.json `sideEffects` で未使用コード削減を支援 (CSS は副作用扱いで除外)
-- 不要になった一括 import を書かない: `import Button from '@mui/material/Button'` または `import { Button } from '@mui/material'`
-
-### 7. Vercel 認証設定 (.env.vercel 方式)
-ローカル開発で都度 `export VERCEL_TOKEN=...` する手間を省くため、以下の手順で `.env.vercel` を作成できます。
-
-1. `.env.vercel.example` をコピー
-```
-cp .env.vercel.example .env.vercel
-```
-2. 発行済みの Personal Token / Project / Org ID を記入
-```
-VERCEL_PROJECT_ID=prj_xxxxx
-VERCEL_ORG_ID=team_xxxxx   # team_ か usr_
-VERCEL_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxx
-```
-3. `make vercel-link` で `.vercel/project.json` を生成 (未リンクの場合)
-4. デプロイ: `make deploy-preview` / `make deploy-prod`
-
-補足:
-* `.env.vercel` は `.gitignore` 済み (コミット禁止)
-* ID が分からない場合は token を設定し `make vercel-link` (または `make vercel-link-docker`) で対話リンクし、その後 ID を `.env.vercel` に反映
-* CI ではリポジトリ Secrets に同名変数を登録し、`make deploy-*` を呼び出してください
-
-## 7. セキュリティ設定メモ
-### 1. CSRF 簡易防御
-`/api/graphql` への POST について、`Origin` もしくは `Referer` のホストが許可リスト外の場合は 403 を返します。許可リストは環境変数 `CSRF_ALLOWED_HOSTS` (カンマ区切り) で指定可能。未設定時はアクセス先自身 (`request.nextUrl.host`) のみ許可。
-
-例:
-```
-CSRF_ALLOWED_HOSTS=localhost:3001,polygonal-auxions.vercel.app
-```
-
-### 2. 認証 Cookie 仕様
-| Cookie 名 | 用途 | 有効期限 | 属性 |
-|-----------|------|----------|------|
-| token | アクセストークン (JWT) | 15m | HttpOnly / SameSite=Strict / Path=/ / Secure(本番のみ) |
-
-`logout` / `logoutAll` 実行時は token を即時削除 (maxAge=-1) します。`logoutAll` は DB 上の全セッションレコード (authPayload) を削除し、他ブラウザ/端末のログインも無効化します。
-
-注: refresh トークン及び `refresh` ミューテーションは廃止済みです (セッションは 15 分アクセストークン + 再ログイン方式)。
-
-#### CSRF トークン拡張 (Double Submit Cookie)
-`/api/csrf` (GET) にアクセスすると `csrfToken` Cookie (非 HttpOnly) が払い出され、GraphQL Mutation を行う際は `X-CSRF-Token` ヘッダに同値を送信する必要があります。サーバ側で Cookie 値とヘッダ値が一致しない場合 403 を返します。ログイン時は新しい `csrfToken` が再発行され、セッション固定を避けるため JWT には `jti` (ランダム 16 bytes hex) を埋め込んでいます。
-
-最小実装例 (ブラウザ):
-```ts
-// 初期ロード時
-await fetch('/api/csrf', { credentials: 'include' });
-// Mutation 実行時
-const csrf = document.cookie.split('; ').find(c=>c.startsWith('csrfToken='))?.split('=')[1];
-await fetch('/api/graphql', { method:'POST', headers:{'Content-Type':'application/json','X-CSRF-Token': csrf!}, body: JSON.stringify({query: 'mutation {...}'}) });
-```
-
-セッション固定対策: ログイン毎に (1) JWT jti 変更 (2) csrfToken 再発行 を行い、旧クッキー経由の固定攻撃を排除します。
-
-### 3. Basic 認証 (任意)
-環境変数 `BASIC_AUTH_USER`, `BASIC_AUTH_PASS` の両方が設定されている場合のみ全リクエストに Basic 認証を要求します。未設定ならスキップします。
-
-### 4. JWT 秘密鍵
-`JWT_SECRET` を十分に長いランダム値に設定してください (例: OpenSSL `openssl rand -hex 64`).
-
-### 5. 今後の強化候補
-- CSRF 対策をトークン方式 (Double Submit Cookie / SameSite=Lax+nonce) へ昇格
-- GraphQL のレート制限 (IP / user basis)
-- 追加的なセッション延命の再設計 (必要性が出た場合)
-- セッション固定攻撃対策としてログイン前 Cookie 初期化
+---
+簡潔版 README。追加情報が必要なら Issue / PR でお知らせください。
 
 
