@@ -11,15 +11,23 @@ export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<DebugResponse>
 ): void {
+  // 環境変数 ENABLE_DEBUG_ROUTES が true の場合のみ利用可能 / 開発用途
+  if (process.env.ENABLE_DEBUG_ROUTES !== 'true') {
+    res.status(404).end();
+    return;
+  }
+
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET');
+    res.status(405).end();
+    return;
+  }
+
   try {
-    // Prisma Client のディレクトリパスを取得
     const prismaClientPath = join(process.cwd(), 'node_modules/.prisma/client');
-    // ディレクトリ内のファイルを取得
     const files = readdirSync(prismaClientPath);
-    // ファイルリストをレスポンスとして返す
     res.status(200).json({ files });
   } catch (error) {
-    // エラーが発生した場合はエラーメッセージを返す
     res.status(500).json({ error: (error as Error).message });
   }
 }

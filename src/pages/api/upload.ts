@@ -1,11 +1,23 @@
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import type { NextApiResponse, NextApiRequest } from 'next';
- 
+
 export default async function handler(
-  request: NextApiRequest,
-  response: NextApiResponse,
+    request: NextApiRequest,
+    response: NextApiResponse,
 ) {
-    const body = request.body as HandleUploadBody;
+    if (request.method !== 'POST') {
+        response.setHeader('Allow', 'POST');
+        response.status(405).end();
+        return;
+    }
+
+    // 追加の簡易 CSRF 対策: SameSite+POST 前提。必要ならトークン検証を統合。
+    const body = request.body as HandleUploadBody | undefined;
+    if (!body) {
+        response.status(400).json({ error: 'Missing body' });
+        return;
+    }
+
     try {
         const jsonResponse = await handleUpload({
             body,
