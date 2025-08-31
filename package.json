@@ -70,7 +70,7 @@
     "graphql-yoga": "^5.1.1",
     "jose": "^5.2.4",
     "luxon": "^3.4.4",
-    "next": "^15.3.1",
+    "next": "^15.5.2",
     "nextjs-toploader": "^1.6.12",
     "nodemailer": "^7.0.5",
     "react": "^19.1.0",
