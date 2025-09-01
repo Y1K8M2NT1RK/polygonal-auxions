@@ -78,8 +78,12 @@ export default function Artworks() {
         setAllArtworks(newArtworks);
         setIsInitialLoad(false);
       } else {
-        // Load more - append new artworks
-        setAllArtworks(prev => [...prev, ...newArtworks]);
+        // Load more - append new artworks, but filter out duplicates
+        setAllArtworks(prev => {
+          const existingIds = new Set(prev.map(artwork => artwork.slug_id));
+          const uniqueNewArtworks = newArtworks.filter(artwork => !existingIds.has(artwork.slug_id));
+          return [...prev, ...uniqueNewArtworks];
+        });
       }
       setIsLoadingMore(false);
     }
