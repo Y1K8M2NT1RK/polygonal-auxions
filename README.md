@@ -80,6 +80,14 @@ vercel deploy --prod --prebuilt --confirm
 
 ## Deployment Tooling
 Vercel CLI (`vercel`) は devDependencies にのみ存在し本番ランタイムバンドルから除外されます。デプロイは `npx vercel ...` で動作するため runtime attack surface を縮小します。
+
+## Smoke Tests
+ローカルで最小限の GraphQL 動作確認:
+
+```
+npm run test:smoke:graphql
+```
+前提: `npm run dev` などで `http://localhost:3000` が稼働中。
 | メール不達 | ENV/SMTP/Resend 設定再確認 |
 | Prisma バイナリエラー | Node 20 / `prisma generate` 再実行 |
 
