@@ -24,7 +24,7 @@ import useDarkMode from "@/hooks/useDarkMode";
 type PasswordResetDialogProps = {
     open: boolean;
     onClose: () => void;
-    onRequestPasswordReset: (emailOrHandle: string) => Promise<boolean>;
+    onRequestPasswordReset: (emailOrHandle: string) => Promise<{ success: boolean; token?: string }>;
 };
 
 type FormData = {
@@ -39,6 +39,7 @@ export default function PasswordResetDialog({ open, onClose, onRequestPasswordRe
 
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [resetToken, setResetToken] = useState<string | null>(null);
 
     const isDarkMode = useDarkMode();
     const { isSmallScreen, isMediumScreen } = useResponsive();
@@ -50,8 +51,9 @@ export default function PasswordResetDialog({ open, onClose, onRequestPasswordRe
         
         try {
             const result = await onRequestPasswordReset(data.emailOrHandle);
-            if (result) {
+            if (result.success) {
                 setIsSuccess(true);
+                setResetToken(result.token || null);
             }
         } catch (error) {
             setError('emailOrHandle', { 
@@ -66,6 +68,7 @@ export default function PasswordResetDialog({ open, onClose, onRequestPasswordRe
     const handleClose = () => {
         clearErrors();
         setIsSuccess(false);
+        setResetToken(null);
         onClose();
     };
 
@@ -107,6 +110,25 @@ export default function PasswordResetDialog({ open, onClose, onRequestPasswordRe
                                 メールに記載されたリンクからパスワードをリセットしてください。
                                 メールが届かない場合は、迷惑メールフォルダもご確認ください。
                             </Typography>
+                            
+                            {/* Temporary reset button with reset-token parameter */}
+                            {resetToken && (
+                                <Box sx={{ mt: 2, mb: 2 }}>
+                                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                                        暫定対応：下記ボタンから直接パスワードリセットページにアクセスできます。
+                                    </Typography>
+                                    <Button 
+                                        variant="outlined"
+                                        href={`/reset-password?reset-token=${resetToken}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        sx={{ mt: 1 }}
+                                    >
+                                        パスワードリセットページへ
+                                    </Button>
+                                </Box>
+                            )}
+                            
                             <Button 
                                 onClick={handleClose} 
                                 variant="contained" 

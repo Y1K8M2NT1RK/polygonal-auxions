@@ -182,7 +182,8 @@ mutation RequestPasswordReset($emailOrHandle: String!) {
   requestPasswordReset(emailOrHandle: $emailOrHandle) {
     ... on MutationRequestPasswordResetSuccess {
       __typename
-      data
+      success
+      token
     }
     ... on ZodError {
       __typename

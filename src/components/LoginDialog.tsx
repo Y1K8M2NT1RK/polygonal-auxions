@@ -74,7 +74,7 @@ export default function LoginDialog({
     };
     const handlePasswordResetClose = () => setPasswordResetOpen(false);
 
-    const handleRequestPasswordReset = async (emailOrHandle: string): Promise<boolean> => {
+    const handleRequestPasswordReset = async (emailOrHandle: string): Promise<{ success: boolean; token?: string }> => {
         const result = await requestPasswordReset({ emailOrHandle });
         
         if (result.error) {
@@ -85,7 +85,14 @@ export default function LoginDialog({
             throw new Error('入力内容に問題があります。');
         }
 
-        return result.data?.requestPasswordReset.__typename === 'MutationRequestPasswordResetSuccess';
+        if (result.data?.requestPasswordReset.__typename === 'MutationRequestPasswordResetSuccess') {
+            return { 
+                success: result.data.requestPasswordReset.success,
+                token: result.data.requestPasswordReset.token || undefined
+            };
+        }
+        
+        return { success: false };
     };
 
     const isDarkMode = useDarkMode();

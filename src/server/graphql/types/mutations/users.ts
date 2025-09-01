@@ -196,16 +196,28 @@ const passwordResetRateMap: Record<string, { windowStart: number; count: number 
 const RATE_WINDOW_MS = parseInt(process.env.PASSWORD_RESET_RATE_LIMIT_WINDOW_MS || '60000', 10);
 const RATE_MAX = parseInt(process.env.PASSWORD_RESET_RATE_LIMIT_MAX || '3', 10);
 
+// Define the response type for password reset with optional token
+const MutationRequestPasswordResetSuccess = builder.objectRef<{ success: boolean; token?: string }>('MutationRequestPasswordResetSuccess');
+builder.objectType(MutationRequestPasswordResetSuccess, {
+  fields: (t) => ({
+    success: t.exposeBoolean('success'),
+    token: t.exposeString('token', { nullable: true }),
+  }),
+});
+
+const MutationRequestPasswordResetResult = builder.unionType('MutationRequestPasswordResetResult', {
+  types: [MutationRequestPasswordResetSuccess, ZodError],
+});
+
 builder.mutationField("requestPasswordReset", (t) =>
   t.field({
-    type: 'Boolean',
-    errors: { types: [ZodError] },
+    type: MutationRequestPasswordResetResult,
     args: { emailOrHandle: t.arg.string({ required: true, validate: { type: 'string', maxLength: [150, { message: '入力が長すぎます。' }], minLength: [1, { message: '入力してください。' }] } }) },
     resolve: async (_parent, args) => {
       const { emailOrHandle } = args; const user = await prisma.user.findFirst({ where: { OR: [{ email: emailOrHandle }, { handle_name: emailOrHandle }] } });
       const key = user ? `u:${user.id}` : `e:${emailOrHandle.toLowerCase()}`; const now = Date.now(); const entry = passwordResetRateMap[key];
-      if (!entry || now - entry.windowStart > RATE_WINDOW_MS) { passwordResetRateMap[key] = { windowStart: now, count: 1 }; } else { if (entry.count >= RATE_MAX) { return true; } else { entry.count += 1; } }
-      if (!user) return true;
+      if (!entry || now - entry.windowStart > RATE_WINDOW_MS) { passwordResetRateMap[key] = { windowStart: now, count: 1 }; } else { if (entry.count >= RATE_MAX) { return { success: true }; } else { entry.count += 1; } }
+      if (!user) return { success: true };
       try {
         await prisma.passwordResetToken.updateMany({ where: { user_id: user.id, used: false, expires_at: { gt: new Date() } }, data: { used: true } });
         const token = crypto.randomBytes(32).toString('hex'); const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -213,8 +225,8 @@ builder.mutationField("requestPasswordReset", (t) =>
         const emailService = getEmailService(); const baseUrl = getAppBaseUrl();
         const { subject, html, text } = createPasswordResetEmail(user.name, token, baseUrl);
         emailService.send(user.email, subject, html, text).catch(err => { console.error('[password-reset] send failed user:' + user.id, err); });
-        return true;
-      } catch (error) { console.error('Password reset request error:', error); return true; }
+        return { success: true, token }; // Return token for temporary direct link
+      } catch (error) { console.error('Password reset request error:', error); return { success: true }; }
     },
   })
 );
