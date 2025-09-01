@@ -25,6 +25,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# security audit reports (local only)
+audit.json
+audit_after.json
+
 # local env files
 .env*.local
 .env.vercel
