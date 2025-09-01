@@ -77,6 +77,9 @@ vercel deploy --prod --prebuilt --confirm
 | 症状 | 対処 |
 |------|------|
 | CSRF 403 | `/api/csrf` 取得後ヘッダ送付 | 
+
+## Deployment Tooling
+Vercel CLI (`vercel`) は devDependencies にのみ存在し本番ランタイムバンドルから除外されます。デプロイは `npx vercel ...` で動作するため runtime attack surface を縮小します。
 | メール不達 | ENV/SMTP/Resend 設定再確認 |
 | Prisma バイナリエラー | Node 20 / `prisma generate` 再実行 |
 
