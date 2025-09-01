@@ -94,6 +94,13 @@ builder.mutationField("logoutAll", (t) =>
   t.boolean({ authScopes: { isAuthenticated: true }, resolve: async (_q, _p, ctx) => { try { await prisma.authPayload.deleteMany({ where: { user_id: ctx?.auth?.id as number } }); return cookieModule.deleteCookie(ctx); } catch { return false; } } })
 );
 
+// CSRF Token issuance (idempotent). Returns Boolean true if token cookie is present/created.
+builder.mutationField("issueCsrfToken", (t) =>
+  t.boolean({
+    resolve: (_q, _p, ctx) => { cookieModule.ensureCsrf(ctx); return true; },
+  })
+);
+
 builder.mutationField('followOrUnfollow', (t) =>
   t.prismaField({
     type: Follows,

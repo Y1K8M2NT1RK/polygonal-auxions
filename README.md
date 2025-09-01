@@ -76,7 +76,7 @@ vercel deploy --prod --prebuilt --confirm
 ## トラブルシュート
 | 症状 | 対処 |
 |------|------|
-| CSRF 403 | `/api/csrf` 取得後ヘッダ送付 | 
+| CSRF 403 | `issueCsrfToken` 実行で cookie 発行後ヘッダ送付 | 
 
 ## Deployment Tooling
 Vercel CLI (`vercel`) は devDependencies にのみ存在し本番ランタイムバンドルから除外されます。デプロイは `npx vercel ...` で動作するため runtime attack surface を縮小します。

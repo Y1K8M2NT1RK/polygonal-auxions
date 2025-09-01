@@ -8,7 +8,7 @@
 ## 2. 配置原則
 - Runtime API Routes (最小限): `src/pages/api/`
 	- GraphQL エンドポイント: `src/pages/api/graphql.ts`
-	- CSRF トークン発行: `src/pages/api/csrf.ts`
+		- CSRF トークン発行: GraphQL mutation `issueCsrfToken` (旧 REST `/api/csrf` は削除)
 		- アップロード: `src/pages/api/upload.ts`
 		- （開発限定）デバッグエンドポイント (debug.ts, openssl.ts) はセキュリティ簡素化のため削除済み
 - GraphQL 実装本体 (スキーマ/ビルダー/型定義/リゾルバ): `src/server/graphql/`

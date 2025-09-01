@@ -1,6 +1,6 @@
 import { FC, createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useQuery, useMutation } from 'urql';
-import { MeDocument, LoginDocument, LogoutDocument, User } from '@/generated/generated-graphql';
+import { MeDocument, LoginDocument, LogoutDocument, User, IssueCsrfTokenDocument } from '@/generated/generated-graphql';
 import { toast } from 'react-toastify';
 
 type AuthContextType = {
@@ -28,12 +28,13 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
     setAuth(data?.me || null);
   }, [data]);
 
-  // Ensure CSRF cookie exists on first load (idempotent)
+  // Ensure CSRF cookie exists on first load (idempotent) via GraphQL
+  const [, issueCsrf] = useMutation(IssueCsrfTokenDocument);
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      fetch('/api/csrf', { credentials: 'include' }).catch(() => {});
+      issueCsrf({}).catch(() => {});
     }
-  }, []);
+  }, [issueCsrf]);
 
   const [, login] = useMutation(LoginDocument);
   const [, logout] = useMutation(LogoutDocument);

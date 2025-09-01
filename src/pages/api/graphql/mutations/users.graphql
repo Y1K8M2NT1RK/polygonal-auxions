@@ -209,3 +209,8 @@ mutation ResetPassword($token: String!, $password: String!, $passwordConfirmatio
     }
   }
 }
+
+# CSRF Token issuance (replaces old /api/csrf route)
+mutation IssueCsrfToken {
+  issueCsrfToken
+}
