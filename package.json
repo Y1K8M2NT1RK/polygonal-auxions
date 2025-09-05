@@ -11,7 +11,7 @@
     "prebuild": "sh scripts/clean.sh",
     "build": "sh scripts/build.sh",
     "build:docker": "sh scripts/build.sh",
-    "prisma:generate": "prisma generate && ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/fix-pothos-imports.ts",
+  "prisma:generate": "prisma generate && ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/fix-pothos-imports.ts",
     "build-with-debug": "NEXT_DEBUG=true npm run build",
     "vercel-build": "bash scripts/vercel-build.sh",
     "seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed.ts",
