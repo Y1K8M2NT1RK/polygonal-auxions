@@ -1,0 +1,42 @@
+name: Build & Prisma Generate Verification
+
+on:
+  push:
+    branches: [ main, copilot/**, feature/** ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prisma generate (with import fix)
+        run: npm run prisma:generate
+
+      - name: Type check & build
+        run: npm run build
+
+      - name: Smoke GraphQL (optional)
+        env:
+          SMOKE_GRAPHQL_ENDPOINT: http://localhost:3000/api/graphql
+        run: |
+          # Start server in background (no need for DB for schema build)
+          npm run dev &
+          SERVER_PID=$!
+          npx wait-on http://localhost:3000 || true
+          # Run smoke script (will mostly validate issueCsrfToken/login flow structure)
+          npm run test:smoke:graphql || true
+          kill $SERVER_PID || true
