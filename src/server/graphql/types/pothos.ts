@@ -1,4 +1,5 @@
 /* eslint-disable */
+// Adjusted import path to be workspace-relative instead of container-absolute for local build environments
 import type { Prisma, User, UserFiles, Purpose, AuthPayload, PasswordResetToken, Follow, Artwork, ArtworkFile, ArtworkGizmo, Comment, ArtworkRanks, Ranks, RankTypes } from "@prisma/client";
 export default interface PrismaTypes {
     User: {
