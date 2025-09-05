@@ -6,9 +6,9 @@ const config: CodegenConfig = {
   schema: printSchema(schema),
   overwrite: true,
   documents: [
-    'src/pages/api/graphql/mutations/*.graphql',
-    'src/pages/api/graphql/queries/*.graphql',
-    'src/pages/api/graphql/inputs.graphql',
+    'src/graphql/operations/mutations/*.graphql',
+    'src/graphql/operations/queries/*.graphql',
+    'src/graphql/operations/inputs.graphql',
   ],
   emitLegacyCommonJSImports: false,
   generates: {
