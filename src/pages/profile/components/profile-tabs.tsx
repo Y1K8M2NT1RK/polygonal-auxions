@@ -62,8 +62,8 @@ export default function ProfileTabs({ user }: Props) {
         <Grid container sx={{ flexGrow: 1 }} spacing={1}>
             {(!user?.artworks.length)
                 ? <CardContent><Typography>作品はありません</Typography></CardContent>
-                : user.artworks.map((artwork: Artwork, index: number) => (
-                    <Grid key={index} size={{ xs: 12 }} sx={{ width: '100%' }}>
+                : user.artworks.map((artwork: Artwork) => (
+                    <Grid key={artwork.slug_id} size={{ xs: 12 }} sx={{ width: '100%' }}>
                         <Card sx={{ p: '10px', mb: 1 }}>
                             <Box sx={{ display: 'flex', width: '100%' }}>
                                 <Link href={`/artworks/${artwork.slug_id}`} style={{ height: '100px', aspectRatio: '5 / 3', flexShrink: 0 }} passHref>
@@ -114,8 +114,8 @@ export default function ProfileTabs({ user }: Props) {
         <Grid container sx={{ flexGrow: 1 }} spacing={1}>
             {user?.comments == undefined || (user?.comments.length == 0)
                 ? <CardContent><Typography>投稿したコメントはありません</Typography></CardContent>
-                : user.comments.map((comment: Comment, index: number) => (
-                    <Grid key={index} size={{ xs: 12 }} sx={{ width: '100%' }}>
+                : user.comments.map((comment: Comment) => (
+                    <Grid key={comment.slug_id} size={{ xs: 12 }} sx={{ width: '100%' }}>
                         <Card sx={{ p: '10px', mb: 1 }}>
                             <Box sx={{ display: 'flex', width: '100%' }}>
                                 <Link href={`/artworks/${comment.artwork.slug_id}`} style={{ height: '100px', aspectRatio: '5 / 3', flexShrink: 0 }} passHref>

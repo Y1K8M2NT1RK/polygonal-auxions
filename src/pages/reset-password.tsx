@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { NextPage } from 'next';
 import { useMutation } from 'urql';
-import { ResetPasswordDocument } from '@/generated/generated-graphql';
+import { ResetPasswordDocument, IssueCsrfTokenDocument } from '@/generated/generated-graphql';
 import useDarkMode from '@/hooks/useDarkMode';
 
 type FormData = {
@@ -29,6 +29,9 @@ const ResetPasswordPage: NextPage = () => {
     const isDarkMode = useDarkMode();
 
     const [resetPasswordResult, resetPassword] = useMutation(ResetPasswordDocument);
+    // Ensure CSRF token exists even if user lands directly from email (no prior app navigation)
+    const [, issueCsrf] = useMutation(IssueCsrfTokenDocument);
+    useEffect(() => { issueCsrf({}).catch(()=>{}); }, [issueCsrf]);
     const [isSuccess, setIsSuccess] = useState(false);
     const [serverError, setServerError] = useState<string | null>(null);
 

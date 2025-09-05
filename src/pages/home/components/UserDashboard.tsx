@@ -151,8 +151,8 @@ export default function UserDashboard() {
 
       {/* Statistics Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        {statsData.map((stat, index) => (
-          <Grid key={index} size={{ xs: 6, sm: 6, md: 4 }}>
+        {statsData.map((stat) => (
+          <Grid key={stat.title} size={{ xs: 6, sm: 6, md: 4 }}>
             <Card>
               <CardContent>
                 <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -176,8 +176,8 @@ export default function UserDashboard() {
 
       {/* Rank Statistics (separate row) */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        {rankStatsData.map((stat, index) => (
-          <Grid key={index} size={{ xs: 6, sm: 6, md: 3 }}>
+        {rankStatsData.map((stat) => (
+          <Grid key={stat.title} size={{ xs: 6, sm: 6, md: 3 }}>
             <Card>
               <CardContent>
                 <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -205,8 +205,8 @@ export default function UserDashboard() {
           クイックアクション
         </Typography>
         <Grid container spacing={3}>
-          {quickActions.map((action, index) => (
-            <Grid key={index} size={{ xs: 12, md: 4 }}>
+          {quickActions.map((action) => (
+            <Grid key={action.href} size={{ xs: 12, md: 4 }}>
               <Card sx={{ height: '100%' }}>
                 <CardContent>
                   <Box display="flex" alignItems="center" gap={2} mb={2}>
@@ -286,8 +286,8 @@ export default function UserDashboard() {
                   </Typography>
                   {profile?.comments && profile.comments.length > 0 ? (
                     <Box>
-                      {profile.comments.slice(0, 3).map((comment, index) => (
-                        <Box key={index} sx={{ mb: 2, pb: 2, borderBottom: '1px solid #eee' }}>
+                      {profile.comments.slice(0, 3).map((comment) => (
+                        <Box key={comment.slug_id} sx={{ mb: 2, pb: 2, borderBottom: '1px solid #eee' }}>
                           <Typography variant="body2" sx={{ mb: 1 }}>
                             &ldquo;{comment.body}&rdquo;
                           </Typography>

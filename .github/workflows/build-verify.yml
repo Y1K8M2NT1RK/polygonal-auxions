@@ -10,6 +10,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres" --health-interval=5s --health-timeout=5s --health-retries=10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,17 +37,24 @@ jobs:
       - name: Prisma generate (with import fix)
         run: npm run prisma:generate
 
+      - name: Prisma migrate & seed
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres?schema=public
+        run: |
+          npx prisma migrate deploy
+          npm run seed:minimal
+
       - name: Type check & build
         run: npm run build
 
-      - name: Smoke GraphQL (optional)
+      - name: Smoke GraphQL (required)
         env:
           SMOKE_GRAPHQL_ENDPOINT: http://localhost:3000/api/graphql
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres?schema=public
         run: |
-          # Start server in background (no need for DB for schema build)
+          # Start server in background (needs DB for auth/login paths)
           npm run dev &
           SERVER_PID=$!
-          npx wait-on http://localhost:3000 || true
-          # Run smoke script (will mostly validate issueCsrfToken/login flow structure)
-          npm run test:smoke:graphql || true
+          npx wait-on http://localhost:3000
+          npm run test:smoke:graphql
           kill $SERVER_PID || true
