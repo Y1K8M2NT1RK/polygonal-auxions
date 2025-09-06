@@ -12,6 +12,7 @@ import {
     CircularProgress,
     Input,
 } from "@mui/material";
+import { AddArtworkSkeleton } from '@/components/skeletons';
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import DefaultUserIcon from "@/components/DefaultUserIcon";
@@ -71,7 +72,7 @@ export default function AddArtwork(){
     const {user, fetching, isLoggedIn} = useAuth();
 
     useEffect(() => { if(isLoggedIn==false && fetching==false) router.push('/artworks'); }, [isLoggedIn, fetching, router]);
-    if(fetching) return (<CircularProgress key={0} color="inherit" />);
+    if(fetching) return (<AddArtworkSkeleton />);
 
     return (
         !user

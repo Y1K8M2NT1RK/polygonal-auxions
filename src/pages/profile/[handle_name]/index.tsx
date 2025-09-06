@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container, CircularProgress } from '@mui/material';
+import { ProfileSkeleton } from '@/components/skeletons';
 import ProfileHeader from '@/pages/profile/components/profile-header';
 import ProfileTabs from '@/pages/profile/components/profile-tabs';
 import Head from 'next/head';
@@ -9,7 +10,7 @@ import NotFound from '@/components/NotFound';
 export default function Profile(){
     const {profile, fetching} = useUserProfile();
 
-    if (fetching) return (<CircularProgress color="inherit" />);
+    if (fetching) return (<ProfileSkeleton />);
     if (!profile) return (<NotFound />);
 
     return (

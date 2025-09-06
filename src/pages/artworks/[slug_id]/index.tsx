@@ -11,6 +11,7 @@ import {
     Input,
     Button
 } from '@mui/material';
+import { ArtworkDetailSkeleton } from '@/components/skeletons';
 import { 
     UpsertArtworkDocument,
     type Artwork,
@@ -64,7 +65,7 @@ export default function Artwork(){
 
     const {isSmallScreen} = useResponsive();
 
-    if (fetching) return (<Container><CircularProgress color="inherit" /></Container>);
+    if (fetching) return (<ArtworkDetailSkeleton />);
     if (error) return `Error! ${error.message}`;
 
     const artwork: Artwork = data?.artwork;

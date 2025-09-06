@@ -149,11 +149,25 @@ export default function AdminTable({
           </TableHead>
           <TableBody>
             {loading ? (
-              <TableRow>
-                <TableCell colSpan={columns.length + 1} align="center">
-                  読み込み中...
-                </TableCell>
-              </TableRow>
+              // Skeleton rows during loading
+              Array.from({ length: 8 }).map((_, rowIdx) => (
+                <TableRow key={`skeleton-${rowIdx}`}>
+                  {columns.map((column, colIdx) => (
+                    <TableCell key={`${column.id}-${colIdx}`} align={column.align}>
+                      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                        <Box sx={{ bgcolor: 'action.hover', height: 14, width: '70%', borderRadius: 1 }} />
+                      </Box>
+                    </TableCell>
+                  ))}
+                  <TableCell align="center">
+                    <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                      <Box sx={{ bgcolor: 'action.hover', height: 28, width: 28, borderRadius: '50%' }} />
+                      <Box sx={{ bgcolor: 'action.hover', height: 28, width: 28, borderRadius: '50%' }} />
+                      <Box sx={{ bgcolor: 'action.hover', height: 28, width: 28, borderRadius: '50%' }} />
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              ))
             ) : rows.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={columns.length + 1} align="center">

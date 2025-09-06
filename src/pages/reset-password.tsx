@@ -12,6 +12,7 @@ import {
     Container,
     CircularProgress
 } from '@mui/material';
+import { FormPageSkeleton } from '@/components/skeletons';
 import { NextPage } from 'next';
 import { useMutation } from 'urql';
 import { ResetPasswordDocument, IssueCsrfTokenDocument } from '@/generated/generated-graphql';
@@ -98,11 +99,7 @@ const ResetPasswordPage: NextPage = () => {
     });
 
     if (!router.isReady) {
-        return (
-            <Container maxWidth="sm" sx={{ mt: 4, textAlign: 'center' }}>
-                <CircularProgress />
-            </Container>
-        );
+        return <FormPageSkeleton />;
     }
 
     if (!actualToken) {

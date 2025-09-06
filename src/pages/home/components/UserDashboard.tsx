@@ -22,7 +22,7 @@ import Head from 'next/head';
 import { useAuth } from '@/contexts/AuthContexts';
 import { useQuery } from 'urql';
 import { User, DashboardDocument } from '@/generated/generated-graphql';
-import Preparing from '@/components/Preparing';
+import { UserDashboardSkeleton } from '@/components/skeletons';
 import DefaultUserIcon from '@/components/DefaultUserIcon';
 
 export default function UserDashboard() {
@@ -35,7 +35,7 @@ export default function UserDashboard() {
   });
 
   if (!user) return null;
-  if (dashboardFetching) return <Preparing />;
+  if (dashboardFetching) return <UserDashboardSkeleton />;
 
   const profile = dashboardData?.UserProfile as User | undefined;
   const artworksCount = profile?.artworks?.length || 0;
