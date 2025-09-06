@@ -32,8 +32,8 @@ export default function ArtworkListSkeleton({ count = 6 }: ArtworkListSkeletonPr
                             <Skeleton variant="circular" width={24} height={24} />
                         </Box>
                         
-                        {/* Image section - matches CardActionArea height of 15em */}
-                        <Box sx={{ height: "15em", display: 'flex', flexDirection: 'column' }}>
+                        {/* Image section - 本番の CardActionArea と高さを合わせる（15em） */}
+                        <Box sx={{ height: '15em', display: 'flex', flexDirection: 'column' }}>
                             <Skeleton 
                                 variant="rectangular" 
                                 width="100%" 

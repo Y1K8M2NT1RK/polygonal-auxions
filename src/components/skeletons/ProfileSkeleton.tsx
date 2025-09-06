@@ -4,6 +4,9 @@ import {
     Skeleton,
     Paper,
     Grid,
+    Card,
+    CardContent,
+    CardActionArea,
 } from '@mui/material';
 
 export default function ProfileSkeleton() {
@@ -49,22 +52,30 @@ export default function ProfileSkeleton() {
                 </Box>
             </Paper>
 
-            {/* Content Area (Artworks grid) */}
-            <Grid container spacing={2}>
+            {/* Content Area (Artworks list) - 読み込み後の ProfileTabs に合わせた横並び */}
+            <Grid container spacing={1}>
                 {Array.from({ length: 6 }).map((_, index) => (
-                    <Grid key={index} size={{ xs: 12, sm: 6, md: 4 }}>
-                        <Paper elevation={2}>
-                            <Skeleton 
-                                variant="rectangular" 
-                                width="100%" 
-                                height={200}
-                                sx={{ borderRadius: '4px 4px 0 0' }}
-                            />
-                            <Box sx={{ p: 1 }}>
-                                <Skeleton variant="text" width="80%" />
-                                <Skeleton variant="text" width="60%" />
+                    <Grid key={index} size={{ xs: 12 }} sx={{ width: '100%' }}>
+                        <Card sx={{ p: '10px', mb: 1 }} elevation={2}>
+                            <Box sx={{ display: 'flex', width: '100%' }}>
+                                {/* 左: サムネイル領域（高さ100px・アスペクト比 5/3 を模倣） */}
+                                <CardActionArea sx={{ height: '100px', aspectRatio: '5 / 3', flexShrink: 0 }}>
+                                    <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 0 }}>
+                                        <Skeleton 
+                                            variant="rectangular" 
+                                            width="100%" 
+                                            height="100%"
+                                            sx={{ borderRadius: 1 }}
+                                        />
+                                    </CardContent>
+                                </CardActionArea>
+                                {/* 右: タイトル/テキスト領域 */}
+                                <CardContent sx={{ py: 0, flex: 1 }}>
+                                    <Skeleton variant="text" width="60%" />
+                                    <Skeleton variant="text" width="40%" />
+                                </CardContent>
                             </Box>
-                        </Paper>
+                        </Card>
                     </Grid>
                 ))}
             </Grid>

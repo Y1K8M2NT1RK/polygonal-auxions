@@ -5,3 +5,4 @@ export { default as ProfileSkeleton } from './ProfileSkeleton';
 export { default as CommentSkeleton } from './CommentSkeleton';
 export { default as AdminRedirectSkeleton } from './AdminRedirectSkeleton';
 export { default as FormPageSkeleton } from './FormPageSkeleton';
+export { default as AddArtworkSkeleton } from './AddArtworkSkeleton';
