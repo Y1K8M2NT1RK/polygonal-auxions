@@ -68,7 +68,7 @@ export default function Artworks() {
   // Add new artworks to the list when data is fetched
   useEffect(() => {
     if (dataArtworks?.artworks) {
-      const newArtworks = dataArtworks.artworks.map((artwork: Artwork) => ({
+      const newArtworks: (Artwork & { deletedInFront: boolean })[] = dataArtworks.artworks.map((artwork: Artwork) => ({
         ...artwork,
         deletedInFront: false
       }));
