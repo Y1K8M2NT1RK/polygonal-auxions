@@ -119,6 +119,7 @@ export type Mutation = {
   adminDeleteUser: MutationAdminDeleteUserResult;
   adminUpdateUser: MutationAdminUpdateUserResult;
   followOrUnfollow: Follow;
+  issueCsrfToken: Scalars['Boolean']['output'];
   login: MutationLoginResult;
   logout: Scalars['Boolean']['output'];
   logoutAll: Scalars['Boolean']['output'];
@@ -312,7 +313,8 @@ export type MutationRequestPasswordResetResult = MutationRequestPasswordResetSuc
 
 export type MutationRequestPasswordResetSuccess = {
   __typename?: 'MutationRequestPasswordResetSuccess';
-  data: Scalars['Boolean']['output'];
+  success: Scalars['Boolean']['output'];
+  token?: Maybe<Scalars['String']['output']>;
 };
 
 export type MutationResetPasswordResult = MutationResetPasswordSuccess | ZodError;
@@ -610,7 +612,7 @@ export type RequestPasswordResetMutationVariables = Exact<{
 }>;
 
 
-export type RequestPasswordResetMutation = { __typename?: 'Mutation', requestPasswordReset: { __typename: 'MutationRequestPasswordResetSuccess', data: boolean } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
+export type RequestPasswordResetMutation = { __typename?: 'Mutation', requestPasswordReset: { __typename: 'MutationRequestPasswordResetSuccess', success: boolean, token?: string | null } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
 
 export type ResetPasswordMutationVariables = Exact<{
   token: Scalars['String']['input'];
@@ -620,6 +622,11 @@ export type ResetPasswordMutationVariables = Exact<{
 
 
 export type ResetPasswordMutation = { __typename?: 'Mutation', resetPassword: { __typename: 'MutationResetPasswordSuccess', data: boolean } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
+
+export type IssueCsrfTokenMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type IssueCsrfTokenMutation = { __typename?: 'Mutation', issueCsrfToken: boolean };
 
 export type ArtworksQueryVariables = Exact<{
   q?: InputMaybe<Scalars['String']['input']>;
@@ -1002,7 +1009,8 @@ export const RequestPasswordResetDocument = gql`
   requestPasswordReset(emailOrHandle: $emailOrHandle) {
     ... on MutationRequestPasswordResetSuccess {
       __typename
-      data
+      success
+      token
     }
     ... on ZodError {
       __typename
@@ -1042,6 +1050,15 @@ export const ResetPasswordDocument = gql`
 
 export function useResetPasswordMutation() {
   return Urql.useMutation<ResetPasswordMutation, ResetPasswordMutationVariables>(ResetPasswordDocument);
+};
+export const IssueCsrfTokenDocument = gql`
+    mutation IssueCsrfToken {
+  issueCsrfToken
+}
+    `;
+
+export function useIssueCsrfTokenMutation() {
+  return Urql.useMutation<IssueCsrfTokenMutation, IssueCsrfTokenMutationVariables>(IssueCsrfTokenDocument);
 };
 export const ArtworksDocument = gql`
     query Artworks($q: String, $offset: Int, $limit: Int) {

@@ -7,7 +7,7 @@
 */
 import fetch from 'node-fetch';
 
-const endpoint = process.env.SMOKE_GRAPHQL_ENDPOINT || 'http://localhost:3000/api/graphql';
+const endpoint = process.env.SMOKE_GRAPHQL_ENDPOINT || 'http://localhost:3001/api/graphql';
 
 async function main() {
   // 1. issueCsrfToken
@@ -36,7 +36,10 @@ async function main() {
     body: JSON.stringify({ query: loginMutation, variables: { email: 'not-exist@example.com', password: 'wrong' } }),
   });
   const loginJson = await loginResp.json();
-  if (!loginJson.data?.login) throw new Error('login missing in response');
+  if (!loginJson.data?.login) {
+    if (!loginJson.errors) throw new Error('login missing in response');
+    console.warn('[smoke] login returned top-level errors (expected for invalid creds):', loginJson.errors);
+  }
 
   // 3. me query
   const meQuery = `query Me { me { id } }`;

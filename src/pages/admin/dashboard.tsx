@@ -49,8 +49,8 @@ export default function AdminDashboard() {
       </Typography>
       
       <Grid container spacing={3}>
-        {statsData.map((stat, index) => (
-          <Grid key={index} size={{xs: 12, sm: 6, md: 3}}>
+        {statsData.map((stat) => (
+          <Grid key={stat.title} size={{xs: 12, sm: 6, md: 3}}>
             <Card>
               <CardContent>
                 <Box display="flex" alignItems="center" justifyContent="space-between">

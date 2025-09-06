@@ -21,8 +21,8 @@ export default function ProfileComments({user}: Props){
             <Grid container sx={{ flexGrow: 1, }} spacing={1}>
                 {user?.comments==undefined || (user?.comments.length == 0)
                 ? <CardContent><Typography>投稿したコメントはありません</Typography></CardContent>
-                : user.comments.map((comment: Comment, index: number) => (
-                    <Grid key={index} size={{xs: 25, md: 4}} sx={{width: '100%'}}>
+                : user.comments.map((comment: Comment) => (
+                    <Grid key={comment.slug_id} size={{xs: 25, md: 4}} sx={{width: '100%'}}>
                         <Card sx={{p: '10px'}}>
                             <Grid container>
                                 <Box sx={{display: 'flex',}}>

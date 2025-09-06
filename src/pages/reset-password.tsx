@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { NextPage } from 'next';
 import { useMutation } from 'urql';
-import { ResetPasswordDocument } from '@/generated/generated-graphql';
+import { ResetPasswordDocument, IssueCsrfTokenDocument } from '@/generated/generated-graphql';
 import useDarkMode from '@/hooks/useDarkMode';
 
 type FormData = {
@@ -24,10 +24,14 @@ type FormData = {
 
 const ResetPasswordPage: NextPage = () => {
     const router = useRouter();
-    const { token } = router.query;
+    const { token, 'reset-token': resetToken } = router.query;
+    const actualToken = token || resetToken; // Handle both token and reset-token parameters
     const isDarkMode = useDarkMode();
 
     const [resetPasswordResult, resetPassword] = useMutation(ResetPasswordDocument);
+    // Ensure CSRF token exists even if user lands directly from email (no prior app navigation)
+    const [, issueCsrf] = useMutation(IssueCsrfTokenDocument);
+    useEffect(() => { issueCsrf({}).catch(()=>{}); }, [issueCsrf]);
     const [isSuccess, setIsSuccess] = useState(false);
     const [serverError, setServerError] = useState<string | null>(null);
 
@@ -38,13 +42,13 @@ const ResetPasswordPage: NextPage = () => {
 
     // Check if token is present
     useEffect(() => {
-        if (router.isReady && !token) {
+        if (router.isReady && !actualToken) {
             router.push('/');
         }
-    }, [router.isReady, token, router]);
+    }, [router.isReady, actualToken, router]);
 
     const onSubmit = handleSubmit(async (data: FormData) => {
-        if (!token || typeof token !== 'string') {
+        if (!actualToken || typeof actualToken !== 'string') {
             setServerError('無効なトークンです。');
             return;
         }
@@ -54,7 +58,7 @@ const ResetPasswordPage: NextPage = () => {
 
         try {
             const result = await resetPassword({
-                token: token,
+                token: actualToken,
                 password: data.password,
                 passwordConfirmation: data.passwordConfirmation,
             });
@@ -101,7 +105,7 @@ const ResetPasswordPage: NextPage = () => {
         );
     }
 
-    if (!token) {
+    if (!actualToken) {
         return (
             <Container maxWidth="sm" sx={{ mt: 4 }}>
                 <Alert severity="error">

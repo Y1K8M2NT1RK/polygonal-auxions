@@ -128,8 +128,8 @@ export function UserDetailModal({ open, onClose, user }: UserDetailModalProps) {
             <Grid size={{ xs: 12 }}>
               <Typography variant="h6" gutterBottom>最近の作品 ({user.artworks.length}件)</Typography>
               <List dense>
-                {user.artworks.slice(0, 5).map((artwork: any, index: number) => (
-                  <ListItem key={index}>
+                {user.artworks.slice(0, 5).map((artwork: any) => (
+                  <ListItem key={artwork.id ?? artwork.slug_id ?? artwork.title}>
                     <ListItemText primary={artwork.title} secondary={new Date(artwork.created_at).toLocaleDateString('ja-JP')} />
                   </ListItem>
                 ))}
@@ -141,8 +141,8 @@ export function UserDetailModal({ open, onClose, user }: UserDetailModalProps) {
             <Grid size={{ xs: 12 }}>
               <Typography variant="h6" gutterBottom>最近のコメント ({user.comments.length}件)</Typography>
               <List dense>
-                {user.comments.slice(0, 3).map((comment: any, index: number) => (
-                  <ListItem key={index}>
+                {user.comments.slice(0, 3).map((comment: any) => (
+                  <ListItem key={comment.id ?? comment.slug_id ?? comment.artwork?.slug_id ?? comment.created_at}>
                     <ListItemText
                       primary={`${comment.artwork?.title || '作品'} へのコメント`}
                       secondary={`${comment.body.substring(0, 100)}... - ${new Date(comment.created_at).toLocaleDateString('ja-JP')}`}

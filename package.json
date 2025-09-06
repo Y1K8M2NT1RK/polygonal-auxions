@@ -11,7 +11,7 @@
     "prebuild": "sh scripts/clean.sh",
     "build": "sh scripts/build.sh",
     "build:docker": "sh scripts/build.sh",
-    "prisma:generate": "prisma generate && ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/fix-pothos-imports.ts",
+  "prisma:generate": "prisma generate && ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/fix-pothos-imports.ts",
     "build-with-debug": "NEXT_DEBUG=true npm run build",
     "vercel-build": "bash scripts/vercel-build.sh",
     "seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed.ts",
@@ -32,6 +32,7 @@
     "studio": "npx prisma studio --port 5555 --browser none",
     "email:test": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/email/simple-test.ts",
     "email:reset:test": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/dev-send-password-reset.ts",
+  "reset:e2e": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/dev-password-reset-e2e.ts",
     "email:raw-smtp": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/raw-smtp-send.ts",
     "test:smoke:graphql": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/smoke/graphql-smoke.ts"
   },
