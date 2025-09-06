@@ -66,7 +66,7 @@ export default function LoginDialog({ sxProps }: LoginDialogProps) {
         }
     };
 
-    const handleRequestPasswordReset = async (emailOrHandle: string): Promise<boolean> => {
+    const handleRequestPasswordReset = async (emailOrHandle: string): Promise<{ success: boolean; token?: string }> => {
         await ensureCsrf();
         const result = await requestPasswordReset({ emailOrHandle });
         if (result.error) {
@@ -75,12 +75,17 @@ export default function LoginDialog({ sxProps }: LoginDialogProps) {
         }
         const payload: any = result.data?.requestPasswordReset;
         // Accept multiple schema shapes: boolean true OR success object OR ZodError
-        if (payload === true) return true; // current server boolean implementation
-        if (payload?.__typename === 'MutationRequestPasswordResetSuccess') return !!payload.data;
+        if (payload === true) return { success: true }; // current server boolean implementation
+        if (payload?.__typename === 'MutationRequestPasswordResetSuccess') {
+            return { 
+                success: !!payload.success,
+                token: payload.token || undefined
+            };
+        }
         if (payload?.__typename === 'ZodError') {
             throw new Error('入力内容に問題があります。');
         }
-        return false;
+        return { success: false };
     };
 
     const isDarkMode = useDarkMode();

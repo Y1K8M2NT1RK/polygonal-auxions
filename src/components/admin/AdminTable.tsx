@@ -161,8 +161,8 @@ export default function AdminTable({
                 </TableCell>
               </TableRow>
             ) : (
-              rows.map((row, index) => (
-                <TableRow hover key={index}>
+              rows.map((row) => (
+                <TableRow hover key={row.id || row.slug_id || row.handle_name || JSON.stringify(row)}>
                   {columns.map((column) => {
                     const value = row[column.id];
                     const displayValue = column.format && value != null 

@@ -79,8 +79,8 @@ export default function AdminLogin() {
           
           {formErrors.length > 0 && (
             <Alert severity="error" sx={{ mb: 2 }}>
-              {formErrors.map((error, index) => (
-                <div key={index}>{error}</div>
+              {formErrors.map((error) => (
+                <div key={error}>{error}</div>
               ))}
             </Alert>
           )}

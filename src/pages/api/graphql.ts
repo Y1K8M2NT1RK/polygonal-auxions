@@ -122,9 +122,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (isMutation) {
       const csrfCookie = (req as any).cookies?.csrfToken;
       const headerToken = (req.headers['x-csrf-token'] as string) || '';
+      const isLogin = /login\s*\(/i.test(bodyStr);
+      const isIssueCsrf = /issueCsrfToken\s*\(?/i.test(bodyStr); // 初回ブートストラップ用に CSRF 検証免除
       if (!csrfCookie || !headerToken || csrfCookie !== headerToken) {
-        // login ミューテーションは GraphQL error 化 (フォームエラー扱い) するため早期 403 を避ける
-        if (/login\s*\(/i.test(bodyStr)) {
+        // issueCsrfToken は CSRF ブートストラップのため常に通過させる
+        if (isIssueCsrf) {
+          // no-op: resolver 側で cookie を付与
+        } else if (isLogin) {
+          // login は GraphQL エラー (CSRF_INVALID) でハンドリングするため 403 を避ける
           (req as any).__csrfInvalid = true;
         } else {
           res.status(403).send('Forbidden (CSRF token mismatch)');

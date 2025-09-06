@@ -22,8 +22,8 @@ export default function ProfileArtworks({user}: Props){
             <Grid container sx={{ flexGrow: 1, }} spacing={1}>
                 {(!user?.artworks.length)
                 ? <CardContent><Typography>作品はありません</Typography></CardContent>
-                : user.artworks.map((artwork: Artwork, index: number) => (
-                    <Grid key={index} size={{xs: 25, md: 4}} sx={{width: '100%'}}>
+                : user.artworks.map((artwork: Artwork) => (
+                    <Grid key={artwork.slug_id} size={{xs: 25, md: 4}} sx={{width: '100%'}}>
                         <Card sx={{p: '10px'}}>
                             <Grid container>
                                 <Box sx={{display: 'flex',}}>
