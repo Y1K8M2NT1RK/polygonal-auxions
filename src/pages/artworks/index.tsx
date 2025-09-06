@@ -6,6 +6,7 @@ import {
   Box,
   Typography
 } from '@mui/material';
+import { ArtworkListSkeleton } from '@/components/skeletons';
 import { useQuery } from 'urql';
 import { type Artwork } from '@/generated/generated-graphql';
 import { ArtworksDocument, ArtworksCountDocument } from '@/generated/generated-graphql';
@@ -113,7 +114,7 @@ export default function Artworks() {
         hasError ? (
           <div>Error! {error.message}</div>
         ) : fetching && isInitialLoad ? (
-          <CircularProgress key={0} color="inherit" />
+          <ArtworkListSkeleton count={18} />
         ) : (
           <>
             <Grid container key={1} sx={{flexGrow: 1,}} spacing={2}>

@@ -12,6 +12,7 @@ import {
     ListItemAvatar,
     CircularProgress,
 } from '@mui/material';
+import { CommentSkeleton } from '@/components/skeletons';
 import Link from 'next/link';
 import type { Comment, Artwork } from '@/generated/generated-graphql';
 import DefaultUserIcon from '@/components/DefaultUserIcon';
@@ -125,7 +126,7 @@ export default function ArtworkComments({artwork}: Props){
                 )}
                 <Divider sx={{ mt: '10px' }} />
                 {fetching ? (
-                    <CircularProgress key={0} color="inherit" />
+                    <CommentSkeleton count={3} />
                 ) : comments == undefined || comments.length == 0 ? (
                     <Typography sx={{ textAlign: 'center', my: 3 }}>コメントはありません</Typography>
                 ) : (

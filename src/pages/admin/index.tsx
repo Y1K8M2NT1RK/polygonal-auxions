@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { CircularProgress, Box } from '@mui/material';
+import { AdminRedirectSkeleton } from '@/components/skeletons';
 
 export default function AdminIndex() {
   const { isAdminLoggedIn, fetching } = useAdminAuth();
@@ -19,13 +20,6 @@ export default function AdminIndex() {
 
   // Show loading while redirecting
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
-    >
-      <CircularProgress />
-    </Box>
+    <AdminRedirectSkeleton />
   );
 }
