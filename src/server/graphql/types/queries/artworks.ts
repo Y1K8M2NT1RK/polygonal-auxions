@@ -1,6 +1,6 @@
 import { builder } from '../../builder';
 import { prisma } from '../../../db';
-import { Artwork, ArtworkRanks, userIncludeFile } from '../consts';
+import { Artwork, ArtworkRanks, Ranks, userIncludeFile } from '../consts';
 
 // 作品一覧
 builder.queryField("artworks", (t) =>
@@ -102,6 +102,19 @@ builder.queryField("getArtworkRanks", (t) =>
       prisma.artworkRanks.findMany({
         ...query,
         where: { artwork_id: parseInt(args.artwork_id), rank_id: { in: [3, 4] } }
+      })
+  })
+);
+
+// 報告理由一覧 (RankTypeId=3)
+builder.queryField("getReportReasons", (t) =>
+  t.prismaField({
+    type: [Ranks],
+    resolve: (query) =>
+      prisma.ranks.findMany({
+        ...query,
+        where: { rank_type_id: 3 },
+        orderBy: { id: 'asc' }
       })
   })
 );

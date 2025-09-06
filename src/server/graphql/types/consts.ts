@@ -124,6 +124,24 @@ export const ArtworkRanks = builder.prismaObject('ArtworkRanks', {
 		artwork_id: t.exposeID('artwork_id'),
 		rank_id: t.exposeID('rank_id'),
 		user_id: t.exposeID('user_id'),
+		ranks: t.relation('ranks'),
+	}),
+});
+
+export const Ranks = builder.prismaObject('Ranks', {
+	fields: (t: any) => ({
+		id: t.exposeID('id'),
+		name: t.exposeString('name'),
+		rank_type_id: t.exposeID('rank_type_id'),
+		rank_type: t.relation('rank_type'),
+	}),
+});
+
+export const RankTypes = builder.prismaObject('RankTypes', {
+	fields: (t: any) => ({
+		id: t.exposeID('id'),
+		name: t.exposeString('name'),
+		ranks: t.relation('ranks'),
 	}),
 });
 

@@ -25,11 +25,14 @@ import Link from 'next/link';
 import { toast } from "react-toastify";
 import { RemoveArtworkDocument } from '@/generated/generated-graphql';
 import DefaultUserIcon from '@/components/DefaultUserIcon';
-import { AnyVariables, useMutation } from 'urql';
+import { AnyVariables, useMutation, useQuery } from 'urql';
 import RankButton from '@/components/RankButton';
 import AlertDialog from '@/components/AlertDialog';
 import { useAuth } from '@/contexts/AuthContexts';
 import useDarkMode from '@/hooks/useDarkMode';
+import ReportDialog from '@/components/ReportDialog';
+import ReportSuccessDialog from '@/components/ReportSuccessDialog';
+import { GET_REPORT_REASONS, ADD_ARTWORK_RANK, type ReportReason, type GetReportReasonsQuery, type AddArtworkRankMutation, type AddArtworkRankMutationVariables } from '@/utils/reportGraphql';
 
 type Props = {
     artwork: Artwork,
@@ -47,10 +50,44 @@ export default function ArtworkDetail({artwork, handleIsEditing, isEditing, feat
     const [, AddArtworkRank] = useMutation<AnyVariables>(AddArtworkRankDocument);
     const [, RemoveArtworkRank] = useMutation<AnyVariables>(RemoveArtworkRankDocument);
     const [, RemoveArtwork] = useMutation<AnyVariables>(RemoveArtworkDocument);
+    
+    // Report functionality
+    const [reportReasonsResult] = useQuery<GetReportReasonsQuery>({ query: GET_REPORT_REASONS });
+    const [, addArtworkRankForReport] = useMutation<AddArtworkRankMutation, AddArtworkRankMutationVariables>(ADD_ARTWORK_RANK);
 
     const [openDialog, setOpenDialog] = useState(false);
+    const [openReportDialog, setOpenReportDialog] = useState(false);
+    const [openReportSuccessDialog, setOpenReportSuccessDialog] = useState(false);
+    
     const handleDialogOpen = () => setOpenDialog(true);
     const handleDialogClose = () => setOpenDialog(false);
+    
+    const handleReportDialogOpen = () => {
+        if (!user) {
+            toast.error('報告するにはログインが必要です');
+            return;
+        }
+        setOpenReportDialog(true);
+    };
+    const handleReportDialogClose = () => setOpenReportDialog(false);
+    
+    const handleReportSuccessDialogClose = () => setOpenReportSuccessDialog(false);
+
+    const handleReportSubmit = async (rankId: string) => {
+        try {
+            await addArtworkRankForReport({
+                artwork_id: String(artwork.id),
+                rank_id: rankId,
+            });
+            setOpenReportDialog(false);
+            setOpenReportSuccessDialog(true);
+            toast.success('報告が完了しました');
+        } catch (error) {
+            console.error('Report submission error:', error);
+            toast.error('報告の送信に失敗しました');
+            throw error;
+        }
+    };
 
     const handleRankChange = async (artwork_id: string, rank_id: string, action: 'add' | 'remove') => {
         let result;
@@ -133,7 +170,11 @@ export default function ArtworkDetail({artwork, handleIsEditing, isEditing, feat
                     </Grid>
                     : null
                 }
-                <Grid><Fab variant="extended" size='medium'><FlagIcon />報告</Fab></Grid>
+                <Grid>
+                    <Fab variant="extended" size='medium' onClick={handleReportDialogOpen}>
+                        <FlagIcon />報告
+                    </Fab>
+                </Grid>
                 {
                     isOwner
                     ? <Grid>
@@ -157,6 +198,23 @@ export default function ArtworkDetail({artwork, handleIsEditing, isEditing, feat
                     : null
                 }
             </Grid>
+            
+            {/* Report Dialog */}
+            <ReportDialog
+                open={openReportDialog}
+                onClose={handleReportDialogClose}
+                artworkId={String(artwork.id)}
+                artworkTitle={artwork.title}
+                onReportSubmit={handleReportSubmit}
+                reportReasons={reportReasonsResult.data?.getReportReasons || []}
+                loading={reportReasonsResult.fetching}
+            />
+            
+            {/* Report Success Dialog */}
+            <ReportSuccessDialog
+                open={openReportSuccessDialog}
+                onClose={handleReportSuccessDialogClose}
+            />
         </Card>
     )
 }
