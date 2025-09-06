@@ -32,6 +32,7 @@
     "studio": "npx prisma studio --port 5555 --browser none",
     "email:test": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/email/simple-test.ts",
     "email:reset:test": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/dev-send-password-reset.ts",
+  "reset:e2e": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/dev-password-reset-e2e.ts",
     "email:raw-smtp": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/raw-smtp-send.ts",
     "test:smoke:graphql": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/smoke/graphql-smoke.ts"
   },

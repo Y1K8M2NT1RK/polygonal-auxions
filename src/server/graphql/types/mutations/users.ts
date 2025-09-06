@@ -199,6 +199,10 @@ const RATE_MAX = parseInt(process.env.PASSWORD_RESET_RATE_LIMIT_MAX || '3', 10);
 // Define the response type for password reset with optional token
 const MutationRequestPasswordResetSuccess = builder.objectRef<{ success: boolean; token?: string }>('MutationRequestPasswordResetSuccess');
 builder.objectType(MutationRequestPasswordResetSuccess, {
+  // Help GraphQL resolve the union member at runtime
+  isTypeOf: (value): boolean => {
+    return typeof value === 'object' && value !== null && 'success' in (value as any);
+  },
   fields: (t) => ({
     success: t.exposeBoolean('success'),
     token: t.exposeString('token', { nullable: true }),

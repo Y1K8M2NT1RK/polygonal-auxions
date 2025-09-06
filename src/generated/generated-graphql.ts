@@ -119,6 +119,7 @@ export type Mutation = {
   adminDeleteUser: MutationAdminDeleteUserResult;
   adminUpdateUser: MutationAdminUpdateUserResult;
   followOrUnfollow: Follow;
+  issueCsrfToken: Scalars['Boolean']['output'];
   login: MutationLoginResult;
   logout: Scalars['Boolean']['output'];
   logoutAll: Scalars['Boolean']['output'];
@@ -622,6 +623,11 @@ export type ResetPasswordMutationVariables = Exact<{
 
 export type ResetPasswordMutation = { __typename?: 'Mutation', resetPassword: { __typename: 'MutationResetPasswordSuccess', data: boolean } | { __typename: 'ZodError', message: string, fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string }> } };
 
+export type IssueCsrfTokenMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type IssueCsrfTokenMutation = { __typename?: 'Mutation', issueCsrfToken: boolean };
+
 export type ArtworksQueryVariables = Exact<{
   q?: InputMaybe<Scalars['String']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -1045,11 +1051,6 @@ export const ResetPasswordDocument = gql`
 export function useResetPasswordMutation() {
   return Urql.useMutation<ResetPasswordMutation, ResetPasswordMutationVariables>(ResetPasswordDocument);
 };
-
-export type IssueCsrfTokenMutationVariables = Exact<{ [key: string]: never; }>;
-
-export type IssueCsrfTokenMutation = { __typename?: 'Mutation', issueCsrfToken: boolean };
-
 export const IssueCsrfTokenDocument = gql`
     mutation IssueCsrfToken {
   issueCsrfToken

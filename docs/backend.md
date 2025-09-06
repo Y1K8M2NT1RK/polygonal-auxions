@@ -16,7 +16,7 @@
 	- 旧 `src/pages/api/{builder,schema}.ts` は削除済み（参照不要）
 
 ## 3. GraphQL ドキュメント (`.graphql`)
-- ルート: `src/pages/api/graphql/`
+- ルート: `src/graphql/`
 - ディレクトリ: `mutations/`, `queries/`
 - 入力定義: `inputs.graphql` (単数形`input`ではない)
 - 命名: 機能を表す英語単語列 (`artworks.graphql` など)
