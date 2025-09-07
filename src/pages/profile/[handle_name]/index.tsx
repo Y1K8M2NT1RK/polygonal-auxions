@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, CircularProgress } from '@mui/material';
 import { ProfileSkeleton } from '@/components/skeletons';
-import ProfileHeader from '@/pages/profile/components/profile-header';
+import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileTabs from '@/pages/profile/components/profile-tabs';
 import Head from 'next/head';
 import { useUserProfile } from '@/contexts/Profile/ProfileContext';

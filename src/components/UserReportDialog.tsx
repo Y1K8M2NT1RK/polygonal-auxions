@@ -14,7 +14,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useAuth } from '@/contexts/AuthContexts';
-import { Ranks } from '@/generated/generated-graphql';
+import type { GetReportReasonsQuery } from '@/generated/generated-graphql';
 
 type Props = {
   open: boolean;
@@ -22,7 +22,7 @@ type Props = {
   userId: string;
   userName: string;
   onReportSubmit: (rankId: string) => Promise<void>;
-  reportReasons: Ranks[];
+  reportReasons: GetReportReasonsQuery['getReportReasons'];
   loading?: boolean;
 };
 

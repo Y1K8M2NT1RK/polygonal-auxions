@@ -196,7 +196,7 @@ builder.mutationField("addUserRank", (t) =>
   t.prismaField({
     type: 'UserRanks',
     args: { user_id: t.arg.string({ required: true }), rank_id: t.arg.string({ required: true }) },
-    authScopes: { user: true },
+  authScopes: { isAuthenticated: true },
     resolve: (query, _parent, args, ctx) => prisma.userRanks.create({
       ...query,
       data: { 
