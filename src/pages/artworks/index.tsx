@@ -10,7 +10,7 @@ import { ArtworkListSkeleton } from '@/components/skeletons';
 import { useQuery } from 'urql';
 import { type Artwork } from '@/generated/generated-graphql';
 import { ArtworksDocument, ArtworksCountDocument } from '@/generated/generated-graphql';
-import ArtworkListUnit from '@/pages/artworks/components/artwork-list-unit';
+import ArtworkListUnit from '@/components/artworks/ArtworkListUnit';
 import { useEffect, useState } from 'react';
 import { usePause } from '@/contexts/PauseContexts';
 import Head from 'next/head';

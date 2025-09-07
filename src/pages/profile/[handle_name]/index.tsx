@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, CircularProgress } from '@mui/material';
 import { ProfileSkeleton } from '@/components/skeletons';
 import ProfileHeader from '@/components/profile/ProfileHeader';
-import ProfileTabs from '@/pages/profile/components/profile-tabs';
+import ProfileTabs from '@/components/profile/ProfileTabs';
 import Head from 'next/head';
 import { useUserProfile } from '@/contexts/Profile/ProfileContext';
 import NotFound from '@/components/NotFound';
