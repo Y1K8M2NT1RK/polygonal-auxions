@@ -11,6 +11,8 @@ import {
     AddArtworkRankDocument,
     RemoveArtworkRankDocument,
     type Artwork,
+    type AddArtworkRankMutation, 
+    type AddArtworkRankMutationVariables,
 } from '@/generated/generated-graphql';
 import { useState, ReactElement, ReactNode } from 'react';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
@@ -32,7 +34,6 @@ import { useAuth } from '@/contexts/AuthContexts';
 import useDarkMode from '@/hooks/useDarkMode';
 import ReportDialog from '@/components/ReportDialog';
 import ReportSuccessDialog from '@/components/ReportSuccessDialog';
-import { AddArtworkRankDocument, type AddArtworkRankMutation, type AddArtworkRankMutationVariables } from '@/generated/generated-graphql';
 import { gql } from 'urql';
 
 // TODO: Move this to generated types when GraphQL codegen includes it

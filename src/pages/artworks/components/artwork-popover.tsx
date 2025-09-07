@@ -18,11 +18,37 @@ import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import WarningIcon from '@mui/icons-material/Warning';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import { AnyVariables, useMutation } from 'urql';
-import { AddArtworkRankDocument, RemoveArtworkRankDocument, RemoveArtworkDocument, Artwork } from '@/generated/generated-graphql';
+import { AnyVariables, useMutation, useQuery } from 'urql';
+import { AddArtworkRankDocument, RemoveArtworkRankDocument, RemoveArtworkDocument, Artwork, type AddArtworkRankMutation, type AddArtworkRankMutationVariables } from '@/generated/generated-graphql';
 import { useAuth } from '@/contexts/AuthContexts';
 import RankButton from '@/components/RankButton';
 import AlertDialog from '@/components/AlertDialog';
+import ReportDialog from '@/components/ReportDialog';
+import ReportSuccessDialog from '@/components/ReportSuccessDialog';
+import { toast } from "react-toastify";
+import { gql } from 'urql';
+
+// Report reasons type (from GraphQL)
+type ReportReason = {
+  id: string;
+  name: string;
+  rank_type_id: string;
+};
+
+type GetReportReasonsQuery = {
+  getReportReasons: ReportReason[];
+};
+
+// GraphQL query for report reasons
+const GET_REPORT_REASONS = gql`
+  query GetReportReasons {
+    getReportReasons {
+      id
+      name
+      rank_type_id
+    }
+  }
+`;
 
 type ArtworkPopoverProps = {
     artwork: Artwork & {deletedInFront: boolean;};
@@ -44,6 +70,10 @@ export default function ArtworkPopover({artwork, setDeletedArtworksInFront}: Art
     const [openDialog, setOpenDialog] = useState(false);
     const handleDialogOpen = () => setOpenDialog(true);
     const handleDialogClose = () => setOpenDialog(false);
+
+    // Report dialog states
+    const [openReportDialog, setOpenReportDialog] = useState(false);
+    const [openReportSuccessDialog, setOpenReportSuccessDialog] = useState(false);
   
     const open = Boolean(anchorEl);
 
@@ -53,8 +83,39 @@ export default function ArtworkPopover({artwork, setDeletedArtworksInFront}: Art
 
     const [, AddArtworkRank] = useMutation<AnyVariables>(AddArtworkRankDocument);
     const [, RemoveArtworkRank] = useMutation<AnyVariables>(RemoveArtworkRankDocument);
-
     const [, RemoveArtwork] = useMutation<AnyVariables>(RemoveArtworkDocument);
+
+    // Report functionality
+    const [reportReasonsResult] = useQuery<GetReportReasonsQuery>({ query: GET_REPORT_REASONS });
+    const [, addArtworkRankForReport] = useMutation<AddArtworkRankMutation, AddArtworkRankMutationVariables>(AddArtworkRankDocument);
+    
+    const handleReportDialogOpen = () => {
+        if (!user) {
+            toast.error('報告するにはログインが必要です');
+            return;
+        }
+        setOpenReportDialog(true);
+        handleClose(); // Close the popover when opening report dialog
+    };
+    
+    const handleReportDialogClose = () => setOpenReportDialog(false);
+    const handleReportSuccessDialogClose = () => setOpenReportSuccessDialog(false);
+
+    const handleReportSubmit = async (rankId: string) => {
+        try {
+            await addArtworkRankForReport({
+                artwork_id: String(artwork.id),
+                rank_id: rankId,
+            });
+            setOpenReportDialog(false);
+            setOpenReportSuccessDialog(true);
+            toast.success('報告が完了しました');
+        } catch (error) {
+            console.error('Report submission error:', error);
+            toast.error('報告の送信に失敗しました');
+            throw error;
+        }
+    };
 
     return (
         <Box>
@@ -105,7 +166,7 @@ export default function ArtworkPopover({artwork, setDeletedArtworksInFront}: Art
                             </MenuItem>
                             : null
                         }
-                        <MenuItem><Typography variant="button"><FlagIcon /> 報告</Typography></MenuItem>
+                        <MenuItem><Typography variant="button" onClick={handleReportDialogOpen}><FlagIcon /> 報告</Typography></MenuItem>
                         {
                             isOwner
                             ? <MenuItem>
@@ -139,6 +200,23 @@ export default function ArtworkPopover({artwork, setDeletedArtworksInFront}: Art
                     </MenuList>
                 </Card>
             </Popover>
+            
+            {/* Report Dialog */}
+            <ReportDialog
+                open={openReportDialog}
+                onClose={handleReportDialogClose}
+                artworkId={String(artwork.id)}
+                artworkTitle={artwork.title}
+                onReportSubmit={handleReportSubmit}
+                reportReasons={reportReasonsResult.data?.getReportReasons || []}
+                loading={reportReasonsResult.fetching}
+            />
+            
+            {/* Report Success Dialog */}
+            <ReportSuccessDialog
+                open={openReportSuccessDialog}
+                onClose={handleReportSuccessDialogClose}
+            />
         </Box>
     );
 }
