@@ -1,6 +1,6 @@
 import { useAuth } from '@/contexts/AuthContexts';
-import NotLoggedIn from './home/components/HomeNotLoggedIn';
-import LoggedIn from './home/components/HomeLoggedIn';
+import NotLoggedIn from '@/components/home/HomeNotLoggedIn';
+import LoggedIn from '@/components/home/HomeLoggedIn';
 import { CircularProgress } from '@mui/material';
 import { UserDashboardSkeleton } from '@/components/skeletons';
 
