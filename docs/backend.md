@@ -1,98 +1,284 @@
-# バックエンド指針
+# 🏗️ バックエンド開発指針
 
-## 1. 技術スタック
-- GraphQL Yoga (+ Pothos / Code First)
-- Next.js API Routes (pages router)
-- Prisma
+**GraphQL + Prisma + Next.js API Routes** を基盤とした、型安全で保守性の高いバックエンドアーキテクチャ。
 
-## 2. 配置原則
-- Runtime API Routes (最小限): `src/pages/api/`
-	- GraphQL エンドポイント: `src/pages/api/graphql.ts`
-		- CSRF トークン発行: GraphQL mutation `issueCsrfToken` (旧 REST `/api/csrf` は削除)
-		- アップロード: `src/pages/api/upload.ts`
-		- （開発限定）デバッグエンドポイント (debug.ts, openssl.ts) はセキュリティ簡素化のため削除済み
-- GraphQL 実装本体 (スキーマ/ビルダー/型定義/リゾルバ): `src/server/graphql/`
-	- `builder.ts`, `schema.ts`, `types/` 下へ移行済み
-	- 旧 `src/pages/api/{builder,schema}.ts` は削除済み（参照不要）
+---
 
-## 3. GraphQL ドキュメント (`.graphql`)
-- ルート: `src/graphql/`
-- ディレクトリ: `mutations/`, `queries/`
-- 入力定義: `inputs.graphql` (単数形`input`ではない)
-- 命名: 機能を表す英語単語列 (`artworks.graphql` など)
+## 🛠️ 技術スタック
 
-## 4. Pothos (Code First) リゾルバ配置
-- ルート: `src/server/graphql/types/`
-- ミューテーション: `types/mutations/*.ts`
-- クエリ: `types/queries/*.ts`
-- 共通: `types/pothos.ts`, `types/consts.ts`, `types/errors.ts`, `types/cookie.ts`
-- 命名: 対象ドメイン単位 (`artworks.ts`, `comments.ts`, `users.ts`)
+### Core Technologies
+- **GraphQL Server**: GraphQL Yoga (高性能・軽量)
+- **Schema Builder**: Pothos (Code First アプローチ)
+- **Runtime**: Next.js API Routes (Pages Router)
+- **ORM**: Prisma (型安全データアクセス)
+- **Database**: PostgreSQL
 
-## 5. 永続クエリ / Persisted Operations
-- 生成物: `src/generated/persisted-operations.json`, `client-persisted-operations.json`
-- 更新タイミング: クエリ/ミューテーション変更後に codegen 再実行
- - CI 監視: persisted ops ファイル差分検出（意図しない GraphQL 文変更 / キャッシュ無効化リスク / 不整合防止）
- - 意義:
-	 - セキュリティ: 未登録クエリの実行を防ぎ攻撃面を縮小
-	 - 整合性: クライアントとサーバのクエリIDマッピングずれを早期検出
-	 - パフォーマンス: 差分最小化で CDN / キャッシュ効率維持
+### Supporting Tools
+- **Code Generation**: GraphQL Code Generator
+- **Type Safety**: TypeScript完全対応
+- **Security**: CSRF Protection + JWT
 
-## 6. コード生成 / Prisma
-- `prisma generate` はデプロイ前必須
-- GraphQL 型: `generated-graphql.ts` を最新化
+---
 
-## 7. 共通化指針
-- 入力型: `inputs.graphql`
-- 定数/再利用 util: `consts.ts` or 専用 util ファイル
+## 📁 プロジェクト構成
 
-## 8. エラーハンドリング
-### 8.1 分類ポリシー
-| 区分 | 説明 | 例 | GraphQL 拡張 http.status | code (extensions) | UI 想定処理 |
-|------|------|----|--------------------------|-------------------|-------------|
-| Validation (入力) | スキーマ/バリデーション違反 (Zod) | 文字数超過 / 必須欠落 | 400 | (無し) messages/fieldErrors | RHF フィールドエラー表示 |
-| Business (認証/権限) | ドメイン条件違反・認証状態異常 | 認証必須操作 / セッション失効 | 401/403 | CSRF_INVALID 等 | グローバルフォームエラー / 再ログイン誘導 |
-| Business (論理) | 業務的制約 | フォロー重複 / 不正 mode 値 | 400/422 | DOMAIN_CONSTRAINT | トースト / インライン表示 |
-| System | 予期せぬ例外 / インフラ | DB 障害 / 未捕捉例外 | 500 | INTERNAL_SERVER_ERROR | 汎用エラー表示 + ログ収集 |
+### API Routes (`src/pages/api/`)
+最小限のランタイムエンドポイントのみ配置：
 
-### 8.2 具体的エラー生成条件
-| 生成箇所 | 条件 | 返却型 / throw | マッピング結果 |
-|-----------|------|----------------|----------------|
-| Pothos validate 配列 | 戻り値 false | ZodError 相当 (fieldErrorsに path) | Validation 400 |
-| Zod schema | schema 不一致 | ZodError | Validation 400 |
-| login ミューテーション | CSRF 不一致 (グローバルで __csrfInvalid フラグ) | CsrfError | Business(認証) 403 code=CSRF_INVALID |
-| login ミューテーション | email 未登録 | Error() | System 500 (今後 NotFound 化要検討) |
-| bcrypt 照合失敗 | validate false | ZodError(password) | Validation 400 |
-| followOrUnfollow | 不正 mode | Error('follow error') | System 500 (将来 DOMAIN_CONSTRAINT へ) |
-| マスキングロジック (maskedErrors) | cause instanceof CsrfError | GraphQLError(message, http 403, code CSRF_INVALID) | Business(認証) |
-| マスキングロジック | cause instanceof ZodError | GraphQLError(messages, http 400) | Validation |
-| マスキングロジック | その他 | GraphQLError(http 500) | System |
+```
+src/pages/api/
+├── graphql.ts          # GraphQLエンドポイント（メイン）
+└── upload.ts           # ファイルアップロード専用
+```
 
-### 8.3 CSRF 不一致の扱い
-- login 以外の mutation: 早期に HTTP 403 を直接返却 (GraphQL レイヤ未到達)
-- login: 403 を GraphQL に持ち上げ CsrfError として返却し、RHF でフォーム上に「セッション無効」等を表示可能
-- メッセージは内部実装 (CSRF トークン) を明示せずセッション失効として表現
+#### 重要な変更履歴
+- ✅ CSRF トークン発行を GraphQL mutation `issueCsrfToken` に統合
+- 🗑️ 旧 REST `/api/csrf` エンドポイントは削除済み
+- 🗑️ 開発用デバッグエンドポイント (`debug.ts`, `openssl.ts`) はセキュリティ強化のため削除
 
-### 8.4 改善予定 (Backlog)
-- email 未存在時の Error() をドメイン 404/422 に再分類
-- followOrUnfollow の汎用 Error -> DOMAIN_CONSTRAINT 化
-- code 体系: VALIDATION / AUTH / DOMAIN_CONSTRAINT / INTERNAL 等への標準化
-- ログ集約 (code + request id) / アラート閾値設定
+### GraphQL実装 (`src/server/graphql/`)
+スキーマ定義・リゾルバ・型定義の本体：
 
-最終更新: 2025-08-31 (server/graphql への移行反映)
+```
+src/server/graphql/
+├── builder.ts              # Pothosビルダー設定
+├── schema.ts              # 統合スキーマ
+├── db.ts                  # Prismaクライアント
+└── types/
+    ├── pothos.ts          # Pothos型設定
+    ├── consts.ts          # 共通定数・型定義
+    ├── errors.ts          # エラーハンドリング
+    ├── cookie.ts          # Cookie管理
+    ├── mutations/         # ミューテーション実装
+    │   ├── users.ts       # ユーザー関連
+    │   ├── artworks.ts    # 作品関連
+    │   └── comments.ts    # コメント関連
+    └── queries/           # クエリ実装
+        ├── users.ts
+        ├── artworks.ts
+        └── comments.ts
+```
 
-## 9. Prisma 命名
-- Model: 単数 PascalCase (`User`)
-- Field: camelCase
+---
 
-## 10. 変更時チェック
-- 新規ドメイン → `types/(mutations|queries)` 更新
-- 新規入力型 → `inputs.graphql` 追記
-- Persisted ops 生成忘れ防止: CI で差分検出
+## 📄 GraphQL ドキュメント管理
 
-## 11. テスト方針
-- 本プロジェクトの自動テストレイヤは現状「E2E テスト」のみを公式採用（ユニット/統合は任意）
-- 目的: ユーザ視点の主要シナリオ(認証 / 投稿 / 閲覧) が本番想定環境で通ることを保証
-- Smoke (`npm run v`) はビルド検証でありテストスイートにはカウントしない
-- E2E 実行前提: マイグレーション & seed 済み DB / 本番相当ビルド
+### ファイル構成 (`src/graphql/`)
+```
+src/graphql/
+├── inputs.graphql         # 共通入力型定義
+├── mutations/
+│   ├── users.graphql      # ユーザー操作
+│   ├── artworks.graphql   # 作品操作
+│   └── comments.graphql   # コメント操作
+├── queries/
+│   ├── users.graphql      # ユーザー取得
+│   ├── artworks.graphql   # 作品取得
+│   └── comments.graphql   # コメント取得
+└── operations/            # 複合操作（フロントエンド用）
+    └── dashboard.graphql
+```
 
-最終更新: 2025-08-09
+### 命名規則
+- **ファイル名**: 機能を表す英語単語 (`artworks.graphql`)
+- **操作名**: 動詞 + 対象 (`getUserProfile`, `addArtworkRank`)
+- **型名**: PascalCase (`User`, `ArtworkInput`)
+
+---
+
+## 🔧 Pothos実装パターン
+
+### リゾルバ構成原則
+```typescript
+// types/mutations/users.ts の例
+builder.mutationField("updateUserProfile", (t) =>
+  t.prismaField({
+    type: 'User',
+    args: { 
+      name: t.arg.string({ required: true }),
+      introduction: t.arg.string()
+    },
+    authScopes: { isAuthenticated: true },
+    resolve: async (query, _parent, args, ctx) => {
+      return prisma.user.update({
+        ...query,
+        where: { id: ctx.auth?.id },
+        data: args
+      });
+    }
+  })
+);
+```
+
+### 認証スコープ
+| スコープ | 用途 | 例 |
+|----------|------|-----|
+| `{ public: true }` | 未認証でもアクセス可能 | 作品一覧取得 |
+| `{ isAuthenticated: true }` | ログイン必須 | プロフィール更新 |
+| `{ isAdmin: true }` | 管理者のみ | ユーザー管理 |
+
+---
+
+## 🚀 Persisted Operations (永続クエリ)
+
+### 概要
+クライアントが実行可能なGraphQL操作を事前登録し、セキュリティと性能を向上。
+
+### 生成ファイル
+```
+src/generated/
+├── persisted-operations.json        # サーバー用（全操作）
+└── client-persisted-operations.json # クライアント用（ID→ハッシュマッピング）
+```
+
+### 更新フロー
+```bash
+# 1. GraphQL文書を更新
+vim src/graphql/queries/artworks.graphql
+
+# 2. コード生成実行
+npx graphql-codegen
+
+# 3. 差分確認（重要）
+git diff src/generated/
+```
+
+### セキュリティ効果
+- ✅ **未登録クエリ阻止**: 想定外の操作を防止
+- ✅ **攻撃面縮小**: GraphQL Introspectionを無効化
+- ✅ **整合性保証**: クライアント-サーバー間のクエリID同期
+
+### パフォーマンス効果
+- ⚡ **キャッシュ効率**: 固定IDによるCDN最適化
+- ⚡ **転送量削減**: クエリ文字列の代わりにIDを送信
+
+---
+
+## 🔄 コード生成 & デプロイフロー
+
+### 必須実行順序
+```bash
+# 1. Prismaクライアント生成
+npm run prisma:generate
+
+# 2. GraphQL型生成
+npx graphql-codegen
+
+# 3. Next.jsビルド
+npm run build
+```
+
+### CI/CD監視項目
+- [ ] Persisted Operations差分検出
+- [ ] TypeScript型エラー
+- [ ] Prismaマイグレーション適用
+
+---
+
+## ⚠️ エラーハンドリング戦略
+
+### エラー分類ポリシー
+
+| 区分 | HTTP Status | GraphQL Code | UI処理 | 例 |
+|------|-------------|--------------|--------|-----|
+| **バリデーションエラー** | 400 | `VALIDATION_ERROR` | フォームエラー表示 | 必須フィールド未入力 |
+| **認証エラー** | 401 | `UNAUTHENTICATED` | ログインダイアログ | JWTトークン期限切れ |
+| **認可エラー** | 403 | `FORBIDDEN` | アクセス拒否メッセージ | 他ユーザーのデータ編集 |
+| **リソース未発見** | 404 | `NOT_FOUND` | 404ページ | 存在しない作品ID |
+| **レート制限** | 429 | `RATE_LIMITED` | 再試行案内 | API呼び出し過多 |
+| **サーバーエラー** | 500 | `INTERNAL_ERROR` | 汎用エラーメッセージ | DB接続失敗 |
+
+### エラー実装例
+```typescript
+// types/errors.ts
+export const ValidationError = builder.objectRef<{
+  message: string;
+  field?: string;
+}>('ValidationError');
+
+builder.objectType(ValidationError, {
+  fields: (t) => ({
+    message: t.exposeString('message'),
+    field: t.exposeString('field', { nullable: true })
+  })
+});
+```
+
+---
+
+## 🔐 セキュリティ実装
+
+### CSRF保護
+```typescript
+// types/mutations/users.ts
+builder.mutationField("updateProfile", (t) =>
+  t.prismaField({
+    // CSRF検証は middleware で自動実行
+    authScopes: { isAuthenticated: true },
+    // ...implementation
+  })
+);
+```
+
+### データ検証
+```typescript
+import { z } from 'zod';
+
+const UserUpdateSchema = z.object({
+  name: z.string().min(1).max(50),
+  email: z.string().email()
+});
+
+// リゾルバ内でスキーマ検証
+const validatedData = UserUpdateSchema.parse(args);
+```
+
+---
+
+## 🧪 テスト戦略
+
+### Smoke Tests
+```bash
+# GraphQL エンドポイント疎通確認
+npm run test:smoke:graphql
+
+# 基本的なCRUD操作テスト
+npm run test:integration
+```
+
+### 手動テスト項目
+- [ ] CSRF トークン発行・検証
+- [ ] JWT認証フロー
+- [ ] ファイルアップロード
+- [ ] エラーレスポンス形式
+
+---
+
+## 📚 関連ドキュメント
+
+- **[認証アーキテクチャ](auth-architecture-A.md)**: 認証・認可の詳細設計
+- **[フロントエンド仕様](frontend.md)**: UI・UX実装ガイドライン
+- **[デプロイメント](deployment-controls.md)**: 本番環境デプロイ手順
+
+---
+
+## 🔄 今後の改善予定
+
+### 短期
+- [ ] GraphQL Subscription対応（リアルタイム機能）
+- [ ] レート制限実装（Redis + Sliding Window）
+- [ ] API監査ログ
+
+### 中期
+- [ ] GraphQL Federation（マイクロサービス化）
+- [ ] OpenTelemetry導入（分散トレーシング）
+- [ ] 自動パフォーマンステスト
+
+---
+
+<div align="center">
+
+**最終更新**: 2025-09-07  
+**管理者**: Backend Team
+
+</div>
