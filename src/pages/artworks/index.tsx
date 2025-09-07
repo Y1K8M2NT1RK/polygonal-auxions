@@ -10,11 +10,11 @@ import { ArtworkListSkeleton } from '@/components/skeletons';
 import { useQuery } from 'urql';
 import { type Artwork } from '@/generated/generated-graphql';
 import { ArtworksDocument, ArtworksCountDocument } from '@/generated/generated-graphql';
-import ArtworkListUnit from './components/artwork-list-unit';
+import ArtworkListUnit from '@/components/artworks/ArtworkListUnit';
 import { useEffect, useState } from 'react';
 import { usePause } from '@/contexts/PauseContexts';
 import Head from 'next/head';
-import ArtworkPopover from './components/artwork-popover';
+import ArtworkPopover from '@/components/artworks/ArtworkPopover';
 import { useSearchParams } from 'next/navigation';
 
 export default function Artworks() {

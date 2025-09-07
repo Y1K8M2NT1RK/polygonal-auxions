@@ -5,11 +5,8 @@ import { printSchema } from 'graphql';
 const config: CodegenConfig = {
   schema: printSchema(schema),
   overwrite: true,
-  documents: [
-  'src/graphql/mutations/*.graphql',
-  'src/graphql/queries/*.graphql',
-  'src/graphql/inputs.graphql',
-  ],
+  // Include all GraphQL documents under src/graphql (queries, mutations, inputs, and operations)
+  documents: ['src/graphql/**/*.graphql'],
   emitLegacyCommonJSImports: false,
   generates: {
     'src/generated/generated-graphql.ts': {

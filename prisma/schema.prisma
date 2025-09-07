@@ -50,6 +50,8 @@ model User {
   user_files        UserFiles[]     @relation("user_files_fk")
   artworks          Artwork[]       @relation("artworks_fk")
   artwork_ranks     ArtworkRanks[]  @relation("artwork_ranks_fk")
+  user_ranks_reported UserRanks[]   @relation("user_ranks_reported")
+  user_ranks_reporter UserRanks[]   @relation("user_ranks_reporter")
   comments          Comment[]       @relation("comments_fk")
   followed_by       Follow[]        @relation("followedBy")
   following         Follow[]        @relation("following")
@@ -201,12 +203,29 @@ model ArtworkRanks { // このテーブルは、評価機能のみならず報�
   @@map(name: "artwork_ranks")
 }
 
+model UserRanks { // ユーザー報告機能用のテーブル
+  id            Int             @id @default(autoincrement())
+  reported_user_id Int          // 報告対象のユーザー
+  rank_id       Int             // 報告理由
+  reporter_user_id Int          // 報告したユーザー
+  created_at    DateTime        @default(now()) @db.Timestamp()
+  updated_at    DateTime        @default(now()) @db.Timestamp() @updatedAt
+
+  reported_user User            @relation("user_ranks_reported", fields: [reported_user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  reporter_user User            @relation("user_ranks_reporter", fields: [reporter_user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  ranks         Ranks           @relation("user_ranks_fk_from_ranks", fields: [rank_id], references: [id])
+
+  @@unique([reported_user_id, rank_id, reporter_user_id]) // 複合一意キーの設定
+  @@map(name: "user_ranks")
+}
+
 model Ranks { // このテーブルは、評価機能のみならず報告/お気に入り/ブックマーク関連機能でも使用
   id            Int             @id @default(autoincrement())
   name          String
   rank_type_id  Int
 
   artwork_ranks ArtworkRanks[]  @relation("artwork_ranks_fk_from_ranks")
+  user_ranks    UserRanks[]     @relation("user_ranks_fk_from_ranks")
   rank_type     RankTypes       @relation("ranks_fk", fields: [rank_type_id], references: [id])
 
   @@map(name: "ranks")

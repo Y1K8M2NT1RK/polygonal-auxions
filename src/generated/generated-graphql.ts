@@ -60,6 +60,7 @@ export type ArtworkRanks = {
   artwork_id: Scalars['ID']['output'];
   id: Scalars['ID']['output'];
   rank_id: Scalars['ID']['output'];
+  ranks: Ranks;
   user_id: Scalars['ID']['output'];
 };
 
@@ -115,6 +116,7 @@ export type ImageInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   addArtworkRank: ArtworkRanks;
+  addUserRank: UserRanks;
   adminCreateUser: MutationAdminCreateUserResult;
   adminDeleteUser: MutationAdminDeleteUserResult;
   adminUpdateUser: MutationAdminUpdateUserResult;
@@ -142,6 +144,12 @@ export type Mutation = {
 export type MutationAddArtworkRankArgs = {
   artwork_id: Scalars['String']['input'];
   rank_id: Scalars['String']['input'];
+};
+
+
+export type MutationAddUserRankArgs = {
+  rank_id: Scalars['String']['input'];
+  user_id: Scalars['String']['input'];
 };
 
 
@@ -369,6 +377,7 @@ export type Query = {
   getMyFavoritesGiven: Scalars['Int']['output'];
   getMyTotalBookmarks: Scalars['Int']['output'];
   getMyTotalFavorites: Scalars['Int']['output'];
+  getReportReasons: Array<Ranks>;
   me: User;
 };
 
@@ -421,6 +430,21 @@ export type QueryGetAuthArtworkRanksArgs = {
   artwork_id?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type RankTypes = {
+  __typename?: 'RankTypes';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  ranks: Array<Ranks>;
+};
+
+export type Ranks = {
+  __typename?: 'Ranks';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  rank_type: RankTypes;
+  rank_type_id: Scalars['ID']['output'];
+};
+
 export type User = {
   __typename?: 'User';
   address: Scalars['String']['output'];
@@ -450,6 +474,18 @@ export type UserFiles = {
   purpose_id: Scalars['ID']['output'];
   user: User;
   user_id: Scalars['ID']['output'];
+};
+
+export type UserRanks = {
+  __typename?: 'UserRanks';
+  created_at: Scalars['Date']['output'];
+  id: Scalars['ID']['output'];
+  rank_id: Scalars['ID']['output'];
+  ranks: Ranks;
+  reported_user: User;
+  reported_user_id: Scalars['ID']['output'];
+  reporter_user: User;
+  reporter_user_id: Scalars['ID']['output'];
 };
 
 export enum UserRole {
@@ -570,6 +606,14 @@ export type FollowOrUnfollowMutationVariables = Exact<{
 
 export type FollowOrUnfollowMutation = { __typename?: 'Mutation', followOrUnfollow: { __typename: 'Follow' } };
 
+export type AddUserRankMutationVariables = Exact<{
+  user_id: Scalars['String']['input'];
+  rank_id: Scalars['String']['input'];
+}>;
+
+
+export type AddUserRankMutation = { __typename?: 'Mutation', addUserRank: { __typename: 'UserRanks' } };
+
 export type AdminCreateUserMutationVariables = Exact<{
   handle_name: Scalars['String']['input'];
   name: Scalars['String']['input'];
@@ -664,6 +708,11 @@ export type GetArtworkRanksQueryVariables = Exact<{
 
 
 export type GetArtworkRanksQuery = { __typename?: 'Query', getArtworkRanks: Array<{ __typename?: 'ArtworkRanks', id: string, rank_id: string }> };
+
+export type GetReportReasonsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetReportReasonsQuery = { __typename?: 'Query', getReportReasons: Array<{ __typename?: 'Ranks', id: string, name: string, rank_type_id: string }> };
 
 export type GetArtworkCommentsQueryVariables = Exact<{
   artwork_id: Scalars['String']['input'];
@@ -910,6 +959,17 @@ export const FollowOrUnfollowDocument = gql`
 
 export function useFollowOrUnfollowMutation() {
   return Urql.useMutation<FollowOrUnfollowMutation, FollowOrUnfollowMutationVariables>(FollowOrUnfollowDocument);
+};
+export const AddUserRankDocument = gql`
+    mutation AddUserRank($user_id: String!, $rank_id: String!) {
+  addUserRank(user_id: $user_id, rank_id: $rank_id) {
+    __typename
+  }
+}
+    `;
+
+export function useAddUserRankMutation() {
+  return Urql.useMutation<AddUserRankMutation, AddUserRankMutationVariables>(AddUserRankDocument);
 };
 export const AdminCreateUserDocument = gql`
     mutation AdminCreateUser($handle_name: String!, $name: String!, $name_kana: String, $email: String!, $password: String!, $phone_number: String, $address: String, $introduction: String, $birthday: String) {
@@ -1166,6 +1226,19 @@ export const GetArtworkRanksDocument = gql`
 
 export function useGetArtworkRanksQuery(options: Omit<Urql.UseQueryArgs<GetArtworkRanksQueryVariables>, 'query'>) {
   return Urql.useQuery<GetArtworkRanksQuery, GetArtworkRanksQueryVariables>({ query: GetArtworkRanksDocument, ...options });
+};
+export const GetReportReasonsDocument = gql`
+    query GetReportReasons {
+  getReportReasons {
+    id
+    name
+    rank_type_id
+  }
+}
+    `;
+
+export function useGetReportReasonsQuery(options?: Omit<Urql.UseQueryArgs<GetReportReasonsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetReportReasonsQuery, GetReportReasonsQueryVariables>({ query: GetReportReasonsDocument, ...options });
 };
 export const GetArtworkCommentsDocument = gql`
     query getArtworkComments($artwork_id: String!) {

@@ -89,3 +89,11 @@ query getArtworkRanks($artwork_id: String!) {
         rank_id
     }
 }
+
+query GetReportReasons {
+    getReportReasons {
+        id
+        name
+        rank_type_id
+    }
+}

@@ -17,13 +17,13 @@ import {
 import DefaultUserIcon from '@/components/DefaultUserIcon';
 import { useForm } from 'react-hook-form';
 import CloseIcon from '@mui/icons-material/Close';
-import { User, UserFiles, UpdateMyProfileDocument, UpdatePasswordDocument, useUpdatePasswordMutation } from '@/generated/generated-graphql';
+import { User, UserFiles, UpdateMyProfileDocument, useUpdatePasswordMutation } from '@/generated/generated-graphql';
 import { DateTime } from 'luxon';
 import Image from 'next/image';
 import { useMutation } from 'urql';
 import { toast } from 'react-toastify';
 import { useState, type ChangeEvent } from 'react';
-import { upload } from "@vercel/blob/client";
+import { upload } from '@vercel/blob/client';
 import { BLOB_BASE_DIR } from '@/constants/blob';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { useUserProfile } from '@/contexts/Profile/ProfileContext';
@@ -81,8 +81,8 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
     const { register, handleSubmit, formState: { errors }, setError, reset, control, watch, setValue } = useForm<FormData>({
         mode: 'onSubmit',
         defaultValues: {
-            bg: { is_image_deleted: false, image_url: undefined, content_type: undefined },
-            icon: { is_image_deleted: false, image_url: undefined, content_type: undefined },
+            bg: { is_image_deleted: false, image_url: undefined as unknown as string, content_type: undefined as unknown as string },
+            icon: { is_image_deleted: false, image_url: undefined as unknown as string, content_type: undefined as unknown as string },
             password: '',
             passwordConfirmation: '',
         },
@@ -122,7 +122,7 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
                 if (passwordResult.error) {
                     const gqlErrors: string[] = passwordResult.error?.graphQLErrors[0].extensions.messages as string[];
                     for (const [key, val] of Object.entries(gqlErrors)) {
-                        setError(`root.${key}`, { type: 'server', message: val[0] });
+                        setError(`root.${key as keyof FormData}`, { type: 'server', message: (val as unknown as string[])[0] });
                     }
                     toast.error('パスワードを更新できません。入力内容をお確かめください。');
                     return;
@@ -134,8 +134,8 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
             // アップロードが必要な場合のみ
             if (imageUpload.bg || imageUpload.icon) {
                 const uploadDatas: Promise<{ image_url: string; content_type: string } | null>[] = [
-                    imageUpload.bg ? getBlobDatasetUrl(imageUpload.bg, "bg") : Promise.resolve(null),
-                    imageUpload.icon ? getBlobDatasetUrl(imageUpload.icon, "icon") : Promise.resolve(null),
+                    imageUpload.bg ? getBlobDatasetUrl(imageUpload.bg, 'bg') : Promise.resolve(null),
+                    imageUpload.icon ? getBlobDatasetUrl(imageUpload.icon, 'icon') : Promise.resolve(null),
                 ];
                 const [bgResult, iconResult] = await Promise.all(uploadDatas);
                 if (bgResult) {
@@ -151,10 +151,10 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
             // パスワードフィールドを除いたプロフィール更新データを作成
             const { password, passwordConfirmation, ...profileData } = data;
             
-            return updateMyProfile(profileData).then(result => {
+            return updateMyProfile(profileData as unknown as Record<string, unknown>).then(result => {
                 if(result.error){
                     const gqlErrors:string[] = result.error ?.graphQLErrors[0].extensions.messages as string[];
-                    for( const [key, val] of Object.entries(gqlErrors) ) setError(`root.${key}`, {type: 'server', message: val[0]});
+                    for( const [key, val] of Object.entries(gqlErrors) ) setError(`root.${key as keyof FormData}`, {type: 'server', message: (val as unknown as string[])[0]});
                     toast.error('更新できません。入力内容をお確かめください。');
                     return;
                 }
@@ -162,8 +162,8 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
                 setImageUpload({ bg: null, icon: null });
                 reset({
                     birthday: data.birthday,
-                    bg: { current_image_url: userImages?.bg?.file_path, is_image_deleted: false, image_url: undefined, content_type: undefined },
-                    icon: { current_image_url: userImages?.icon?.file_path, is_image_deleted: false, image_url: undefined, content_type: undefined },
+                    bg: { current_image_url: userImages?.bg?.file_path, is_image_deleted: false, image_url: undefined as unknown as string, content_type: undefined as unknown as string },
+                    icon: { current_image_url: userImages?.icon?.file_path, is_image_deleted: false, image_url: undefined as unknown as string, content_type: undefined as unknown as string },
                     password: '',
                     passwordConfirmation: '',
                 });
@@ -181,8 +181,8 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
         onClose();
         setImageUpload({ bg: null, icon: null });
         reset({
-            bg: { is_image_deleted: false, image_url: undefined, content_type: undefined },
-            icon: { is_image_deleted: false, image_url: undefined, content_type: undefined },
+            bg: { is_image_deleted: false, image_url: undefined as unknown as string, content_type: undefined as unknown as string },
+            icon: { is_image_deleted: false, image_url: undefined as unknown as string, content_type: undefined as unknown as string },
             password: '',
             passwordConfirmation: '',
         });
@@ -212,10 +212,10 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
                             component="form"
                             onSubmit={onSubmit}
                         >
-                            <FormControl><TextField hidden {...register("bg.current_image_url")} defaultValue={userImages?.bg?.file_path} /></FormControl>
-                            <FormControl><TextField hidden {...register("bg.is_image_deleted")} /></FormControl>
-                            <FormControl><TextField hidden {...register("icon.current_image_url")} defaultValue={userImages?.icon?.file_path} /></FormControl>
-                            <FormControl><TextField hidden {...register("icon.is_image_deleted")} /></FormControl>
+                            <FormControl><TextField hidden {...register('bg.current_image_url')} defaultValue={userImages?.bg?.file_path} /></FormControl>
+                            <FormControl><TextField hidden {...register('bg.is_image_deleted')} /></FormControl>
+                            <FormControl><TextField hidden {...register('icon.current_image_url')} defaultValue={userImages?.icon?.file_path} /></FormControl>
+                            <FormControl><TextField hidden {...register('icon.is_image_deleted')} /></FormControl>
                             <FormControl sx={{ my: 2 }}>
                                 <Box component="label" sx={{overflow: 'hidden', cursor: 'pointer', position: 'relative',}}>
                                     {
@@ -243,7 +243,7 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
                                         inputProps={{ multiple: false, }}
                                         sx={{ display: 'none' }}
                                         onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                                            setValue("bg.is_image_deleted", false);
+                                            setValue('bg.is_image_deleted', false);
                                             setImageUpload(prev => ({
                                                 bg: e.target.files ? e.target.files[0] : null,
                                                 icon: prev.icon
@@ -265,7 +265,7 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
                                                 )   ||  !!imageUpload.bg
                                                 ) && <Button onClick={(e) => {
                                                     e.preventDefault();
-                                                    setValue("bg.is_image_deleted", true);
+                                                    setValue('bg.is_image_deleted', true);
                                                     setImageUpload(prev => ({bg: null, icon: prev.icon}));
                                                 }}>背景画像を削除</Button>
                                             }
@@ -292,7 +292,7 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
                                                 variant="extended"
                                                 onClick={(e) => {
                                                     e.preventDefault();
-                                                    setValue("icon.is_image_deleted", true);
+                                                    setValue('icon.is_image_deleted', true);
                                                     setImageUpload(prev => ({bg: prev.bg, icon: null}));
                                                 }}
                                                 sx={{mt: 2, width: '100%'}}
@@ -319,7 +319,7 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
                                             inputProps={{ multiple: false, }}
                                             sx={{ display: 'none' }}
                                             onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                                                setValue("icon.is_image_deleted", false);
+                                                setValue('icon.is_image_deleted', false);
                                                 setImageUpload((prev => ({bg: prev.bg, icon: e.target.files ? e.target.files[0] : null})));
                                             }}
                                         />
@@ -353,7 +353,7 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
                                     InputLabelProps={{ style: { fontSize: 20 } }}
                                     InputProps={{ style: { fontSize: 20 } }}
                                     defaultValue={userForEdit?.name}
-                                    {...register("name")}
+                                    {...register('name')}
                                     error={!!errors?.root?.name?.message}
                                     helperText={errors?.root?.name?.message ? errors?.root?.name?.message : null}
                                 />
@@ -365,7 +365,7 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
                                     InputLabelProps={{ style: { fontSize: 20 } }}
                                     InputProps={{ style: { fontSize: 20 } }}
                                     defaultValue={userForEdit?.name_kana}
-                                    {...register("name_kana")}
+                                    {...register('name_kana')}
                                     error={!!errors?.root?.name_kana?.message}
                                     helperText={errors?.root?.name_kana?.message ? errors?.root?.name_kana?.message : null}
                                 />
@@ -378,7 +378,7 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
                                     InputLabelProps={{ style: { fontSize: 20 } }}
                                     InputProps={{ style: { fontSize: 20 } }}
                                     defaultValue={DateTime.fromISO(userForEdit?.birthday).toFormat('yyyy-MM-dd')}
-                                    {...register("birthday")}
+                                    {...register('birthday')}
                                     error={!!errors?.root?.birthday?.message}
                                     helperText={errors?.root?.birthday?.message ? errors?.root?.birthday?.message : null}
                                 />
@@ -390,7 +390,7 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
                                     InputLabelProps={{ style: { fontSize: 20 } }}
                                     InputProps={{ style: { fontSize: 20 } }}
                                     defaultValue={userForEdit?.address}
-                                    {...register("address")}
+                                    {...register('address')}
                                     error={!!errors?.root?.address?.message}
                                     helperText={errors?.root?.address?.message ? errors?.root?.address?.message : null}
                                 />
@@ -402,7 +402,7 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
                                     InputLabelProps={{ style: { fontSize: 20 } }}
                                     InputProps={{ style: { fontSize: 20 } }}
                                     defaultValue={userForEdit?.phone_number}
-                                    {...register("phone_number")}
+                                    {...register('phone_number')}
                                     error={!!errors?.root?.phone_number?.message}
                                     helperText={errors?.root?.phone_number?.message ? errors?.root?.phone_number?.message : null}
                                 />
@@ -416,7 +416,7 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
                                     defaultValue={userForEdit?.introduction}
                                     multiline
                                     rows={4}
-                                    {...register("introduction")}
+                                    {...register('introduction')}
                                     error={!!errors?.root?.introduction?.message}
                                     helperText={errors?.root?.introduction?.message ? errors?.root?.introduction?.message : null}
                                 />
@@ -439,7 +439,7 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
                                             </IconButton>
                                         ),
                                     }}
-                                    {...register("password")}
+                                    {...register('password')}
                                     error={!!errors?.root?.password?.message}
                                     helperText={errors?.root?.password?.message ? errors?.root?.password?.message : null}
                                 />
@@ -462,7 +462,7 @@ export default function ProfileEditDialog({isDialogOpen, onClose}: ProfileEditDi
                                             </IconButton>
                                         ),
                                     }}
-                                    {...register("passwordConfirmation")}
+                                    {...register('passwordConfirmation')}
                                     error={!!errors?.root?.passwordConfirmation?.message}
                                     helperText={errors?.root?.passwordConfirmation?.message ? errors?.root?.passwordConfirmation?.message : null}
                                 />
