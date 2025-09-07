@@ -1,5 +1,5 @@
 /* eslint-disable */
-import type { Prisma, User, UserFiles, Purpose, AuthPayload, PasswordResetToken, Follow, Artwork, ArtworkFile, ArtworkGizmo, Comment, ArtworkRanks, Ranks, RankTypes } from "@prisma/client";
+import type { Prisma, User, UserFiles, Purpose, AuthPayload, PasswordResetToken, Follow, Artwork, ArtworkFile, ArtworkGizmo, Comment, ArtworkRanks, UserRanks, Ranks, RankTypes } from "@prisma/client";
 export default interface PrismaTypes {
     User: {
         Name: "User";
@@ -11,8 +11,8 @@ export default interface PrismaTypes {
         Where: Prisma.UserWhereInput;
         Create: {};
         Update: {};
-        RelationName: "auth_payload" | "password_reset_tokens" | "user_files" | "artworks" | "artwork_ranks" | "comments" | "followed_by" | "following";
-        ListRelations: "password_reset_tokens" | "user_files" | "artworks" | "artwork_ranks" | "comments" | "followed_by" | "following";
+        RelationName: "auth_payload" | "password_reset_tokens" | "user_files" | "artworks" | "artwork_ranks" | "user_ranks_reported" | "user_ranks_reporter" | "comments" | "followed_by" | "following";
+        ListRelations: "password_reset_tokens" | "user_files" | "artworks" | "artwork_ranks" | "user_ranks_reported" | "user_ranks_reporter" | "comments" | "followed_by" | "following";
         Relations: {
             auth_payload: {
                 Shape: AuthPayload | null;
@@ -37,6 +37,16 @@ export default interface PrismaTypes {
             artwork_ranks: {
                 Shape: ArtworkRanks[];
                 Name: "ArtworkRanks";
+                Nullable: false;
+            };
+            user_ranks_reported: {
+                Shape: UserRanks[];
+                Name: "UserRanks";
+                Nullable: false;
+            };
+            user_ranks_reporter: {
+                Shape: UserRanks[];
+                Name: "UserRanks";
                 Nullable: false;
             };
             comments: {
@@ -301,6 +311,36 @@ export default interface PrismaTypes {
             };
         };
     };
+    UserRanks: {
+        Name: "UserRanks";
+        Shape: UserRanks;
+        Include: Prisma.UserRanksInclude;
+        Select: Prisma.UserRanksSelect;
+        OrderBy: Prisma.UserRanksOrderByWithRelationInput;
+        WhereUnique: Prisma.UserRanksWhereUniqueInput;
+        Where: Prisma.UserRanksWhereInput;
+        Create: {};
+        Update: {};
+        RelationName: "reported_user" | "reporter_user" | "ranks";
+        ListRelations: never;
+        Relations: {
+            reported_user: {
+                Shape: User;
+                Name: "User";
+                Nullable: false;
+            };
+            reporter_user: {
+                Shape: User;
+                Name: "User";
+                Nullable: false;
+            };
+            ranks: {
+                Shape: Ranks;
+                Name: "Ranks";
+                Nullable: false;
+            };
+        };
+    };
     Ranks: {
         Name: "Ranks";
         Shape: Ranks;
@@ -311,12 +351,17 @@ export default interface PrismaTypes {
         Where: Prisma.RanksWhereInput;
         Create: {};
         Update: {};
-        RelationName: "artwork_ranks" | "rank_type";
-        ListRelations: "artwork_ranks";
+        RelationName: "artwork_ranks" | "user_ranks" | "rank_type";
+        ListRelations: "artwork_ranks" | "user_ranks";
         Relations: {
             artwork_ranks: {
                 Shape: ArtworkRanks[];
                 Name: "ArtworkRanks";
+                Nullable: false;
+            };
+            user_ranks: {
+                Shape: UserRanks[];
+                Name: "UserRanks";
                 Nullable: false;
             };
             rank_type: {
