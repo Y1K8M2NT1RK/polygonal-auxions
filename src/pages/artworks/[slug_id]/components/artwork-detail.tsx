@@ -32,7 +32,29 @@ import { useAuth } from '@/contexts/AuthContexts';
 import useDarkMode from '@/hooks/useDarkMode';
 import ReportDialog from '@/components/ReportDialog';
 import ReportSuccessDialog from '@/components/ReportSuccessDialog';
-import { GET_REPORT_REASONS, ADD_ARTWORK_RANK, type ReportReason, type GetReportReasonsQuery, type AddArtworkRankMutation, type AddArtworkRankMutationVariables } from '@/utils/reportGraphql';
+import { AddArtworkRankDocument, type AddArtworkRankMutation, type AddArtworkRankMutationVariables } from '@/generated/generated-graphql';
+import { gql } from 'urql';
+
+// TODO: Move this to generated types when GraphQL codegen includes it
+const GET_REPORT_REASONS = gql`
+  query GetReportReasons {
+    getReportReasons {
+      id
+      name
+      rank_type_id
+    }
+  }
+`;
+
+type ReportReason = {
+  id: string;
+  name: string;
+  rank_type_id: string;
+};
+
+type GetReportReasonsQuery = {
+  getReportReasons: ReportReason[];
+};
 
 type Props = {
     artwork: Artwork,
@@ -53,7 +75,7 @@ export default function ArtworkDetail({artwork, handleIsEditing, isEditing, feat
     
     // Report functionality
     const [reportReasonsResult] = useQuery<GetReportReasonsQuery>({ query: GET_REPORT_REASONS });
-    const [, addArtworkRankForReport] = useMutation<AddArtworkRankMutation, AddArtworkRankMutationVariables>(ADD_ARTWORK_RANK);
+    const [, addArtworkRankForReport] = useMutation<AddArtworkRankMutation, AddArtworkRankMutationVariables>(AddArtworkRankDocument);
 
     const [openDialog, setOpenDialog] = useState(false);
     const [openReportDialog, setOpenReportDialog] = useState(false);

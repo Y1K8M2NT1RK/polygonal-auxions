@@ -2,7 +2,7 @@ import { builder } from '../../builder';
 import { prisma } from '../../../db';
 import { ZodError } from 'zod';
 import { compareSync, hashSync } from 'bcrypt';
-import { AuthPayload, Follows, User, ImageInput } from '../consts';
+import { AuthPayload, Follows, User, UserRanks, ImageInput } from '../consts';
 import { CsrfError } from '../errors';
 import { cookieModule } from '../cookie';
 import { del } from '@vercel/blob';
@@ -188,6 +188,23 @@ builder.mutationField("adminDeleteUser", (t) =>
     args: { id: t.arg.string({ required: true }) },
     validate: [ async (args) => { const userId = parseInt(args.id); const existingUser = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } }); if (!existingUser || existingUser.role !== 'USER') return false; return true; }, { message: 'ユーザーが見つからないか、削除できません。' } ],
     resolve: async (_p, args) => { const userId = parseInt(args.id); try { await prisma.user.delete({ where: { id: userId } }); return true; } catch (e) { console.error('Error deleting user:', e); return false; } },
+  })
+);
+
+// User Report Mutation
+builder.mutationField("addUserRank", (t) =>
+  t.prismaField({
+    type: 'UserRanks',
+    args: { user_id: t.arg.string({ required: true }), rank_id: t.arg.string({ required: true }) },
+    authScopes: { user: true },
+    resolve: (query, _parent, args, ctx) => prisma.userRanks.create({
+      ...query,
+      data: { 
+        reported_user_id: parseInt(args.user_id), 
+        rank_id: parseInt(args.rank_id), 
+        reporter_user_id: ctx.auth?.id as number 
+      },
+    }),
   })
 );
 

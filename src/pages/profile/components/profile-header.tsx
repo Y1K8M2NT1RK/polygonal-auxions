@@ -34,8 +34,51 @@ import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContexts';
 import ListDialog from '@/components/ListDialog';
 import ProfileEditDialog from '@/pages/profile/components/ProfileEditDialog';
+import UserReportDialog from '@/components/UserReportDialog';
+import ReportSuccessDialog from '@/components/ReportSuccessDialog';
 import { useState, useReducer } from 'react';
 import useResponsive from '@/hooks/useResponsive';
+import { gql } from 'urql';
+
+// TODO: Move this to generated types when GraphQL codegen includes it
+const GET_REPORT_REASONS = gql`
+  query GetReportReasons {
+    getReportReasons {
+      id
+      name
+      rank_type_id
+    }
+  }
+`;
+
+const ADD_USER_RANK = gql`
+  mutation AddUserRank($user_id: String!, $rank_id: String!) {
+    addUserRank(user_id: $user_id, rank_id: $rank_id) {
+      __typename
+    }
+  }
+`;
+
+type ReportReason = {
+  id: string;
+  name: string;
+  rank_type_id: string;
+};
+
+type GetReportReasonsQuery = {
+  getReportReasons: ReportReason[];
+};
+
+type AddUserRankMutation = {
+  addUserRank: {
+    __typename: string;
+  };
+};
+
+type AddUserRankMutationVariables = {
+  user_id: string;
+  rank_id: string;
+};
 
 type Props = {
     viewing_user: User
@@ -63,10 +106,49 @@ export default function ProfileHeader({viewing_user}: Props){
     const [following, reExecuteGetFollowing] = useQuery({query: GetFollowingDocument});
     const [followedBy, reExecuteGetFollowedBy] = useQuery({query: GetFollowedByDocument});
 
+    // User report functionality
+    const [reportReasonsResult] = useQuery<GetReportReasonsQuery>({ query: GET_REPORT_REASONS });
+    const [, addUserRankForReport] = useMutation<AddUserRankMutation, AddUserRankMutationVariables>(ADD_USER_RANK);
+    
+    const [openUserReportDialog, setOpenUserReportDialog] = useState(false);
+    const [openReportSuccessDialog, setOpenReportSuccessDialog] = useState(false);
+
     // const [openDialog, setOpenDialog] = useState(false);
     const [openDialog, setOpenDialog] = useState<DialogState>({dialog_name: null});
     const handleDialogOpen = (dialog_name: DialogState) => setOpenDialog({ ...dialog_name, });
     const handleDialogClose = () => setOpenDialog({ dialog_name: null });
+
+    const handleUserReportDialogOpen = () => {
+        if (!auth) {
+            toast.error('報告するにはログインが必要です');
+            return;
+        }
+        if (auth.handle_name === viewing_user.handle_name) {
+            toast.error('自分のプロフィールは報告できません');
+            return;
+        }
+        setOpenUserReportDialog(true);
+    };
+    
+    const handleUserReportDialogClose = () => setOpenUserReportDialog(false);
+    
+    const handleReportSuccessDialogClose = () => setOpenReportSuccessDialog(false);
+    
+    const handleUserReportSubmit = async (rankId: string) => {
+        try {
+            await addUserRankForReport({
+                user_id: String(viewing_user.id),
+                rank_id: rankId,
+            });
+            setOpenUserReportDialog(false);
+            setOpenReportSuccessDialog(true);
+            toast.success('報告が完了しました');
+        } catch (error) {
+            console.error('User report submission error:', error);
+            toast.error('報告の送信に失敗しました');
+            throw error;
+        }
+    };
 
     const arrayFollowEachOther = (following: User[], followedBy: User[]) => {
         return following.filter(followingUser =>
@@ -93,6 +175,7 @@ export default function ProfileHeader({viewing_user}: Props){
     }, 'following');
 
     return (
+        <>
         <Card sx={{ pb: 0 }}>
             <CardMedia component="img" sx={{height:"200px"}} src={user_images?.bg?.file_path || undefined} />
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pr: '10px'}}>
@@ -113,7 +196,9 @@ export default function ProfileHeader({viewing_user}: Props){
                         <EditIcon />{isLargeScreen ? 'プロフィールを編集' : ''}
                     </Fab>
                 ) : (
-                    <Fab variant="extended" size="medium"><FlagIcon />報告</Fab>
+                    <Fab variant="extended" size="medium" onClick={handleUserReportDialogOpen}>
+                        <FlagIcon />報告
+                    </Fab>
                 )}
             </Box>
             <CardContent sx={{ p: '10px'}}>
@@ -252,5 +337,23 @@ export default function ProfileHeader({viewing_user}: Props){
                 </Grid>
             </CardContent>
         </Card>
+        
+        {/* User Report Dialog */}
+        <UserReportDialog
+            open={openUserReportDialog}
+            onClose={handleUserReportDialogClose}
+            userId={String(viewing_user.id)}
+            userName={viewing_user.handle_name}
+            onReportSubmit={handleUserReportSubmit}
+            reportReasons={reportReasonsResult.data?.getReportReasons || []}
+            loading={reportReasonsResult.fetching}
+        />
+        
+        {/* Report Success Dialog */}
+        <ReportSuccessDialog
+            open={openReportSuccessDialog}
+            onClose={handleReportSuccessDialogClose}
+        />
+        </>
     )
 }
