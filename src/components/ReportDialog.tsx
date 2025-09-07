@@ -14,13 +14,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useAuth } from '@/contexts/AuthContexts';
-
-// Temporary types until GraphQL codegen works
-type ReportReason = {
-  id: string;
-  name: string;
-  rank_type_id: string;
-};
+import { Ranks } from '@/generated/generated-graphql';
 
 type Props = {
   open: boolean;
@@ -28,7 +22,7 @@ type Props = {
   artworkId: string;
   artworkTitle: string;
   onReportSubmit: (rankId: string) => Promise<void>;
-  reportReasons: ReportReason[];
+  reportReasons: Ranks[];
   loading?: boolean;
 };
 

@@ -1381,3 +1381,56 @@ export const AdminUserDetailDocument = gql`
 export function useAdminUserDetailQuery(options: Omit<Urql.UseQueryArgs<AdminUserDetailQueryVariables>, 'query'>) {
   return Urql.useQuery<AdminUserDetailQuery, AdminUserDetailQueryVariables>({ query: AdminUserDetailDocument, ...options });
 };
+
+// Report-related types and operations
+export type Ranks = {
+  __typename?: 'Ranks';
+  id: string;
+  name: string;
+  rank_type_id: string;
+};
+
+export type UserRanks = {
+  __typename?: 'UserRanks';
+  id: string;
+  reported_user_id: string;
+  rank_id: string;
+  reporter_user_id: string;
+};
+
+export type GetReportReasonsQueryVariables = Exact<{ [key: string]: never; }>;
+
+export type GetReportReasonsQuery = { __typename?: 'Query', getReportReasons: Array<{ __typename?: 'Ranks', id: string, name: string, rank_type_id: string }> };
+
+export type AddUserRankMutationVariables = Exact<{
+  user_id: Scalars['String']['input'];
+  rank_id: Scalars['String']['input'];
+}>;
+
+export type AddUserRankMutation = { __typename?: 'Mutation', addUserRank: { __typename: 'UserRanks' } };
+
+export const GetReportReasonsDocument = gql`
+    query GetReportReasons {
+  getReportReasons {
+    id
+    name
+    rank_type_id
+  }
+}
+    `;
+
+export function useGetReportReasonsQuery(options?: Omit<Urql.UseQueryArgs<GetReportReasonsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetReportReasonsQuery, GetReportReasonsQueryVariables>({ query: GetReportReasonsDocument, ...options });
+};
+
+export const AddUserRankDocument = gql`
+    mutation AddUserRank($user_id: String!, $rank_id: String!) {
+  addUserRank(user_id: $user_id, rank_id: $rank_id) {
+    __typename
+  }
+}
+    `;
+
+export function useAddUserRankMutation() {
+  return Urql.useMutation<AddUserRankMutation, AddUserRankMutationVariables>(AddUserRankDocument);
+};

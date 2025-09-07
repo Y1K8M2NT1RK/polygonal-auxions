@@ -38,47 +38,10 @@ import UserReportDialog from '@/components/UserReportDialog';
 import ReportSuccessDialog from '@/components/ReportSuccessDialog';
 import { useState, useReducer } from 'react';
 import useResponsive from '@/hooks/useResponsive';
-import { gql } from 'urql';
-
-// TODO: Move this to generated types when GraphQL codegen includes it
-const GET_REPORT_REASONS = gql`
-  query GetReportReasons {
-    getReportReasons {
-      id
-      name
-      rank_type_id
-    }
-  }
-`;
-
-const ADD_USER_RANK = gql`
-  mutation AddUserRank($user_id: String!, $rank_id: String!) {
-    addUserRank(user_id: $user_id, rank_id: $rank_id) {
-      __typename
-    }
-  }
-`;
-
-type ReportReason = {
-  id: string;
-  name: string;
-  rank_type_id: string;
-};
-
-type GetReportReasonsQuery = {
-  getReportReasons: ReportReason[];
-};
-
-type AddUserRankMutation = {
-  addUserRank: {
-    __typename: string;
-  };
-};
-
-type AddUserRankMutationVariables = {
-  user_id: string;
-  rank_id: string;
-};
+import { 
+  useGetReportReasonsQuery,
+  useAddUserRankMutation,
+} from '@/generated/generated-graphql';
 
 type Props = {
     viewing_user: User
@@ -107,8 +70,8 @@ export default function ProfileHeader({viewing_user}: Props){
     const [followedBy, reExecuteGetFollowedBy] = useQuery({query: GetFollowedByDocument});
 
     // User report functionality
-    const [reportReasonsResult] = useQuery<GetReportReasonsQuery>({ query: GET_REPORT_REASONS });
-    const [, addUserRankForReport] = useMutation<AddUserRankMutation, AddUserRankMutationVariables>(ADD_USER_RANK);
+    const [reportReasonsResult] = useGetReportReasonsQuery();
+    const [, addUserRankForReport] = useAddUserRankMutation();
     
     const [openUserReportDialog, setOpenUserReportDialog] = useState(false);
     const [openReportSuccessDialog, setOpenReportSuccessDialog] = useState(false);

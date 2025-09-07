@@ -34,28 +34,10 @@ import { useAuth } from '@/contexts/AuthContexts';
 import useDarkMode from '@/hooks/useDarkMode';
 import ReportDialog from '@/components/ReportDialog';
 import ReportSuccessDialog from '@/components/ReportSuccessDialog';
-import { gql } from 'urql';
-
-// TODO: Move this to generated types when GraphQL codegen includes it
-const GET_REPORT_REASONS = gql`
-  query GetReportReasons {
-    getReportReasons {
-      id
-      name
-      rank_type_id
-    }
-  }
-`;
-
-type ReportReason = {
-  id: string;
-  name: string;
-  rank_type_id: string;
-};
-
-type GetReportReasonsQuery = {
-  getReportReasons: ReportReason[];
-};
+import { 
+  useGetReportReasonsQuery,
+  useAddArtworkRankMutation,
+} from '@/generated/generated-graphql';
 
 type Props = {
     artwork: Artwork,
@@ -75,8 +57,8 @@ export default function ArtworkDetail({artwork, handleIsEditing, isEditing, feat
     const [, RemoveArtwork] = useMutation<AnyVariables>(RemoveArtworkDocument);
     
     // Report functionality
-    const [reportReasonsResult] = useQuery<GetReportReasonsQuery>({ query: GET_REPORT_REASONS });
-    const [, addArtworkRankForReport] = useMutation<AddArtworkRankMutation, AddArtworkRankMutationVariables>(AddArtworkRankDocument);
+    const [reportReasonsResult] = useGetReportReasonsQuery();
+    const [, addArtworkRankForReport] = useAddArtworkRankMutation();
 
     const [openDialog, setOpenDialog] = useState(false);
     const [openReportDialog, setOpenReportDialog] = useState(false);

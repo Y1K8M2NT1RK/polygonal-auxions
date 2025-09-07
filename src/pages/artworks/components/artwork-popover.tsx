@@ -19,36 +19,18 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import WarningIcon from '@mui/icons-material/Warning';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { AnyVariables, useMutation, useQuery } from 'urql';
-import { AddArtworkRankDocument, RemoveArtworkRankDocument, RemoveArtworkDocument, Artwork, type AddArtworkRankMutation, type AddArtworkRankMutationVariables } from '@/generated/generated-graphql';
+import { AddArtworkRankDocument, RemoveArtworkRankDocument, RemoveArtworkDocument, Artwork } from '@/generated/generated-graphql';
 import { useAuth } from '@/contexts/AuthContexts';
 import RankButton from '@/components/RankButton';
 import AlertDialog from '@/components/AlertDialog';
 import ReportDialog from '@/components/ReportDialog';
 import ReportSuccessDialog from '@/components/ReportSuccessDialog';
 import { toast } from "react-toastify";
-import { gql } from 'urql';
 
-// Report reasons type (from GraphQL)
-type ReportReason = {
-  id: string;
-  name: string;
-  rank_type_id: string;
-};
-
-type GetReportReasonsQuery = {
-  getReportReasons: ReportReason[];
-};
-
-// GraphQL query for report reasons
-const GET_REPORT_REASONS = gql`
-  query GetReportReasons {
-    getReportReasons {
-      id
-      name
-      rank_type_id
-    }
-  }
-`;
+import { 
+  useGetReportReasonsQuery,
+  useAddArtworkRankMutation,
+} from '@/generated/generated-graphql';
 
 type ArtworkPopoverProps = {
     artwork: Artwork & {deletedInFront: boolean;};
@@ -86,8 +68,8 @@ export default function ArtworkPopover({artwork, setDeletedArtworksInFront}: Art
     const [, RemoveArtwork] = useMutation<AnyVariables>(RemoveArtworkDocument);
 
     // Report functionality
-    const [reportReasonsResult] = useQuery<GetReportReasonsQuery>({ query: GET_REPORT_REASONS });
-    const [, addArtworkRankForReport] = useMutation<AddArtworkRankMutation, AddArtworkRankMutationVariables>(AddArtworkRankDocument);
+    const [reportReasonsResult] = useGetReportReasonsQuery();
+    const [, addArtworkRankForReport] = useAddArtworkRankMutation();
     
     const handleReportDialogOpen = () => {
         if (!user) {

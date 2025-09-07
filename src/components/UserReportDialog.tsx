@@ -14,24 +14,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useAuth } from '@/contexts/AuthContexts';
-import { gql } from 'urql';
-
-// TODO: Move this to generated types when GraphQL codegen includes it
-const GET_REPORT_REASONS = gql`
-  query GetReportReasons {
-    getReportReasons {
-      id
-      name
-      rank_type_id
-    }
-  }
-`;
-
-type ReportReason = {
-  id: string;
-  name: string;
-  rank_type_id: string;
-};
+import { Ranks } from '@/generated/generated-graphql';
 
 type Props = {
   open: boolean;
@@ -39,7 +22,7 @@ type Props = {
   userId: string;
   userName: string;
   onReportSubmit: (rankId: string) => Promise<void>;
-  reportReasons: ReportReason[];
+  reportReasons: Ranks[];
   loading?: boolean;
 };
 
