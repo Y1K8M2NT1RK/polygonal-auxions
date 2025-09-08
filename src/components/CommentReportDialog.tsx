@@ -19,7 +19,7 @@ import type { GetReportReasonsQuery } from '@/generated/generated-graphql';
 type Props = {
   open: boolean;
   onClose: () => void;
-  commentId: string;
+  commentSlugId: string;
   commentBody: string;
   onReportSubmit: (rankId: string) => Promise<void>;
   reportReasons: GetReportReasonsQuery['getReportReasons'];
@@ -29,7 +29,7 @@ type Props = {
 export default function CommentReportDialog({
   open,
   onClose,
-  commentId,
+  commentSlugId,
   commentBody,
   onReportSubmit,
   reportReasons,

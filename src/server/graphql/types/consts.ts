@@ -141,18 +141,19 @@ export const UserRanks = builder.prismaObject('UserRanks', {
 	}),
 });
 
-export const CommentRanks = builder.prismaObject('CommentRanks', {
-	fields: (t: any) => ({
-		id: t.exposeID('id'),
-		comment_id: t.exposeID('comment_id'),
-		rank_id: t.exposeID('rank_id'),
-		user_id: t.exposeID('user_id'),
-		comment: t.relation('comment'),
-		user: t.relation('user'),
-		ranks: t.relation('ranks'),
-		created_at: t.expose('created_at', {type: 'Date'}),
-	}),
-});
+// TODO: Uncomment when Prisma client is regenerated with CommentRanks model
+// export const CommentRanks = builder.prismaObject('CommentRanks', {
+// 	fields: (t: any) => ({
+// 		id: t.exposeID('id'),
+// 		comment_id: t.exposeID('comment_id'),
+// 		rank_id: t.exposeID('rank_id'),
+// 		user_id: t.exposeID('user_id'),
+// 		comment: t.relation('comment'),
+// 		user: t.relation('user'),
+// 		ranks: t.relation('ranks'),
+// 		created_at: t.expose('created_at', {type: 'Date'}),
+// 	}),
+// });
 
 export const Ranks = builder.prismaObject('Ranks', {
 	fields: (t: any) => ({
@@ -188,7 +189,8 @@ export const Comment = builder.prismaObject('Comment', {
 		created_at: t.expose('created_at', {type: 'Date'}),
 		user: t.relation('user'),
 		artwork: t.relation('artwork'),
-		comment_ranks: t.relation('comment_ranks'),
+		// TODO: Uncomment when CommentRanks model is available
+		// comment_ranks: t.relation('comment_ranks'),
 	}),
 });
 

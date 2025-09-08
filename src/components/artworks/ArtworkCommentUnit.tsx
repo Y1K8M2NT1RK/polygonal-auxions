@@ -9,9 +9,10 @@ import {
 import Link from 'next/link';
 import type { Comment } from '@/generated/generated-graphql';
 import DefaultUserIcon from '@/components/DefaultUserIcon';
-import { RemoveCommentDocument, AddCommentRankDocument, GetReportReasonsDocument } from "@/generated/generated-graphql";
+import { RemoveCommentDocument, useGetReportReasonsQuery } from "@/generated/generated-graphql";
 import { useAuth } from '@/contexts/AuthContexts';
-import { useQuery, useMutation } from "urql";
+import { useMutation } from "urql";
+import { gql } from 'urql';
 import { DateTime } from 'luxon';
 import WarningIcon from '@mui/icons-material/Warning';
 import ReportIcon from '@mui/icons-material/Report';
@@ -19,7 +20,7 @@ import AlertDialog from '@/components/AlertDialog';
 import CommentReportDialog from '@/components/CommentReportDialog';
 import ReportSuccessDialog from '@/components/ReportSuccessDialog';
 import { Dispatch, SetStateAction, useState } from 'react';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 type Props = {
     comment: Comment & {deletedInFront: boolean;};
@@ -38,6 +39,13 @@ export default function ArtworkComments({comment, deletedCommentsInFront, setDel
     const { user, isLoggedIn } = useAuth();
 
     const [, RemoveComment] = useMutation(RemoveCommentDocument);
+    
+    // Define the AddCommentRank mutation directly
+    const AddCommentRankDocument = gql`
+        mutation AddCommentRank($comment_slug_id: String!, $rank_id: String!) {
+            addCommentRank(comment_slug_id: $comment_slug_id, rank_id: $rank_id)
+        }
+    `;
     const [, addCommentRank] = useMutation(AddCommentRankDocument);
 
     const [openDialog, setOpenDialog] = useState(false);
@@ -48,10 +56,7 @@ export default function ArtworkComments({comment, deletedCommentsInFront, setDel
     const [openReportDialog, setOpenReportDialog] = useState(false);
     const [openReportSuccessDialog, setOpenReportSuccessDialog] = useState(false);
     
-    const [reportReasonsResult] = useQuery({
-        query: GetReportReasonsDocument,
-        requestPolicy: 'cache-first',
-    });
+    const [reportReasonsResult] = useGetReportReasonsQuery();
 
     const handleReportClick = () => {
         if (!isLoggedIn) {
@@ -67,7 +72,7 @@ export default function ArtworkComments({comment, deletedCommentsInFront, setDel
     const handleReportSubmit = async (rankId: string) => {
         try {
             await addCommentRank({
-                comment_id: String(comment.id),
+                comment_slug_id: comment.slug_id,
                 rank_id: rankId,
             });
             setOpenReportDialog(false);
@@ -156,7 +161,7 @@ export default function ArtworkComments({comment, deletedCommentsInFront, setDel
             <CommentReportDialog
                 open={openReportDialog}
                 onClose={handleReportDialogClose}
-                commentId={String(comment.id)}
+                commentSlugId={comment.slug_id}
                 commentBody={comment.body}
                 onReportSubmit={handleReportSubmit}
                 reportReasons={reportReasonsResult.data?.getReportReasons || []}
