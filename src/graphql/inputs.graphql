@@ -5,6 +5,32 @@ input ImageInput {
   content_type: String
 }
 
+# Article関連の入力型
+input ArticleInput {
+  title: String!
+  content: String
+  excerpt: String
+  status: ArticleStatus
+  publishedAt: DateTime
+  tags: [String!]
+  featuredImage: String
+}
+
+input ArticleFilter {
+  status: [String!]
+  authorId: Int
+  tags: [String!]
+  search: String
+  publishedAfter: DateTime
+  publishedBefore: DateTime
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
 # Admin User List Response Type  
 type AdminUsersListResponse {
   users: [User!]!

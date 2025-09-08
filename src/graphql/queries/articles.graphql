@@ -1,0 +1,92 @@
+# 記事一覧取得（管理者用・フィルタ付き）
+query GetArticles($first: Int, $after: String, $filter: ArticleFilter, $source: String) {
+  articles(first: $first, after: $after, filter: $filter, source: $source) {
+    edges {
+      node {
+        id
+        slugId
+        title
+        excerpt
+        status
+        publishedAt
+        tags
+        featuredImage
+        createdAt
+        updatedAt
+        author {
+          id
+          name
+          handleName: handle_name
+        }
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    totalCount
+  }
+}
+
+# 公開記事一覧取得（フロントエンド用）
+query GetPublishedArticles($first: Int, $after: String, $tags: [String!], $search: String) {
+  publishedArticles(first: $first, after: $after, tags: $tags, search: $search) {
+    edges {
+      node {
+        id
+        slugId
+        title
+        excerpt
+        tags
+        featuredImage
+        publishedAt
+        createdAt
+        author {
+          id
+          name
+          handleName: handle_name
+        }
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    totalCount
+  }
+}
+
+# 記事詳細取得
+query GetArticle($id: Int, $slugId: String, $microCmsId: String) {
+  article(id: $id, slugId: $slugId, microCmsId: $microCmsId) {
+    id
+    slugId
+    title
+    content
+    excerpt
+    status
+    publishedAt
+    microCmsId
+    tags
+    featuredImage
+    createdAt
+    updatedAt
+    author {
+      id
+      name
+      handleName: handle_name
+      introduction
+    }
+  }
+}
+
+# 記事タグ一覧取得
+query GetArticleTags {
+  articleTags
+}

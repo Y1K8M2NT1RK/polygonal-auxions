@@ -1,0 +1,85 @@
+# microCMSから記事を同期
+mutation SyncArticleFromMicroCMS($microCmsId: String!) {
+  syncArticleFromMicroCMS(microCmsId: $microCmsId) {
+    id
+    slugId
+    title
+    content
+    excerpt
+    status
+    publishedAt
+    microCmsId
+    tags
+    featuredImage
+    createdAt
+    updatedAt
+    author {
+      id
+      name
+      handleName: handle_name
+    }
+  }
+}
+
+# 記事作成
+mutation CreateArticle($input: ArticleInput!, $syncToMicroCMS: Boolean) {
+  createArticle(input: $input, syncToMicroCMS: $syncToMicroCMS) {
+    id
+    slugId
+    title
+    content
+    excerpt
+    status
+    publishedAt
+    microCmsId
+    tags
+    featuredImage
+    createdAt
+    updatedAt
+    author {
+      id
+      name
+      handleName: handle_name
+    }
+  }
+}
+
+# 記事更新
+mutation UpdateArticle($id: Int!, $input: ArticleInput!, $syncToMicroCMS: Boolean) {
+  updateArticle(id: $id, input: $input, syncToMicroCMS: $syncToMicroCMS) {
+    id
+    slugId
+    title
+    content
+    excerpt
+    status
+    publishedAt
+    microCmsId
+    tags
+    featuredImage
+    createdAt
+    updatedAt
+    author {
+      id
+      name
+      handleName: handle_name
+    }
+  }
+}
+
+# 記事削除
+mutation DeleteArticle($id: Int!, $deleteFromMicroCMS: Boolean) {
+  deleteArticle(id: $id, deleteFromMicroCMS: $deleteFromMicroCMS)
+}
+
+# 記事即時公開
+mutation PublishArticleNow($id: Int!, $syncToMicroCMS: Boolean) {
+  publishArticleNow(id: $id, syncToMicroCMS: $syncToMicroCMS) {
+    id
+    slugId
+    title
+    status
+    publishedAt
+    updatedAt
+  }
+}
