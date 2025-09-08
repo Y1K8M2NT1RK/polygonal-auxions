@@ -10,6 +10,7 @@ import {
   Palette as ArtworkIcon,
   Comment as CommentIcon,
   Report as ReportIcon,
+  Article as ArticleIcon,
 } from '@mui/icons-material';
 import AdminLayout from '@/components/admin/AdminLayout';
 
@@ -26,6 +27,12 @@ const statsData = [
     value: '567',
     icon: <ArtworkIcon sx={{ fontSize: 40 }} />,
     color: '#388e3c',
+  },
+  {
+    title: '記事数',
+    value: '89',
+    icon: <ArticleIcon sx={{ fontSize: 40 }} />,
+    color: '#7b1fa2',
   },
   {
     title: 'コメント数',

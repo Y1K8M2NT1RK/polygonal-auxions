@@ -35,31 +35,49 @@ export default function Header (){
                     >
                         Polygonal Auxions
                     </Typography>
-                    <SearchInput inputPaddingSize={'small'} labelFontSize={'1rem'} inputFontSize={'1rem'}/>
-                    {
-                        fetching
-                        ?   (
-                            <Box sx={{display:'flex'}}>
-                                <Skeleton animation="wave" variant="circular" width={56} height={56} />
-                                <Skeleton animation="wave" variant="circular" width={56} height={56} />
-                            </Box>
-                        ) : isLoggedIn && user ? (
-                            <AvatorPopover auth={user} />
-                        ) : (
-                            <LoginDialog
-                                button={
-                                    <Button
-                                        onClick={handleDialogOpen}
-                                        color="inherit"
-                                    >
-                                        ログイン
-                                    </Button>
-                                }
-                                openDialog={openDialog}
-                                setOpenDialog={setOpenDialog}
-                            />
-                        )
-                    }
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Button
+                            component={Link}
+                            href="/artworks"
+                            color="inherit"
+                            sx={{ display: { xs: 'none', sm: 'block' } }}
+                        >
+                            作品
+                        </Button>
+                        <Button
+                            component={Link}
+                            href="/articles"
+                            color="inherit"
+                            sx={{ display: { xs: 'none', sm: 'block' } }}
+                        >
+                            記事
+                        </Button>
+                        <SearchInput inputPaddingSize={'small'} labelFontSize={'1rem'} inputFontSize={'1rem'}/>
+                        {
+                            fetching
+                            ?   (
+                                <Box sx={{display:'flex'}}>
+                                    <Skeleton animation="wave" variant="circular" width={56} height={56} />
+                                    <Skeleton animation="wave" variant="circular" width={56} height={56} />
+                                </Box>
+                            ) : isLoggedIn && user ? (
+                                <AvatorPopover auth={user} />
+                            ) : (
+                                <LoginDialog
+                                    button={
+                                        <Button
+                                            onClick={handleDialogOpen}
+                                            color="inherit"
+                                        >
+                                            ログイン
+                                        </Button>
+                                    }
+                                    openDialog={openDialog}
+                                    setOpenDialog={setOpenDialog}
+                                />
+                            )
+                        }
+                    </Box>
                 </Toolbar>
             </AppBar>
             <Toolbar />

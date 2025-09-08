@@ -14,6 +14,7 @@ import {
   ChatBubbleOutline as ChatIcon,
   People as PeopleIcon,
   Palette as ArtworkIcon,
+  Article as ArticleIcon,
   Comment as CommentIcon,
   Report as ReportIcon,
   Logout as LogoutIcon,
@@ -30,6 +31,7 @@ const menuItems = [
   { text: 'チャット管理', icon: <ChatIcon />, href: '/admin/chats' },
   { text: 'ユーザー管理', icon: <PeopleIcon />, href: '/admin/users' },
   { text: '作品管理', icon: <ArtworkIcon />, href: '/admin/artworks' },
+  { text: '記事管理', icon: <ArticleIcon />, href: '/admin/articles' },
   { text: 'コメント管理', icon: <CommentIcon />, href: '/admin/comments' },
   { text: '報告管理', icon: <ReportIcon />, href: '/admin/reports' },
 ];

@@ -60,6 +60,7 @@
     "@types/bcrypt": "^5.0.2",
     "@types/luxon": "^3.4.2",
     "@types/nodemailer": "^7.0.1",
+    "@uiw/react-md-editor": "^4.0.8",
     "@urql/exchange-auth": "^2.2.0",
     "@urql/exchange-persisted": "^4.3.0",
     "@vercel/blob": "^1.1.1",
