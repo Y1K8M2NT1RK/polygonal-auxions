@@ -3,4 +3,5 @@ export { seedFollows } from './follows';
 export { seedArtworks } from './artworks';
 export { seedComments } from './comments';
 export { seedArtworkRanks } from './artworkRanks';
+export { seedNotifications } from './notifications';
 export { deleteAllData, seedMasterData } from './cleanup';

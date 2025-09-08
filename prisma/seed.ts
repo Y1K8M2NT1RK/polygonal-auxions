@@ -6,7 +6,8 @@ import {
     seedFollows,
     seedArtworks,
     seedComments,
-    seedArtworkRanks
+    seedArtworkRanks,
+    seedNotifications
 } from './seeds/index'
 
 const main = async () => {
@@ -56,6 +57,7 @@ const main = async () => {
     await seedArtworks();
     await seedComments();
     await seedArtworkRanks();
+    await seedNotifications();
     console.log('[seed] full dataset inserted');
 };
 
