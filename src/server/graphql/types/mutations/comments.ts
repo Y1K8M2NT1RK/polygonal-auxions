@@ -1,7 +1,7 @@
 import { builder } from '../../builder';
 import { prisma } from '../../../db';
 import { ZodError } from 'zod';
-import { Comment } from '../consts';
+import { Comment, CommentRanks } from '../consts';
 
 builder.mutationField("upsertComment", (t) =>
   t.prismaField({
@@ -45,5 +45,17 @@ builder.mutationField("removeComment", (t) =>
       if (!targetComment) throw new Error('コメントが見つかりません。');
       return prisma.comment.delete({ where: { slug_id: args.comment_slug_id } });
     },
+  })
+);
+
+builder.mutationField("addCommentRank", (t) =>
+  t.prismaField({
+    type: CommentRanks,
+    authScopes: { isAuthenticated: true },
+    args: { comment_id: t.arg.string({ required: true }), rank_id: t.arg.string({ required: true }) },
+    resolve: (query, _parent, args, ctx) => prisma.commentRanks.create({
+      ...query,
+      data: { comment_id: parseInt(args.comment_id), rank_id: parseInt(args.rank_id), user_id: ctx.auth?.id as number },
+    }),
   })
 );

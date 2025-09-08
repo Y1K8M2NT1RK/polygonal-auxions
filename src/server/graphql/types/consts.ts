@@ -141,6 +141,19 @@ export const UserRanks = builder.prismaObject('UserRanks', {
 	}),
 });
 
+export const CommentRanks = builder.prismaObject('CommentRanks', {
+	fields: (t: any) => ({
+		id: t.exposeID('id'),
+		comment_id: t.exposeID('comment_id'),
+		rank_id: t.exposeID('rank_id'),
+		user_id: t.exposeID('user_id'),
+		comment: t.relation('comment'),
+		user: t.relation('user'),
+		ranks: t.relation('ranks'),
+		created_at: t.expose('created_at', {type: 'Date'}),
+	}),
+});
+
 export const Ranks = builder.prismaObject('Ranks', {
 	fields: (t: any) => ({
 		id: t.exposeID('id'),
@@ -168,12 +181,14 @@ export const ArtworkFile = builder.prismaObject('ArtworkFile', {
 
 export const Comment = builder.prismaObject('Comment', {
 	fields: (t: any) => ({
+		id: t.exposeID('id'),
 		body: t.exposeString('body'),
 		artwork_id: t.exposeID('artwork_id'),
 		slug_id: t.exposeID('slug_id'),
 		created_at: t.expose('created_at', {type: 'Date'}),
 		user: t.relation('user'),
 		artwork: t.relation('artwork'),
+		comment_ranks: t.relation('comment_ranks'),
 	}),
 });
 

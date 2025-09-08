@@ -1,5 +1,6 @@
 query getArtworkComments($artwork_id: String!) {
     getArtworkComments (artwork_id: $artwork_id) {
+        id
         body
         artwork_id
         slug_id

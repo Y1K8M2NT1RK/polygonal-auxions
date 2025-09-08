@@ -53,6 +53,7 @@ model User {
   user_ranks_reported UserRanks[]   @relation("user_ranks_reported")
   user_ranks_reporter UserRanks[]   @relation("user_ranks_reporter")
   comments          Comment[]       @relation("comments_fk")
+  comment_ranks     CommentRanks[]  @relation("comment_ranks_fk")
   followed_by       Follow[]        @relation("followedBy")
   following         Follow[]        @relation("following")
 
@@ -183,8 +184,25 @@ model Comment {
 
   user          User?           @relation("comments_fk", fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   artwork       Artwork         @relation("artworks_fk_from_comments", fields: [artwork_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  comment_ranks CommentRanks[]  @relation("comment_ranks_fk_from_comments")
 
   @@map(name: "comments")
+}
+
+model CommentRanks { // コメント報告機能用のテーブル
+  id            Int             @id @default(autoincrement())
+  comment_id    Int             // 報告対象のコメント
+  rank_id       Int             // 報告理由
+  user_id       Int             // 報告したユーザー
+  created_at    DateTime        @default(now()) @db.Timestamp()
+  updated_at    DateTime        @default(now()) @db.Timestamp() @updatedAt
+
+  comment       Comment         @relation("comment_ranks_fk_from_comments", fields: [comment_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user          User            @relation("comment_ranks_fk", fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  ranks         Ranks           @relation("comment_ranks_fk_from_ranks", fields: [rank_id], references: [id])
+
+  @@unique([comment_id, rank_id, user_id]) // 複合一意キーの設定
+  @@map(name: "comment_ranks")
 }
 
 model ArtworkRanks { // このテーブルは、評価機能のみならず報告/お気に入り/ブックマーク関連機能でも使用
@@ -226,6 +244,7 @@ model Ranks { // このテーブルは、評価機能のみならず報告/お�
 
   artwork_ranks ArtworkRanks[]  @relation("artwork_ranks_fk_from_ranks")
   user_ranks    UserRanks[]     @relation("user_ranks_fk_from_ranks")
+  comment_ranks CommentRanks[]  @relation("comment_ranks_fk_from_ranks")
   rank_type     RankTypes       @relation("ranks_fk", fields: [rank_type_id], references: [id])
 
   @@map(name: "ranks")
