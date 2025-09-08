@@ -8,9 +8,9 @@
 
 ### Core Technologies
 - **Framework**: Next.js 15 (Pages Router)
-- **UI Library**: React 18 + TypeScript
+- **UI Library**: React 19 + TypeScript
 - **GraphQL Client**: urql (軽量・高性能)
-- **Component Library**: Material-UI (MUI) v5
+- **Component Library**: Material-UI (MUI) v7
 - **State Management**: React Context + urql Cache
 
 ### Styling & Design

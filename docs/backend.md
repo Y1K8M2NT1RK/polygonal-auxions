@@ -32,8 +32,8 @@ src/pages/api/
 ```
 
 #### 重要な変更履歴
-- ✅ CSRF トークン発行を GraphQL mutation `issueCsrfToken` に統合
-- 🗑️ 旧 REST `/api/csrf` エンドポイントは削除済み
+- ✅ CSRF トークンをダブルサブミット方式で実装
+- ✅ JWT認証による短期トークン（15分）採用
 - 🗑️ 開発用デバッグエンドポイント (`debug.ts`, `openssl.ts`) はセキュリティ強化のため削除
 
 ### GraphQL実装 (`src/server/graphql/`)
