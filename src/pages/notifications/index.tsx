@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 import { 
   Box, 
   Container, 
-  Grid, 
   Paper, 
   Typography,
   List,
@@ -12,7 +11,6 @@ import {
   ListItemAvatar,
   Avatar,
   Chip,
-  IconButton,
   Divider,
   Button,
   CircularProgress
@@ -22,92 +20,70 @@ import {
   Person, 
   Image, 
   Comment,
-  MarkAsUnread,
   CheckCircle
 } from '@mui/icons-material';
 import useResponsive from '@/hooks/useResponsive';
-import { useQuery, useMutation } from 'urql';
 
-// GraphQL queries
-const NOTIFICATIONS_QUERY = `
-  query GetNotifications($limit: Int, $offset: Int, $onlyUnread: Boolean) {
-    notifications(limit: $limit, offset: $offset, onlyUnread: $onlyUnread) {
-      id
-      slug_id
-      type
-      title
-      message
-      is_read
-      created_at
-      actor {
-        id
-        name
-        handle_name
-      }
-      artwork {
-        id
-        slug_id
-        title
-      }
-      comment {
-        id
-        slug_id
-        body
-      }
+// Mock data for demonstration
+const mockNotifications = [
+  {
+    id: 1,
+    slug_id: 'clxyz123',
+    type: 'FOLLOW',
+    title: 'フォローされました',
+    message: 'suzuki_hanakoさんがあなたをフォローしました',
+    is_read: false,
+    created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+    actor: {
+      id: 2,
+      name: 'suzuki hanako',
+      handle_name: 'suzuki_hanako'
+    }
+  },
+  {
+    id: 2,
+    slug_id: 'clxyz124',
+    type: 'NEW_ARTWORK',
+    title: '新しい作品が投稿されました',
+    message: 'tanaka_taroさんが新しい作品「抽象的な風景」を投稿しました',
+    is_read: false,
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+    actor: {
+      id: 1,
+      name: 'tanaka taro',
+      handle_name: 'tanaka_taro'
+    },
+    artwork: {
+      id: 1,
+      slug_id: 'artwork123',
+      title: '抽象的な風景'
+    }
+  },
+  {
+    id: 3,
+    slug_id: 'clxyz125',
+    type: 'NEW_COMMENT',
+    title: 'コメントが投稿されました',
+    message: 'sato_kenjiさんがあなたの作品「デジタルアート」にコメントしました',
+    is_read: true,
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+    actor: {
+      id: 3,
+      name: 'sato kenji',
+      handle_name: 'sato_kenji'
+    },
+    artwork: {
+      id: 2,
+      slug_id: 'artwork124',
+      title: 'デジタルアート'
+    },
+    comment: {
+      id: 1,
+      slug_id: 'comment123',
+      body: 'とても素晴らしい作品ですね！'
     }
   }
-`;
-
-const NOTIFICATION_DETAIL_QUERY = `
-  query GetNotification($slug_id: String!) {
-    notification(slug_id: $slug_id) {
-      id
-      slug_id
-      type
-      title
-      message
-      is_read
-      created_at
-      actor {
-        id
-        name
-        handle_name
-      }
-      artwork {
-        id
-        slug_id
-        title
-        user {
-          name
-          handle_name
-        }
-      }
-      comment {
-        id
-        slug_id
-        body
-        artwork {
-          title
-        }
-      }
-    }
-  }
-`;
-
-const MARK_AS_READ_MUTATION = `
-  mutation MarkNotificationAsRead($slug_id: String!) {
-    markNotificationAsRead(slug_id: $slug_id) {
-      id
-      is_read
-    }
-  }
-`;
-
-const MARK_ALL_AS_READ_MUTATION = `
-  mutation MarkAllNotificationsAsRead {
-    markAllNotificationsAsRead
-  }
-`;
+];
 
 // 通知アイコンを取得する関数
 const getNotificationIcon = (type: string) => {
@@ -156,33 +132,25 @@ const formatTimeAgo = (dateString: string) => {
 };
 
 interface NotificationListProps {
+  notifications: any[];
   selectedNotificationId?: string;
   onNotificationSelect: (notificationId: string) => void;
+  onMarkAllAsRead: () => void;
+  showUnreadOnly: boolean;
+  onToggleUnreadOnly: () => void;
 }
 
 const NotificationList: React.FC<NotificationListProps> = ({ 
+  notifications,
   selectedNotificationId, 
-  onNotificationSelect 
+  onNotificationSelect,
+  onMarkAllAsRead,
+  showUnreadOnly,
+  onToggleUnreadOnly
 }) => {
-  const [showUnreadOnly, setShowUnreadOnly] = useState(false);
-  
-  const [notificationsResult] = useQuery({
-    query: NOTIFICATIONS_QUERY,
-    variables: { limit: 50, offset: 0, onlyUnread: showUnreadOnly },
-  });
-
-  const [, markAllAsRead] = useMutation(MARK_ALL_AS_READ_MUTATION);
-
-  const { data, fetching, error } = notificationsResult;
-
-  const handleMarkAllAsRead = async () => {
-    await markAllAsRead({});
-  };
-
-  if (fetching) return <CircularProgress />;
-  if (error) return <Typography color="error">エラーが発生しました</Typography>;
-
-  const notifications = data?.notifications || [];
+  const filteredNotifications = showUnreadOnly 
+    ? notifications.filter(n => !n.is_read)
+    : notifications;
 
   return (
     <Paper sx={{ height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
@@ -194,14 +162,14 @@ const NotificationList: React.FC<NotificationListProps> = ({
           <Button
             size="small"
             variant={showUnreadOnly ? 'contained' : 'outlined'}
-            onClick={() => setShowUnreadOnly(!showUnreadOnly)}
+            onClick={onToggleUnreadOnly}
           >
             {showUnreadOnly ? '全て表示' : '未読のみ'}
           </Button>
           <Button
             size="small"
             variant="outlined"
-            onClick={handleMarkAllAsRead}
+            onClick={onMarkAllAsRead}
             startIcon={<CheckCircle />}
           >
             全て既読
@@ -211,18 +179,21 @@ const NotificationList: React.FC<NotificationListProps> = ({
       
       <Box sx={{ flex: 1, overflow: 'auto' }}>
         <List disablePadding>
-          {notifications.map((notification: any, index: number) => (
+          {filteredNotifications.map((notification: any, index: number) => (
             <React.Fragment key={notification.slug_id}>
               <ListItem
-                button
-                selected={selectedNotificationId === notification.slug_id}
-                onClick={() => onNotificationSelect(notification.slug_id)}
+                component="div"
                 sx={{
+                  cursor: 'pointer',
                   backgroundColor: notification.is_read ? 'transparent' : 'action.hover',
                   '&:hover': {
                     backgroundColor: 'action.selected',
                   },
+                  ...(selectedNotificationId === notification.slug_id && {
+                    backgroundColor: 'action.selected',
+                  }),
                 }}
+                onClick={() => onNotificationSelect(notification.slug_id)}
               >
                 <ListItemAvatar>
                   <Avatar sx={{ bgcolor: notification.is_read ? 'grey.400' : 'primary.main' }}>
@@ -262,10 +233,10 @@ const NotificationList: React.FC<NotificationListProps> = ({
                   }
                 />
               </ListItem>
-              {index < notifications.length - 1 && <Divider />}
+              {index < filteredNotifications.length - 1 && <Divider />}
             </React.Fragment>
           ))}
-          {notifications.length === 0 && (
+          {filteredNotifications.length === 0 && (
             <Box sx={{ p: 4, textAlign: 'center' }}>
               <NotificationsNone sx={{ fontSize: 48, color: 'grey.400', mb: 2 }} />
               <Typography color="text.secondary">
@@ -280,27 +251,11 @@ const NotificationList: React.FC<NotificationListProps> = ({
 };
 
 interface NotificationDetailProps {
-  notificationId?: string;
+  notification?: any;
 }
 
-const NotificationDetail: React.FC<NotificationDetailProps> = ({ notificationId }) => {
-  const [notificationResult] = useQuery({
-    query: NOTIFICATION_DETAIL_QUERY,
-    variables: { slug_id: notificationId },
-    pause: !notificationId,
-  });
-
-  const [, markAsRead] = useMutation(MARK_AS_READ_MUTATION);
-
-  const { data, fetching, error } = notificationResult;
-
-  useEffect(() => {
-    if (notificationId && data?.notification && !data.notification.is_read) {
-      markAsRead({ slug_id: notificationId });
-    }
-  }, [notificationId, data, markAsRead]);
-
-  if (!notificationId) {
+const NotificationDetail: React.FC<NotificationDetailProps> = ({ notification }) => {
+  if (!notification) {
     return (
       <Paper sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Box sx={{ textAlign: 'center' }}>
@@ -312,24 +267,6 @@ const NotificationDetail: React.FC<NotificationDetailProps> = ({ notificationId 
       </Paper>
     );
   }
-
-  if (fetching) {
-    return (
-      <Paper sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress />
-      </Paper>
-    );
-  }
-
-  if (error || !data?.notification) {
-    return (
-      <Paper sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Typography color="error">通知が見つかりません</Typography>
-      </Paper>
-    );
-  }
-
-  const notification = data.notification;
 
   return (
     <Paper sx={{ height: '100%', overflow: 'auto' }}>
@@ -381,11 +318,6 @@ const NotificationDetail: React.FC<NotificationDetailProps> = ({ notificationId 
               <Typography variant="body2" fontWeight="medium">
                 {notification.artwork.title}
               </Typography>
-              {notification.artwork.user && (
-                <Typography variant="caption" color="text.secondary">
-                  作者: {notification.artwork.user.name}
-                </Typography>
-              )}
             </Paper>
           </Box>
         )}
@@ -399,11 +331,6 @@ const NotificationDetail: React.FC<NotificationDetailProps> = ({ notificationId 
               <Typography variant="body2">
                 {notification.comment.body}
               </Typography>
-              {notification.comment.artwork && (
-                <Typography variant="caption" color="text.secondary">
-                  作品: {notification.comment.artwork.title}
-                </Typography>
-              )}
             </Paper>
           </Box>
         )}
@@ -420,6 +347,10 @@ export default function NotificationsPage() {
   const [selectedNotificationId, setSelectedNotificationId] = useState<string | undefined>(
     typeof id === 'string' ? id : undefined
   );
+  const [notifications, setNotifications] = useState(mockNotifications);
+  const [showUnreadOnly, setShowUnreadOnly] = useState(false);
+
+  const selectedNotification = notifications.find(n => n.slug_id === selectedNotificationId);
 
   // モバイルでの通知選択処理
   const handleNotificationSelect = (notificationId: string) => {
@@ -429,6 +360,14 @@ export default function NotificationsPage() {
       setSelectedNotificationId(notificationId);
       router.push(`/notifications/${notificationId}`, undefined, { shallow: true });
     }
+  };
+
+  const handleMarkAllAsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+  };
+
+  const handleToggleUnreadOnly = () => {
+    setShowUnreadOnly(prev => !prev);
   };
 
   useEffect(() => {
@@ -442,14 +381,20 @@ export default function NotificationsPage() {
     if (id) {
       return (
         <Container maxWidth="md" sx={{ py: 2 }}>
-          <NotificationDetail notificationId={typeof id === 'string' ? id : undefined} />
+          <NotificationDetail notification={selectedNotification} />
         </Container>
       );
     }
     
     return (
       <Container maxWidth="md" sx={{ py: 2 }}>
-        <NotificationList onNotificationSelect={handleNotificationSelect} />
+        <NotificationList 
+          notifications={notifications}
+          onNotificationSelect={handleNotificationSelect}
+          onMarkAllAsRead={handleMarkAllAsRead}
+          showUnreadOnly={showUnreadOnly}
+          onToggleUnreadOnly={handleToggleUnreadOnly}
+        />
       </Container>
     );
   }
@@ -457,17 +402,21 @@ export default function NotificationsPage() {
   // PC/タブレット: 分割画面
   return (
     <Container maxWidth="xl" sx={{ py: 2 }}>
-      <Grid container spacing={2} sx={{ height: 'calc(100vh - 200px)' }}>
-        <Grid item xs={12} md={4}>
+      <Box sx={{ display: 'flex', gap: 2, height: 'calc(100vh - 200px)' }}>
+        <Box sx={{ width: '33%', minWidth: 300 }}>
           <NotificationList
+            notifications={notifications}
             selectedNotificationId={selectedNotificationId}
             onNotificationSelect={handleNotificationSelect}
+            onMarkAllAsRead={handleMarkAllAsRead}
+            showUnreadOnly={showUnreadOnly}
+            onToggleUnreadOnly={handleToggleUnreadOnly}
           />
-        </Grid>
-        <Grid item xs={12} md={8}>
-          <NotificationDetail notificationId={selectedNotificationId} />
-        </Grid>
-      </Grid>
+        </Box>
+        <Box sx={{ flex: 1 }}>
+          <NotificationDetail notification={selectedNotification} />
+        </Box>
+      </Box>
     </Container>
   );
 }

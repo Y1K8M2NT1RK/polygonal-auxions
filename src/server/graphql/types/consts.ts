@@ -187,7 +187,8 @@ export const ImageInput = builder.inputType('ImageInput', {
 	}),
 })
 
-// NotificationType enum
+// NotificationType enum (temporarily commented out due to Prisma generation issues)
+/*
 export const NotificationType = builder.enumType('NotificationType', {
 	values: ['FOLLOW', 'NEW_ARTWORK', 'NEW_COMMENT'] as const,
 });
@@ -211,6 +212,7 @@ export const Notification = builder.prismaObject('Notification', {
 		comment: t.relation('comment', {nullable: true}),
 	}),
 });
+*/
 
 // Admin Users List Response Type
 export const AdminUsersListResponse = builder.simpleObject('AdminUsersListResponse', {

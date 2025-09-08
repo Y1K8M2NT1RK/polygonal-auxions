@@ -1,5 +1,26 @@
 /* eslint-disable */
 import type { Prisma, User, UserFiles, Purpose, AuthPayload, PasswordResetToken, Follow, Artwork, ArtworkFile, ArtworkGizmo, Comment, ArtworkRanks, UserRanks, Ranks, RankTypes } from "@prisma/client";
+
+// Temporary Notification type until Prisma generates it
+interface Notification {
+  id: number;
+  slug_id: string;
+  recipient_id: number;
+  actor_id: number | null;
+  type: 'FOLLOW' | 'NEW_ARTWORK' | 'NEW_COMMENT';
+  title: string;
+  message: string;
+  artwork_id: number | null;
+  comment_id: number | null;
+  is_read: boolean;
+  created_at: Date;
+  updated_at: Date;
+  recipient?: User;
+  actor?: User | null;
+  artwork?: Artwork | null;
+  comment?: Comment | null;
+}
+
 export default interface PrismaTypes {
     User: {
         Name: "User";
@@ -388,6 +409,41 @@ export default interface PrismaTypes {
                 Shape: Ranks[];
                 Name: "Ranks";
                 Nullable: false;
+            };
+        };
+    };
+    Notification: {
+        Name: "Notification";
+        Shape: Notification;
+        Include: any;
+        Select: any;
+        OrderBy: any;
+        WhereUnique: any;
+        Where: any;
+        Create: {};
+        Update: {};
+        RelationName: "recipient" | "actor" | "artwork" | "comment";
+        ListRelations: never;
+        Relations: {
+            recipient: {
+                Shape: User;
+                Name: "User";
+                Nullable: false;
+            };
+            actor: {
+                Shape: User | null;
+                Name: "User";
+                Nullable: true;
+            };
+            artwork: {
+                Shape: Artwork | null;
+                Name: "Artwork";
+                Nullable: true;
+            };
+            comment: {
+                Shape: Comment | null;
+                Name: "Comment";
+                Nullable: true;
             };
         };
     };
