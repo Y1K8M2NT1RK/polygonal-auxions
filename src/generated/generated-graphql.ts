@@ -78,6 +78,7 @@ export type Comment = {
   artwork_id: Scalars['ID']['output'];
   body: Scalars['String']['output'];
   created_at: Scalars['Date']['output'];
+  id: Scalars['ID']['output'];
   slug_id: Scalars['ID']['output'];
   user: User;
 };
@@ -116,6 +117,7 @@ export type ImageInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   addArtworkRank: ArtworkRanks;
+  addCommentRank: Scalars['Boolean']['output'];
   addUserRank: UserRanks;
   adminCreateUser: MutationAdminCreateUserResult;
   adminDeleteUser: MutationAdminDeleteUserResult;
@@ -143,6 +145,12 @@ export type Mutation = {
 
 export type MutationAddArtworkRankArgs = {
   artwork_id: Scalars['String']['input'];
+  rank_id: Scalars['String']['input'];
+};
+
+
+export type MutationAddCommentRankArgs = {
+  comment_slug_id: Scalars['String']['input'];
   rank_id: Scalars['String']['input'];
 };
 
@@ -558,6 +566,14 @@ export type RemoveCommentMutationVariables = Exact<{
 
 export type RemoveCommentMutation = { __typename?: 'Mutation', removeComment: { __typename: 'Comment' } };
 
+export type AddCommentRankMutationVariables = Exact<{
+  comment_slug_id: Scalars['String']['input'];
+  rank_id: Scalars['String']['input'];
+}>;
+
+
+export type AddCommentRankMutation = { __typename?: 'Mutation', addCommentRank: boolean };
+
 export type LoginMutationVariables = Exact<{
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -719,7 +735,7 @@ export type GetArtworkCommentsQueryVariables = Exact<{
 }>;
 
 
-export type GetArtworkCommentsQuery = { __typename?: 'Query', getArtworkComments: Array<{ __typename?: 'Comment', body: string, artwork_id: string, slug_id: string, created_at: any, user: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> } }> };
+export type GetArtworkCommentsQuery = { __typename?: 'Query', getArtworkComments: Array<{ __typename?: 'Comment', id: string, body: string, artwork_id: string, slug_id: string, created_at: any, user: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> } }> };
 
 export type UserProfileQueryVariables = Exact<{
   handle_name: Scalars['String']['input'];
@@ -858,6 +874,15 @@ export const RemoveCommentDocument = gql`
 
 export function useRemoveCommentMutation() {
   return Urql.useMutation<RemoveCommentMutation, RemoveCommentMutationVariables>(RemoveCommentDocument);
+};
+export const AddCommentRankDocument = gql`
+    mutation AddCommentRank($comment_slug_id: String!, $rank_id: String!) {
+  addCommentRank(comment_slug_id: $comment_slug_id, rank_id: $rank_id)
+}
+    `;
+
+export function useAddCommentRankMutation() {
+  return Urql.useMutation<AddCommentRankMutation, AddCommentRankMutationVariables>(AddCommentRankDocument);
 };
 export const LoginDocument = gql`
     mutation Login($email: String!, $password: String!) {
@@ -1243,6 +1268,7 @@ export function useGetReportReasonsQuery(options?: Omit<Urql.UseQueryArgs<GetRep
 export const GetArtworkCommentsDocument = gql`
     query getArtworkComments($artwork_id: String!) {
   getArtworkComments(artwork_id: $artwork_id) {
+    id
     body
     artwork_id
     slug_id
