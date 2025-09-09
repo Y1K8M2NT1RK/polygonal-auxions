@@ -47,3 +47,37 @@ builder.mutationField("removeComment", (t) =>
     },
   })
 );
+
+builder.mutationField("addCommentRank", (t) =>
+  t.boolean({
+    authScopes: { isAuthenticated: true },
+    args: { comment_slug_id: t.arg.string({ required: true }), rank_id: t.arg.string({ required: true }) },
+    resolve: async (_parent, args, ctx) => {
+      const targetComment = await prisma.comment.findFirst({ where: { slug_id: args.comment_slug_id } });
+      if (!targetComment) throw new Error('コメントが見つかりません。');
+      
+      // Check if user has already reported this comment with this reason
+      const existingReport = await prisma.commentRanks.findFirst({
+        where: {
+          comment_id: targetComment.id,
+          rank_id: parseInt(args.rank_id),
+          user_id: ctx.auth?.id as number,
+        },
+      });
+      
+      if (existingReport) {
+        throw new Error('既にこの理由でコメントを報告しています。');
+      }
+      
+      await prisma.commentRanks.create({
+        data: { 
+          comment_id: targetComment.id, 
+          rank_id: parseInt(args.rank_id), 
+          user_id: ctx.auth?.id as number 
+        },
+      });
+      
+      return true;
+    },
+  })
+);
