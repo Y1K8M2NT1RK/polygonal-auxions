@@ -56,12 +56,27 @@ builder.mutationField("addCommentRank", (t) =>
       const targetComment = await prisma.comment.findFirst({ where: { slug_id: args.comment_slug_id } });
       if (!targetComment) throw new Error('コメントが見つかりません。');
       
-      // TODO: Uncomment when CommentRanks model is available
-      // await prisma.commentRanks.create({
-      //   data: { comment_id: targetComment.id, rank_id: parseInt(args.rank_id), user_id: ctx.auth?.id as number },
-      // });
+      // Check if user has already reported this comment with this reason
+      const existingReport = await prisma.commentRanks.findFirst({
+        where: {
+          comment_id: targetComment.id,
+          rank_id: parseInt(args.rank_id),
+          user_id: ctx.auth?.id as number,
+        },
+      });
       
-      // For now, just return true to indicate success
+      if (existingReport) {
+        throw new Error('既にこの理由でコメントを報告しています。');
+      }
+      
+      await prisma.commentRanks.create({
+        data: { 
+          comment_id: targetComment.id, 
+          rank_id: parseInt(args.rank_id), 
+          user_id: ctx.auth?.id as number 
+        },
+      });
+      
       return true;
     },
   })
