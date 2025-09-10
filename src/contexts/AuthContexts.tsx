@@ -24,6 +24,27 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
   // Remove redundant eager profile query: pages fetch profiles on demand
 
   useEffect(() => {
+    // Development demo mode - check for ?demo=true parameter
+    const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const isDemoMode = urlParams?.get('demo') === 'true';
+    
+    if (isDemoMode && !data?.me) {
+      // Simulate logged-in user for demo
+      const mockUser = {
+        id: 1,
+        handle_name: 'demo_user',
+        name: 'デモユーザー',
+        email: 'demo@example.com',
+        role: 'USER',
+        user_files: [],
+        created_at: new Date().toISOString(),
+      } as User;
+      
+      setIsLoggedIn(true);
+      setAuth(mockUser);
+      return;
+    }
+    
     setIsLoggedIn(!!data?.me);
     setAuth(data?.me || null);
   }, [data]);

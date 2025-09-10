@@ -75,6 +75,9 @@ export default function UserDashboard() {
     },
   ];
 
+  // Calculate unread notifications count
+  const unreadNotificationsCount = recentNotifications.filter(n => !n.is_read).length;
+
   // Function to get notification type label
   const getNotificationTypeLabel = (type: string) => {
     switch (type) {
