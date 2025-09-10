@@ -131,9 +131,14 @@ const getBaseNotifications = () => [
 ];
 
 // User-specific notification management
-const getStorageKey = (userId: number) => `notifications_read_${userId}`;
+const normalizeUserId = (userId: number | string): number => {
+  if (typeof userId === 'number') return userId;
+  const parsed = parseInt(userId, 10);
+  return isNaN(parsed) ? 0 : parsed;
+};
+const getStorageKey = (userId: number | string) => `notifications_read_${normalizeUserId(userId)}`;
 
-export const getUserNotifications = (userId: number) => {
+export const getUserNotifications = (userId: number | string) => {
   const baseNotifications = getBaseNotifications();
   if (typeof window === 'undefined') return baseNotifications;
   
@@ -148,12 +153,12 @@ export const getUserNotifications = (userId: number) => {
   }
 };
 
-export const getUnreadNotificationsCount = (userId: number) => {
+export const getUnreadNotificationsCount = (userId: number | string) => {
   const notifications = getUserNotifications(userId);
   return notifications.filter(n => !n.is_read).length;
 };
 
-export const markNotificationAsRead = (userId: number, notificationSlugId: string) => {
+export const markNotificationAsRead = (userId: number | string, notificationSlugId: string) => {
   if (typeof window === 'undefined') return;
   
   try {
@@ -168,7 +173,7 @@ export const markNotificationAsRead = (userId: number, notificationSlugId: strin
   }
 };
 
-export const markAllNotificationsAsRead = (userId: number, notifications: any[]) => {
+export const markAllNotificationsAsRead = (userId: number | string, notifications: any[]) => {
   if (typeof window === 'undefined') return;
   
   try {

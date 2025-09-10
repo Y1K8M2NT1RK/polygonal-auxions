@@ -29,17 +29,35 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
     const isDemoMode = urlParams?.get('demo') === 'true';
     
     if (isDemoMode && !data?.me) {
-      // Simulate logged-in user for demo
-      const mockUser = {
-        id: 1,
+      // Simulate logged-in user for demo (provide all required User fields)
+      const now = new Date().toISOString();
+      const mockUser: User = {
+        __typename: 'User',
+        id: '1',
+        slug_id: 'demo_slug_1',
         handle_name: 'demo_user',
         name: 'デモユーザー',
+        name_kana: null,
         email: 'demo@example.com',
         role: 'USER',
+        address: '',
+        introduction: '',
+        phone_number: '',
+        created_at: now,
+        updated_at: now,
+        // Relations / collections as empty for demo
+        artworks: [],
+        comments: [],
+        following: [],
+        followed_by: [],
         user_files: [],
-        created_at: new Date().toISOString(),
-      } as User;
-      
+        user_ranks_reported: [],
+        user_ranks_reporter: [],
+        comment_ranks: [],
+        notifications_received: [],
+        notifications_sent: [],
+      } as unknown as User; // cast defensively in case codegen changes
+
       setIsLoggedIn(true);
       setAuth(mockUser);
       return;

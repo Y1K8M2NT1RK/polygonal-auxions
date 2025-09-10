@@ -45,12 +45,13 @@ builder.mutationField("upsertComment", (t) =>
       // 新しいコメントの場合（既存コメントの編集ではない場合）のみ通知を作成
       if (!args.comment_slug_id && result.artwork.user.id !== ctx.auth?.id) {
         try {
+          const commenterName = result.user ? result.user.name : '誰か';
           await createNotification(
             result.artwork.user.id, // 作品の所有者に通知
             ctx.auth?.id as number, // コメントした人
             'NEW_COMMENT',
             'コメントが投稿されました',
-            `${result.user.name}さんがあなたの作品「${result.artwork.title}」にコメントしました`,
+            `${commenterName}さんがあなたの作品「${result.artwork.title}」にコメントしました`,
             result.artwork.id,
             result.id
           );
