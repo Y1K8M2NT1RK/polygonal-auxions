@@ -1,26 +1,6 @@
 /* eslint-disable */
-import type { Prisma, User, UserFiles, Purpose, AuthPayload, PasswordResetToken, Follow, Artwork, ArtworkFile, ArtworkGizmo, Comment, ArtworkRanks, UserRanks, Ranks, RankTypes } from "@prisma/client";
-
-// Temporary Notification type until Prisma generates it
-interface Notification {
-  id: number;
-  slug_id: string;
-  recipient_id: number;
-  actor_id: number | null;
-  type: 'FOLLOW' | 'NEW_ARTWORK' | 'NEW_COMMENT';
-  title: string;
-  message: string;
-  artwork_id: number | null;
-  comment_id: number | null;
-  is_read: boolean;
-  created_at: Date;
-  updated_at: Date;
-  recipient?: User;
-  actor?: User | null;
-  artwork?: Artwork | null;
-  comment?: Comment | null;
-}
-
+// NOTE: Adjusted import path to module specifier to work in both host and container builds
+import type { Prisma, User, UserFiles, Purpose, AuthPayload, PasswordResetToken, Follow, Artwork, ArtworkFile, ArtworkGizmo, Comment, CommentRanks, ArtworkRanks, UserRanks, Ranks, RankTypes, Notification } from "@prisma/client";
 export default interface PrismaTypes {
     User: {
         Name: "User";
@@ -32,8 +12,8 @@ export default interface PrismaTypes {
         Where: Prisma.UserWhereInput;
         Create: {};
         Update: {};
-        RelationName: "auth_payload" | "password_reset_tokens" | "user_files" | "artworks" | "artwork_ranks" | "user_ranks_reported" | "user_ranks_reporter" | "comments" | "followed_by" | "following";
-        ListRelations: "password_reset_tokens" | "user_files" | "artworks" | "artwork_ranks" | "user_ranks_reported" | "user_ranks_reporter" | "comments" | "followed_by" | "following";
+        RelationName: "auth_payload" | "password_reset_tokens" | "user_files" | "artworks" | "artwork_ranks" | "user_ranks_reported" | "user_ranks_reporter" | "comments" | "comment_ranks" | "followed_by" | "following" | "notifications_received" | "notifications_sent";
+        ListRelations: "password_reset_tokens" | "user_files" | "artworks" | "artwork_ranks" | "user_ranks_reported" | "user_ranks_reporter" | "comments" | "comment_ranks" | "followed_by" | "following" | "notifications_received" | "notifications_sent";
         Relations: {
             auth_payload: {
                 Shape: AuthPayload | null;
@@ -75,6 +55,11 @@ export default interface PrismaTypes {
                 Name: "Comment";
                 Nullable: false;
             };
+            comment_ranks: {
+                Shape: CommentRanks[];
+                Name: "CommentRanks";
+                Nullable: false;
+            };
             followed_by: {
                 Shape: Follow[];
                 Name: "Follow";
@@ -83,6 +68,16 @@ export default interface PrismaTypes {
             following: {
                 Shape: Follow[];
                 Name: "Follow";
+                Nullable: false;
+            };
+            notifications_received: {
+                Shape: Notification[];
+                Name: "Notification";
+                Nullable: false;
+            };
+            notifications_sent: {
+                Shape: Notification[];
+                Name: "Notification";
                 Nullable: false;
             };
         };
@@ -207,8 +202,8 @@ export default interface PrismaTypes {
         Where: Prisma.ArtworkWhereInput;
         Create: {};
         Update: {};
-        RelationName: "user" | "artwork_file" | "artwork_ranks" | "comments";
-        ListRelations: "artwork_file" | "artwork_ranks" | "comments";
+        RelationName: "user" | "artwork_file" | "artwork_ranks" | "comments" | "notifications";
+        ListRelations: "artwork_file" | "artwork_ranks" | "comments" | "notifications";
         Relations: {
             user: {
                 Shape: User;
@@ -228,6 +223,11 @@ export default interface PrismaTypes {
             comments: {
                 Shape: Comment[];
                 Name: "Comment";
+                Nullable: false;
+            };
+            notifications: {
+                Shape: Notification[];
+                Name: "Notification";
                 Nullable: false;
             };
         };
@@ -287,8 +287,8 @@ export default interface PrismaTypes {
         Where: Prisma.CommentWhereInput;
         Create: {};
         Update: {};
-        RelationName: "user" | "artwork";
-        ListRelations: never;
+        RelationName: "user" | "artwork" | "comment_ranks" | "notifications";
+        ListRelations: "comment_ranks" | "notifications";
         Relations: {
             user: {
                 Shape: User | null;
@@ -298,6 +298,46 @@ export default interface PrismaTypes {
             artwork: {
                 Shape: Artwork;
                 Name: "Artwork";
+                Nullable: false;
+            };
+            comment_ranks: {
+                Shape: CommentRanks[];
+                Name: "CommentRanks";
+                Nullable: false;
+            };
+            notifications: {
+                Shape: Notification[];
+                Name: "Notification";
+                Nullable: false;
+            };
+        };
+    };
+    CommentRanks: {
+        Name: "CommentRanks";
+        Shape: CommentRanks;
+        Include: Prisma.CommentRanksInclude;
+        Select: Prisma.CommentRanksSelect;
+        OrderBy: Prisma.CommentRanksOrderByWithRelationInput;
+        WhereUnique: Prisma.CommentRanksWhereUniqueInput;
+        Where: Prisma.CommentRanksWhereInput;
+        Create: {};
+        Update: {};
+        RelationName: "comment" | "user" | "ranks";
+        ListRelations: never;
+        Relations: {
+            comment: {
+                Shape: Comment;
+                Name: "Comment";
+                Nullable: false;
+            };
+            user: {
+                Shape: User;
+                Name: "User";
+                Nullable: false;
+            };
+            ranks: {
+                Shape: Ranks;
+                Name: "Ranks";
                 Nullable: false;
             };
         };
@@ -372,8 +412,8 @@ export default interface PrismaTypes {
         Where: Prisma.RanksWhereInput;
         Create: {};
         Update: {};
-        RelationName: "artwork_ranks" | "user_ranks" | "rank_type";
-        ListRelations: "artwork_ranks" | "user_ranks";
+        RelationName: "artwork_ranks" | "user_ranks" | "comment_ranks" | "rank_type";
+        ListRelations: "artwork_ranks" | "user_ranks" | "comment_ranks";
         Relations: {
             artwork_ranks: {
                 Shape: ArtworkRanks[];
@@ -383,6 +423,11 @@ export default interface PrismaTypes {
             user_ranks: {
                 Shape: UserRanks[];
                 Name: "UserRanks";
+                Nullable: false;
+            };
+            comment_ranks: {
+                Shape: CommentRanks[];
+                Name: "CommentRanks";
                 Nullable: false;
             };
             rank_type: {
@@ -415,11 +460,11 @@ export default interface PrismaTypes {
     Notification: {
         Name: "Notification";
         Shape: Notification;
-        Include: any;
-        Select: any;
-        OrderBy: any;
-        WhereUnique: any;
-        Where: any;
+        Include: Prisma.NotificationInclude;
+        Select: Prisma.NotificationSelect;
+        OrderBy: Prisma.NotificationOrderByWithRelationInput;
+        WhereUnique: Prisma.NotificationWhereUniqueInput;
+        Where: Prisma.NotificationWhereInput;
         Create: {};
         Update: {};
         RelationName: "recipient" | "actor" | "artwork" | "comment";

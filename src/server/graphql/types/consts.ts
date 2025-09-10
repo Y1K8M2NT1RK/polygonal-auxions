@@ -29,7 +29,9 @@ export const User = builder.prismaObject('User', {
 		artworks: t.relation('artworks'),
 		comments: t.relation('comments'),
 		following: t.relation('following'),
+		// Notification relations (enable both received & sent once Notification type is defined)
 		notifications_received: t.relation('notifications_received'),
+		notifications_sent: t.relation('notifications_sent'),
 	}),
 });
 
@@ -142,6 +144,20 @@ export const UserRanks = builder.prismaObject('UserRanks', {
 	}),
 });
 
+// TODO: Uncomment when Prisma client is regenerated with CommentRanks model
+// export const CommentRanks = builder.prismaObject('CommentRanks', {
+// 	fields: (t: any) => ({
+// 		id: t.exposeID('id'),
+// 		comment_id: t.exposeID('comment_id'),
+// 		rank_id: t.exposeID('rank_id'),
+// 		user_id: t.exposeID('user_id'),
+// 		comment: t.relation('comment'),
+// 		user: t.relation('user'),
+// 		ranks: t.relation('ranks'),
+// 		created_at: t.expose('created_at', {type: 'Date'}),
+// 	}),
+// });
+
 export const Ranks = builder.prismaObject('Ranks', {
 	fields: (t: any) => ({
 		id: t.exposeID('id'),
@@ -169,12 +185,15 @@ export const ArtworkFile = builder.prismaObject('ArtworkFile', {
 
 export const Comment = builder.prismaObject('Comment', {
 	fields: (t: any) => ({
+		id: t.exposeID('id'),
 		body: t.exposeString('body'),
 		artwork_id: t.exposeID('artwork_id'),
 		slug_id: t.exposeID('slug_id'),
 		created_at: t.expose('created_at', {type: 'Date'}),
 		user: t.relation('user'),
 		artwork: t.relation('artwork'),
+		// TODO: Uncomment when CommentRanks model is available
+		// comment_ranks: t.relation('comment_ranks'),
 	}),
 });
 
@@ -187,8 +206,7 @@ export const ImageInput = builder.inputType('ImageInput', {
 	}),
 })
 
-// NotificationType enum (temporarily commented out due to Prisma generation issues)
-/*
+// NotificationType enum & Notification object (re-enabled)
 export const NotificationType = builder.enumType('NotificationType', {
 	values: ['FOLLOW', 'NEW_ARTWORK', 'NEW_COMMENT'] as const,
 });
@@ -212,7 +230,6 @@ export const Notification = builder.prismaObject('Notification', {
 		comment: t.relation('comment', {nullable: true}),
 	}),
 });
-*/
 
 // Admin Users List Response Type
 export const AdminUsersListResponse = builder.simpleObject('AdminUsersListResponse', {
