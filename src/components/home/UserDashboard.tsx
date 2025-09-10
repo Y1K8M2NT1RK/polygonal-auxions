@@ -25,9 +25,11 @@ import { useQuery } from 'urql';
 import { User, DashboardDocument } from '@/generated/generated-graphql';
 import { UserDashboardSkeleton } from '@/components/skeletons';
 import DefaultUserIcon from '@/components/DefaultUserIcon';
+import { useNotifications } from '@/hooks/useNotifications';
 
 export default function UserDashboard() {
   const { user } = useAuth();
+  const { unreadCount } = useNotifications();
   
   const [{ data: dashboardData, fetching: dashboardFetching }] = useQuery({
     query: DashboardDocument,
@@ -46,37 +48,6 @@ export default function UserDashboard() {
   const totalBookmarksReceived: number = dashboardData?.getMyTotalBookmarks ?? 0;
   const totalLikesGiven: number = dashboardData?.getMyFavoritesGiven ?? 0;
   const totalBookmarksGiven: number = dashboardData?.getMyBookmarksGiven ?? 0;
-
-  // Mock recent notifications - in real app this would come from GraphQL
-  const recentNotifications = [
-    {
-      id: 1,
-      title: 'フォローされました',
-      message: 'suzuki_hanakoさんがあなたをフォローしました',
-      type: 'FOLLOW',
-      created_at: '2024-01-15T14:30:00.000Z',
-      is_read: false,
-    },
-    {
-      id: 2,
-      title: '新しい作品が投稿されました',
-      message: 'tanaka_taroさんが新しい作品を投稿しました',
-      type: 'NEW_ARTWORK',
-      created_at: '2024-01-15T12:00:00.000Z',
-      is_read: false,
-    },
-    {
-      id: 3,
-      title: 'コメントが投稿されました',
-      message: 'sato_kenjiさんがあなたの作品にコメントしました',
-      type: 'NEW_COMMENT',
-      created_at: '2024-01-14T15:00:00.000Z',
-      is_read: true,
-    },
-  ];
-
-  // Calculate unread notifications count
-  const unreadNotificationsCount = recentNotifications.filter(n => !n.is_read).length;
 
   // Function to get notification type label
   const getNotificationTypeLabel = (type: string) => {
@@ -109,7 +80,7 @@ export default function UserDashboard() {
     },
     {
       title: '未読通知',
-      value: unreadNotificationsCount.toString(),
+      value: unreadCount.toString(),
       icon: <NotificationIcon sx={{ fontSize: 40 }} />,
       color: '#d32f2f',
     },

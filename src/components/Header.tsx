@@ -16,15 +16,14 @@ import AvatorPopover from "./AvatorPopOver";
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from '@/contexts/AuthContexts';
 import SearchInput from "./SearchInput";
+import { useNotifications } from '@/hooks/useNotifications';
 
 export default function Header (){
     const { user, fetching, isLoggedIn } = useAuth();
+    const { unreadCount } = useNotifications();
 
     const [openDialog, setOpenDialog] = useState(false);
     const handleDialogOpen = () => setOpenDialog(true);
-
-    // Mock unread count - in real app this would come from GraphQL
-    const unreadNotificationsCount = 3;
 
     return (
         <Fragment>
@@ -57,7 +56,7 @@ export default function Header (){
                                     href="/notifications"
                                     sx={{height:'fit-content'}}
                                 >
-                                    <Badge badgeContent={unreadNotificationsCount} color="error">
+                                    <Badge badgeContent={unreadCount} color="error">
                                         <NotificationsNone sx={{fontSize: 40}} />
                                     </Badge>
                                 </IconButton>

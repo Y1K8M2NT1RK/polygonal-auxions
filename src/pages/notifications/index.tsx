@@ -12,77 +12,24 @@ import {
   Chip,
   Divider,
   Button,
-  CircularProgress
+  CircularProgress,
+  Alert
 } from '@mui/material';
 import { 
   NotificationsNone, 
   Person, 
   Image, 
   Comment,
-  CheckCircle
+  CheckCircle,
+  ArrowBack
 } from '@mui/icons-material';
 import useResponsive from '@/hooks/useResponsive';
-
-// Mock data for demonstration - using static timestamps to avoid hydration issues
-const mockNotifications = [
-  {
-    id: 1,
-    slug_id: 'clxyz123',
-    type: 'FOLLOW',
-    title: 'フォローされました',
-    message: 'suzuki_hanakoさんがあなたをフォローしました',
-    is_read: false,
-    created_at: '2024-01-15T14:30:00.000Z',
-    actor: {
-      id: 2,
-      name: 'suzuki hanako',
-      handle_name: 'suzuki_hanako'
-    }
-  },
-  {
-    id: 2,
-    slug_id: 'clxyz124',
-    type: 'NEW_ARTWORK',
-    title: '新しい作品が投稿されました',
-    message: 'tanaka_taroさんが新しい作品「抽象的な風景」を投稿しました',
-    is_read: false,
-    created_at: '2024-01-15T12:00:00.000Z',
-    actor: {
-      id: 1,
-      name: 'tanaka taro',
-      handle_name: 'tanaka_taro'
-    },
-    artwork: {
-      id: 1,
-      slug_id: 'artwork123',
-      title: '抽象的な風景'
-    }
-  },
-  {
-    id: 3,
-    slug_id: 'clxyz125',
-    type: 'NEW_COMMENT',
-    title: 'コメントが投稿されました',
-    message: 'sato_kenjiさんがあなたの作品「デジタルアート」にコメントしました',
-    is_read: true,
-    created_at: '2024-01-14T15:00:00.000Z',
-    actor: {
-      id: 3,
-      name: 'sato kenji',
-      handle_name: 'sato_kenji'
-    },
-    artwork: {
-      id: 2,
-      slug_id: 'artwork124',
-      title: 'デジタルアート'
-    },
-    comment: {
-      id: 1,
-      slug_id: 'comment123',
-      body: 'とても素晴らしい作品ですね！'
-    }
-  }
-];
+import { useAuth } from '@/contexts/AuthContexts';
+import { 
+  getUserNotifications, 
+  markNotificationAsRead, 
+  markAllNotificationsAsRead 
+} from '@/utils/notifications';
 
 // 通知アイコンを取得する関数
 const getNotificationIcon = (type: string) => {
@@ -135,6 +82,7 @@ interface NotificationListProps {
   selectedNotificationId?: string;
   onNotificationSelect: (notificationId: string) => void;
   onMarkAllAsRead: () => void;
+  onMarkAsRead: (notificationId: string) => void;
   showUnreadOnly: boolean;
   onToggleUnreadOnly: () => void;
 }
@@ -144,6 +92,7 @@ const NotificationList: React.FC<NotificationListProps> = ({
   selectedNotificationId, 
   onNotificationSelect,
   onMarkAllAsRead,
+  onMarkAsRead,
   showUnreadOnly,
   onToggleUnreadOnly
 }) => {
@@ -192,7 +141,12 @@ const NotificationList: React.FC<NotificationListProps> = ({
                     backgroundColor: 'action.selected',
                   }),
                 }}
-                onClick={() => onNotificationSelect(notification.slug_id)}
+                onClick={() => {
+                  onNotificationSelect(notification.slug_id);
+                  if (!notification.is_read) {
+                    onMarkAsRead(notification.slug_id);
+                  }
+                }}
               >
                 <ListItemAvatar>
                   <Avatar sx={{ bgcolor: notification.is_read ? 'grey.400' : 'primary.main' }}>
@@ -249,17 +203,33 @@ const NotificationList: React.FC<NotificationListProps> = ({
 
 interface NotificationDetailProps {
   notification?: any;
+  showBackButton?: boolean;
+  onBack?: () => void;
 }
 
-const NotificationDetail: React.FC<NotificationDetailProps> = ({ notification }) => {
+const NotificationDetail: React.FC<NotificationDetailProps> = ({ 
+  notification, 
+  showBackButton = false, 
+  onBack 
+}) => {
   if (!notification) {
     return (
       <Paper sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Box sx={{ textAlign: 'center' }}>
           <NotificationsNone sx={{ fontSize: 64, color: 'grey.400', mb: 2 }} />
-          <Typography variant="h6" color="text.secondary">
-            通知を選択してください
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            {showBackButton ? '通知が見つかりません' : '通知を選択してください'}
           </Typography>
+          {showBackButton && (
+            <Button 
+              startIcon={<ArrowBack />} 
+              onClick={onBack}
+              variant="outlined"
+              sx={{ mt: 2 }}
+            >
+              通知一覧に戻る
+            </Button>
+          )}
         </Box>
       </Paper>
     );
@@ -267,6 +237,17 @@ const NotificationDetail: React.FC<NotificationDetailProps> = ({ notification })
 
   return (
     <Paper sx={{ height: '100%', overflow: 'auto' }}>
+      {showBackButton && (
+        <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+          <Button 
+            startIcon={<ArrowBack />} 
+            onClick={onBack}
+            size="small"
+          >
+            通知一覧に戻る
+          </Button>
+        </Box>
+      )}
       <Box sx={{ p: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
           <Avatar sx={{ bgcolor: 'primary.main' }}>
@@ -339,13 +320,29 @@ const NotificationDetail: React.FC<NotificationDetailProps> = ({ notification })
 export default function NotificationsPage() {
   const router = useRouter();
   const { isSmallScreen } = useResponsive();
+  const { user } = useAuth();
   const { id } = router.query;
   
   const [selectedNotificationId, setSelectedNotificationId] = useState<string | undefined>(
     typeof id === 'string' ? id : undefined
   );
-  const [notifications, setNotifications] = useState(mockNotifications);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [showUnreadOnly, setShowUnreadOnly] = useState(false);
+
+  // Function to trigger notification refresh in other components
+  const triggerNotificationRefresh = () => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('notificationsChanged'));
+    }
+  };
+
+  // Load user-specific notifications when user is available
+  useEffect(() => {
+    if (user) {
+      const userNotifications = getUserNotifications(user.id);
+      setNotifications(userNotifications);
+    }
+  }, [user]);
 
   const selectedNotification = notifications.find(n => n.slug_id === selectedNotificationId);
 
@@ -359,26 +356,66 @@ export default function NotificationsPage() {
     }
   };
 
+  const handleMarkAsRead = (notificationSlugId: string) => {
+    if (!user) return;
+    
+    markNotificationAsRead(user.id, notificationSlugId);
+    setNotifications(prev => prev.map(n => 
+      n.slug_id === notificationSlugId ? { ...n, is_read: true } : n
+    ));
+    triggerNotificationRefresh();
+  };
+
   const handleMarkAllAsRead = () => {
+    if (!user) return;
+    
+    markAllNotificationsAsRead(user.id, notifications);
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+    triggerNotificationRefresh();
   };
 
   const handleToggleUnreadOnly = () => {
     setShowUnreadOnly(prev => !prev);
   };
 
+  const handleBackToList = () => {
+    router.push('/notifications');
+  };
+
   useEffect(() => {
     if (typeof id === 'string') {
       setSelectedNotificationId(id);
+      // Mark as read when viewing the detail page
+      if (user && selectedNotification && !selectedNotification.is_read) {
+        handleMarkAsRead(id);
+      }
     }
-  }, [id]);
+  }, [id, user, selectedNotification]);
+
+  // Show loading state if user is not available yet
+  if (!user) {
+    return (
+      <Container maxWidth="md" sx={{ py: 2 }}>
+        <Paper sx={{ p: 4, textAlign: 'center' }}>
+          <CircularProgress />
+          <Typography variant="body1" sx={{ mt: 2 }}>
+            読み込み中...
+          </Typography>
+        </Paper>
+      </Container>
+    );
+  }
 
   if (isSmallScreen) {
     // スマートフォン: 通知一覧のみ表示（詳細は別ページ）
     if (id) {
       return (
         <Container maxWidth="md" sx={{ py: 2 }}>
-          <NotificationDetail notification={selectedNotification} />
+          <NotificationDetail 
+            notification={selectedNotification} 
+            showBackButton={true}
+            onBack={handleBackToList}
+          />
         </Container>
       );
     }
@@ -389,6 +426,7 @@ export default function NotificationsPage() {
           notifications={notifications}
           onNotificationSelect={handleNotificationSelect}
           onMarkAllAsRead={handleMarkAllAsRead}
+          onMarkAsRead={handleMarkAsRead}
           showUnreadOnly={showUnreadOnly}
           onToggleUnreadOnly={handleToggleUnreadOnly}
         />
@@ -406,6 +444,7 @@ export default function NotificationsPage() {
             selectedNotificationId={selectedNotificationId}
             onNotificationSelect={handleNotificationSelect}
             onMarkAllAsRead={handleMarkAllAsRead}
+            onMarkAsRead={handleMarkAsRead}
             showUnreadOnly={showUnreadOnly}
             onToggleUnreadOnly={handleToggleUnreadOnly}
           />
