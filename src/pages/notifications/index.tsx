@@ -7,7 +7,6 @@ import {
   Typography,
   List,
   ListItem,
-  ListItemText,
   ListItemAvatar,
   Avatar,
   Chip,
@@ -24,7 +23,7 @@ import {
 } from '@mui/icons-material';
 import useResponsive from '@/hooks/useResponsive';
 
-// Mock data for demonstration
+// Mock data for demonstration - using static timestamps to avoid hydration issues
 const mockNotifications = [
   {
     id: 1,
@@ -33,7 +32,7 @@ const mockNotifications = [
     title: 'フォローされました',
     message: 'suzuki_hanakoさんがあなたをフォローしました',
     is_read: false,
-    created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+    created_at: '2024-01-15T14:30:00.000Z',
     actor: {
       id: 2,
       name: 'suzuki hanako',
@@ -47,7 +46,7 @@ const mockNotifications = [
     title: '新しい作品が投稿されました',
     message: 'tanaka_taroさんが新しい作品「抽象的な風景」を投稿しました',
     is_read: false,
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+    created_at: '2024-01-15T12:00:00.000Z',
     actor: {
       id: 1,
       name: 'tanaka taro',
@@ -66,7 +65,7 @@ const mockNotifications = [
     title: 'コメントが投稿されました',
     message: 'sato_kenjiさんがあなたの作品「デジタルアート」にコメントしました',
     is_read: true,
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+    created_at: '2024-01-14T15:00:00.000Z',
     actor: {
       id: 3,
       name: 'sato kenji',
@@ -200,38 +199,36 @@ const NotificationList: React.FC<NotificationListProps> = ({
                     {getNotificationIcon(notification.type)}
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText
-                  primary={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="subtitle2" noWrap>
-                        {notification.title}
-                      </Typography>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                    <Typography 
+                      variant="subtitle2" 
+                      noWrap 
+                      sx={{ fontWeight: notification.is_read ? 'normal' : 'bold' }}
+                    >
+                      {notification.title}
+                    </Typography>
+                    <Chip
+                      label={getNotificationTypeLabel(notification.type)}
+                      size="small"
+                      variant="outlined"
+                    />
+                    {!notification.is_read && (
                       <Chip
-                        label={getNotificationTypeLabel(notification.type)}
+                        label="未読"
                         size="small"
-                        variant="outlined"
+                        color="primary"
+                        variant="filled"
                       />
-                      {!notification.is_read && (
-                        <Chip
-                          label="未読"
-                          size="small"
-                          color="primary"
-                          variant="filled"
-                        />
-                      )}
-                    </Box>
-                  }
-                  secondary={
-                    <Box>
-                      <Typography variant="body2" color="text.secondary" noWrap>
-                        {notification.message}
-                      </Typography>
-                      <Typography variant="caption" color="text.disabled">
-                        {formatTimeAgo(notification.created_at)}
-                      </Typography>
-                    </Box>
-                  }
-                />
+                    )}
+                  </Box>
+                  <Typography variant="body2" color="text.secondary" noWrap sx={{ mb: 0.5 }}>
+                    {notification.message}
+                  </Typography>
+                  <Typography variant="caption" color="text.disabled">
+                    {formatTimeAgo(notification.created_at)}
+                  </Typography>
+                </Box>
               </ListItem>
               {index < filteredNotifications.length - 1 && <Divider />}
             </React.Fragment>

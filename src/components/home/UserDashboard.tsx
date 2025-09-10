@@ -16,6 +16,7 @@ import {
   Visibility as ViewIcon,
   Edit as EditIcon,
   Bookmark as BookmarkIcon,
+  NotificationsNone as NotificationIcon,
 } from '@mui/icons-material';
 import Link from 'next/link';
 import Head from 'next/head';
@@ -46,6 +47,44 @@ export default function UserDashboard() {
   const totalLikesGiven: number = dashboardData?.getMyFavoritesGiven ?? 0;
   const totalBookmarksGiven: number = dashboardData?.getMyBookmarksGiven ?? 0;
 
+  // Mock recent notifications - in real app this would come from GraphQL
+  const recentNotifications = [
+    {
+      id: 1,
+      title: 'フォローされました',
+      message: 'suzuki_hanakoさんがあなたをフォローしました',
+      type: 'FOLLOW',
+      created_at: '2024-01-15T14:30:00.000Z',
+      is_read: false,
+    },
+    {
+      id: 2,
+      title: '新しい作品が投稿されました',
+      message: 'tanaka_taroさんが新しい作品を投稿しました',
+      type: 'NEW_ARTWORK',
+      created_at: '2024-01-15T12:00:00.000Z',
+      is_read: false,
+    },
+    {
+      id: 3,
+      title: 'コメントが投稿されました',
+      message: 'sato_kenjiさんがあなたの作品にコメントしました',
+      type: 'NEW_COMMENT',
+      created_at: '2024-01-14T15:00:00.000Z',
+      is_read: true,
+    },
+  ];
+
+  // Function to get notification type label
+  const getNotificationTypeLabel = (type: string) => {
+    switch (type) {
+      case 'FOLLOW': return 'フォロー';
+      case 'NEW_ARTWORK': return '新作品';
+      case 'NEW_COMMENT': return 'コメント';
+      default: return '通知';
+    }
+  };
+
   const statsData = [
     {
       title: '作品数',
@@ -64,6 +103,12 @@ export default function UserDashboard() {
       value: followingCount.toString(),
       icon: <FollowIcon sx={{ fontSize: 40 }} />,
       color: '#f57c00',
+    },
+    {
+      title: '未読通知',
+      value: unreadNotificationsCount.toString(),
+      icon: <NotificationIcon sx={{ fontSize: 40 }} />,
+      color: '#d32f2f',
     },
   ];
 
@@ -116,6 +161,13 @@ export default function UserDashboard() {
       href: `/profile/${user.handle_name}`,
       color: '#f57c00',
     },
+    {
+      title: '通知を確認',
+      description: '新しい通知やアクティビティをチェック',
+      icon: <NotificationIcon />,
+      href: '/notifications',
+      color: '#d32f2f',
+    },
   ];
 
 
@@ -152,7 +204,7 @@ export default function UserDashboard() {
       {/* Statistics Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {statsData.map((stat) => (
-          <Grid key={stat.title} size={{ xs: 6, sm: 6, md: 4 }}>
+          <Grid key={stat.title} size={{ xs: 6, sm: 3, md: 3 }}>
             <Card>
               <CardContent>
                 <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -206,7 +258,7 @@ export default function UserDashboard() {
         </Typography>
         <Grid container spacing={3}>
           {quickActions.map((action) => (
-            <Grid key={action.href} size={{ xs: 12, md: 4 }}>
+            <Grid key={action.href} size={{ xs: 12, sm: 6, md: 3 }}>
               <Card sx={{ height: '100%' }}>
                 <CardContent>
                   <Box display="flex" alignItems="center" gap={2} mb={2}>
@@ -244,7 +296,7 @@ export default function UserDashboard() {
           </Typography>
           <Grid container spacing={3}>
             {/* Recent Artworks */}
-            <Grid size={{ xs: 12, md: 6 }}>
+            <Grid size={{ xs: 12, lg: 4 }}>
               <Card>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
@@ -278,7 +330,7 @@ export default function UserDashboard() {
             </Grid>
 
             {/* Recent Comments */}
-            <Grid size={{ xs: 12, md: 6 }}>
+            <Grid size={{ xs: 12, lg: 4 }}>
               <Card>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
@@ -305,6 +357,51 @@ export default function UserDashboard() {
                   ) : (
                     <Typography variant="body2" color="textSecondary">
                       まだコメントがありません。他のユーザーの作品にコメントしてみましょう！
+                    </Typography>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Recent Notifications */}
+            <Grid size={{ xs: 12, lg: 4 }}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    最近の通知
+                  </Typography>
+                  {recentNotifications.length > 0 ? (
+                    <Box>
+                      {recentNotifications.slice(0, 3).map((notification) => (
+                        <Box key={notification.id} sx={{ mb: 2, pb: 2, borderBottom: '1px solid #eee' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                            <Typography variant="body2" fontWeight={notification.is_read ? 'normal' : 'bold'}>
+                              {notification.title}
+                            </Typography>
+                            <Box
+                              sx={{
+                                width: 8,
+                                height: 8,
+                                borderRadius: '50%',
+                                backgroundColor: notification.is_read ? 'transparent' : 'error.main',
+                              }}
+                            />
+                          </Box>
+                          <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+                            {notification.message}
+                          </Typography>
+                          <Typography variant="caption" color="textDisabled">
+                            {getNotificationTypeLabel(notification.type)} • {new Date(notification.created_at).toLocaleDateString('ja-JP')}
+                          </Typography>
+                        </Box>
+                      ))}
+                      <Button component={Link} href="/notifications" variant="text">
+                        すべての通知を見る
+                      </Button>
+                    </Box>
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      まだ通知がありません。
                     </Typography>
                   )}
                 </CardContent>

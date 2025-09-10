@@ -5,7 +5,10 @@ import {
     Skeleton, 
     Toolbar,
     Typography,
+    IconButton,
+    Badge,
 } from "@mui/material";
+import { NotificationsNone } from "@mui/icons-material";
 import { Fragment, useState } from "react";
 import LoginDialog from "./LoginDialog";
 import Link from "next/link";
@@ -19,6 +22,9 @@ export default function Header (){
 
     const [openDialog, setOpenDialog] = useState(false);
     const handleDialogOpen = () => setOpenDialog(true);
+
+    // Mock unread count - in real app this would come from GraphQL
+    const unreadNotificationsCount = 3;
 
     return (
         <Fragment>
@@ -42,9 +48,21 @@ export default function Header (){
                             <Box sx={{display:'flex'}}>
                                 <Skeleton animation="wave" variant="circular" width={56} height={56} />
                                 <Skeleton animation="wave" variant="circular" width={56} height={56} />
+                                <Skeleton animation="wave" variant="circular" width={56} height={56} />
                             </Box>
                         ) : isLoggedIn && user ? (
-                            <AvatorPopover auth={user} />
+                            <Box sx={{display:'flex', alignItems: 'center'}}>
+                                <IconButton 
+                                    component={Link} 
+                                    href="/notifications"
+                                    sx={{height:'fit-content'}}
+                                >
+                                    <Badge badgeContent={unreadNotificationsCount} color="error">
+                                        <NotificationsNone sx={{fontSize: 40}} />
+                                    </Badge>
+                                </IconButton>
+                                <AvatorPopover auth={user} />
+                            </Box>
                         ) : (
                             <LoginDialog
                                 button={
