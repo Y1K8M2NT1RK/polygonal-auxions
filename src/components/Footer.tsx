@@ -3,10 +3,12 @@ import {
     BottomNavigationAction,
     Drawer,
     Paper,
-    Box
+    Box,
+    Badge
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
+import { NotificationsNone } from "@mui/icons-material";
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -23,6 +25,7 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import LoginDialog from './LoginDialog';
 import Link from 'next/link';
 import SearchInput from './SearchInput';
+import { useNotifications } from '@/hooks/useNotifications';
 
 type DrawerState = {
     drawer_name: 'search' | 'user_menu' | null;
@@ -31,6 +34,7 @@ type DrawerState = {
 export default function Footer() {
 
     const { user, isLoggedIn, handleLogout, fetching } = useAuth();
+    const { unreadCount } = useNotifications();
 
     const [openDrawer, setOpenDrawer] = useState<DrawerState>({ drawer_name: null });
     const handleDrawerOpen = ({drawer_name}: DrawerState) => setOpenDrawer({ ...{drawer_name} });
@@ -63,7 +67,17 @@ export default function Footer() {
                                 onClick={() => dispatch('search')}
                                 icon={<SearchIcon />}
                             />
-                            <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'作品追加'} href={`/artworks/add`} icon={<AddIcon/>} />
+                            <BottomNavigationAction 
+                                LinkComponent={Link} 
+                                showLabel={true} 
+                                label={'通知'} 
+                                href={'/notifications'}
+                                icon={
+                                    <Badge badgeContent={unreadCount} color="error">
+                                        <NotificationsNone />
+                                    </Badge>
+                                } 
+                            />
                             <BottomNavigationAction
                                 LinkComponent={Link}
                                 showLabel={true}
@@ -90,6 +104,18 @@ export default function Footer() {
                                         <ListItemIcon><AccountBoxIcon /></ListItemIcon>
                                         <ListItemText primary={'プロフィール'} onClick={handleDrawerClose} />
                                     </ListItemButton>
+                                    <ListItemButton LinkComponent={Link} href="/notifications">
+                                        <ListItemIcon>
+                                            <Badge badgeContent={unreadCount} color="error">
+                                                <NotificationsNone />
+                                            </Badge>
+                                        </ListItemIcon>
+                                        <ListItemText primary={'通知'} onClick={handleDrawerClose} />
+                                    </ListItemButton>
+                                    <ListItemButton LinkComponent={Link} href="/artworks/add">
+                                        <ListItemIcon><AddIcon /></ListItemIcon>
+                                        <ListItemText primary={'作品追加'} onClick={handleDrawerClose} />
+                                    </ListItemButton>
                                     <ListItemButton>
                                         <ListItemIcon><SettingsIcon /></ListItemIcon>
                                         <ListItemText primary={'設定'}/>
@@ -100,7 +126,7 @@ export default function Footer() {
                                     </ListItemButton>
                                 </List>
                             </Drawer>
-                        </ BottomNavigation>
+                        </BottomNavigation>
                     ) : (
                         <BottomNavigation>
                             <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'ホーム'} icon={<HomeIcon />} href={'/'} />
