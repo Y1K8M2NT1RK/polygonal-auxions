@@ -56,6 +56,8 @@ model User {
   comment_ranks     CommentRanks[]  @relation("comment_ranks_fk")
   followed_by       Follow[]        @relation("followedBy")
   following         Follow[]        @relation("following")
+  notifications_received Notification[] @relation("notifications_recipient")
+  notifications_sent     Notification[] @relation("notifications_actor")
 
   @@map(name: "users")
 }
@@ -136,6 +138,7 @@ model Artwork {
   artwork_file  ArtworkFile[]  @relation("artworks_fk_from_artwork_files")
   artwork_ranks ArtworkRanks[] @relation("artworks_fk_from_artwork_ranks")
   comments      Comment[]      @relation("artworks_fk_from_comments")
+  notifications Notification[] @relation("notifications_artwork")
 
   @@map(name: "artworks")
 }
@@ -185,6 +188,7 @@ model Comment {
   user          User?           @relation("comments_fk", fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   artwork       Artwork         @relation("artworks_fk_from_comments", fields: [artwork_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   comment_ranks CommentRanks[]  @relation("comment_ranks_fk_from_comments")
+  notifications Notification[]  @relation("notifications_comment")
 
   @@map(name: "comments")
 }
@@ -257,6 +261,34 @@ model RankTypes { // このテーブルは、評価機能のみならず報告/�
   ranks         Ranks[]   @relation("ranks_fk")
 
   @@map(name: "rank_types")
+}
+
+model Notification {
+  id            Int             @id @default(autoincrement())
+  slug_id       String          @unique @default(cuid())
+  recipient_id  Int             // 通知を受け取るユーザー
+  actor_id      Int?            // 通知のきっかけとなるアクションを行ったユーザー
+  type          NotificationType // 通知の種類
+  title         String          @db.VarChar(100)
+  message       String          @db.VarChar(500)
+  artwork_id    Int?            // 作品関連の通知の場合
+  comment_id    Int?            // コメント関連の通知の場合
+  is_read       Boolean         @default(false)
+  created_at    DateTime        @default(now()) @db.Timestamp()
+  updated_at    DateTime        @default(now()) @db.Timestamp() @updatedAt
+
+  recipient     User            @relation("notifications_recipient", fields: [recipient_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  actor         User?           @relation("notifications_actor", fields: [actor_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  artwork       Artwork?        @relation("notifications_artwork", fields: [artwork_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  comment       Comment?        @relation("notifications_comment", fields: [comment_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@map(name: "notifications")
+}
+
+enum NotificationType {
+  FOLLOW          // フォローされた
+  NEW_ARTWORK     // フォローしたユーザーが作品を追加
+  NEW_COMMENT     // 自身の作品にコメント追加
 }
 
 // model ArtworksInCart {}

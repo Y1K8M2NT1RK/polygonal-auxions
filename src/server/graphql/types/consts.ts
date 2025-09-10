@@ -29,6 +29,9 @@ export const User = builder.prismaObject('User', {
 		artworks: t.relation('artworks'),
 		comments: t.relation('comments'),
 		following: t.relation('following'),
+		// Notification relations (enable both received & sent once Notification type is defined)
+		notifications_received: t.relation('notifications_received'),
+		notifications_sent: t.relation('notifications_sent'),
 	}),
 });
 
@@ -202,6 +205,31 @@ export const ImageInput = builder.inputType('ImageInput', {
 		content_type: t.string(),
 	}),
 })
+
+// NotificationType enum & Notification object (re-enabled)
+export const NotificationType = builder.enumType('NotificationType', {
+	values: ['FOLLOW', 'NEW_ARTWORK', 'NEW_COMMENT'] as const,
+});
+
+export const Notification = builder.prismaObject('Notification', {
+	fields: (t: any) => ({
+		id: t.exposeID('id'),
+		slug_id: t.exposeString('slug_id'),
+		type: t.field({
+			type: NotificationType,
+			resolve: (notification: any) => notification.type,
+		}),
+		title: t.exposeString('title'),
+		message: t.exposeString('message'),
+		is_read: t.exposeBoolean('is_read'),
+		created_at: t.expose('created_at', {type: 'Date'}),
+		updated_at: t.expose('updated_at', {type: 'Date'}),
+		recipient: t.relation('recipient'),
+		actor: t.relation('actor', {nullable: true}),
+		artwork: t.relation('artwork', {nullable: true}),
+		comment: t.relation('comment', {nullable: true}),
+	}),
+});
 
 // Admin Users List Response Type
 export const AdminUsersListResponse = builder.simpleObject('AdminUsersListResponse', {

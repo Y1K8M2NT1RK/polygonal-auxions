@@ -24,6 +24,45 @@ export const AuthProvider: FC<AuthProviderProps> = ( {children} ) => {
   // Remove redundant eager profile query: pages fetch profiles on demand
 
   useEffect(() => {
+    // Development demo mode - check for ?demo=true parameter
+    const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const isDemoMode = urlParams?.get('demo') === 'true';
+    
+    if (isDemoMode && !data?.me) {
+      // Simulate logged-in user for demo (provide all required User fields)
+      const now = new Date().toISOString();
+      const mockUser: User = {
+        __typename: 'User',
+        id: '1',
+        slug_id: 'demo_slug_1',
+        handle_name: 'demo_user',
+        name: 'デモユーザー',
+        name_kana: null,
+        email: 'demo@example.com',
+        role: 'USER',
+        address: '',
+        introduction: '',
+        phone_number: '',
+        created_at: now,
+        updated_at: now,
+        // Relations / collections as empty for demo
+        artworks: [],
+        comments: [],
+        following: [],
+        followed_by: [],
+        user_files: [],
+        user_ranks_reported: [],
+        user_ranks_reporter: [],
+        comment_ranks: [],
+        notifications_received: [],
+        notifications_sent: [],
+      } as unknown as User; // cast defensively in case codegen changes
+
+      setIsLoggedIn(true);
+      setAuth(mockUser);
+      return;
+    }
+    
     setIsLoggedIn(!!data?.me);
     setAuth(data?.me || null);
   }, [data]);

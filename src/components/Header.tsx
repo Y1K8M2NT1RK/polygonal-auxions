@@ -42,9 +42,12 @@ export default function Header (){
                             <Box sx={{display:'flex'}}>
                                 <Skeleton animation="wave" variant="circular" width={56} height={56} />
                                 <Skeleton animation="wave" variant="circular" width={56} height={56} />
+                                <Skeleton animation="wave" variant="circular" width={56} height={56} />
                             </Box>
                         ) : isLoggedIn && user ? (
-                            <AvatorPopover auth={user} />
+                            <Box sx={{display:'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 }}}>
+                                <AvatorPopover auth={user} />
+                            </Box>
                         ) : (
                             <LoginDialog
                                 button={

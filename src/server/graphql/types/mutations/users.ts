@@ -10,6 +10,7 @@ import { getEmailService } from '../../../../lib/email';
 import { createWelcomeEmail, createPasswordResetEmail } from '../../../../lib/email/templates/common';
 import { getAppBaseUrl } from '../../../../lib/url/baseUrl';
 import crypto from 'crypto';
+import { createNotification } from './notifications';
 
 type ImageInputValue = { is_image_deleted?: boolean; current_image_url?: string; image_url?: string; content_type?: string } | null;
 
@@ -106,9 +107,35 @@ builder.mutationField('followOrUnfollow', (t) =>
     type: Follows,
     authScopes: { isAuthenticated: true },
     args: { following_id: t.arg.string({ required: true }), mode: t.arg.string({ required: true }) },
-    resolve: (query, _parent, args, ctx) => {
+    resolve: async (query, _parent, args, ctx) => {
       if (args.mode === 'follow') {
-        return prisma.follow.create({ ...query, data: { following: { connect: { id: parseInt(args.following_id) } }, followedBy: { connect: { id: ctx?.auth?.id } } } });
+        const result = await prisma.follow.create({ 
+          ...query, 
+          data: { 
+            following: { connect: { id: parseInt(args.following_id) } }, 
+            followedBy: { connect: { id: ctx?.auth?.id } } 
+          },
+          include: {
+            following: true,
+            followedBy: true
+          }
+        });
+
+        // フォロー通知を作成
+        try {
+          await createNotification(
+            parseInt(args.following_id), // フォローされたユーザーに通知
+            ctx?.auth?.id as number, // フォローしたユーザー
+            'FOLLOW',
+            'フォローされました',
+            `${result.followedBy.name}さんがあなたをフォローしました`
+          );
+        } catch (error) {
+          console.error('Failed to create notification for new follow:', error);
+          // 通知作成に失敗してもフォローは成功とする
+        }
+
+        return result;
       } else if (args.mode === 'unfollow') {
         return prisma.follow.delete({ where: { following_id_followed_by_id: { following_id: parseInt(args.following_id), followed_by_id: ctx?.auth?.id as number } } });
       }
