@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { 
@@ -19,7 +19,7 @@ import {
 import { 
   NotificationsNone, 
   Person, 
-  Image, 
+  Image as ImageIcon, 
   Comment,
   CheckCircle,
   ArrowBack
@@ -38,7 +38,7 @@ const getNotificationIcon = (type: string) => {
     case 'FOLLOW':
       return <Person />;
     case 'NEW_ARTWORK':
-      return <Image />;
+      return <ImageIcon />;
     case 'NEW_COMMENT':
       return <Comment />;
     default:
@@ -357,7 +357,7 @@ export default function NotificationsPage() {
     }
   };
 
-  const handleMarkAsRead = (notificationSlugId: string) => {
+  const handleMarkAsRead = useCallback((notificationSlugId: string) => {
     if (!user) return;
     
     markNotificationAsRead(user.id, notificationSlugId);
@@ -365,7 +365,7 @@ export default function NotificationsPage() {
       n.slug_id === notificationSlugId ? { ...n, is_read: true } : n
     ));
     triggerNotificationRefresh();
-  };
+  }, [user]);
 
   const handleMarkAllAsRead = () => {
     if (!user) return;
@@ -391,7 +391,7 @@ export default function NotificationsPage() {
         handleMarkAsRead(id);
       }
     }
-  }, [id, user, selectedNotification]);
+  }, [id, user, selectedNotification, handleMarkAsRead]);
 
   // Show loading state if authentication is still being checked
   if (fetching) {
