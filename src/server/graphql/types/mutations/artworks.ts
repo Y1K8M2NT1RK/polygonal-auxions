@@ -4,6 +4,7 @@ import { prisma } from '../../../db';
 import { ZodError } from 'zod';
 import { Artwork, ArtworkRanks } from '../consts';
 import { del } from '@vercel/blob';
+import { createNotification } from './notifications';
 
 builder.mutationField("upsertArtwork", (t) => 
   t.prismaField({
@@ -36,7 +37,10 @@ builder.mutationField("upsertArtwork", (t) =>
           await prisma.artworkFile.delete({ where: { id: targetArtworkFile.id } });
         }
       }
-      return prisma.artwork.upsert({
+      
+      const isNewArtwork = !args.artwork_slug_id;
+      
+      const result = await prisma.artwork.upsert({
         where: { slug_id: args.artwork_slug_id ?? '' },
         update: {
           title: args.title,
@@ -79,7 +83,38 @@ builder.mutationField("upsertArtwork", (t) =>
             },
           } : {}),
         },
+        include: {
+          user: true
+        }
       });
+
+      // 新しい作品の場合のみ、フォロワーに通知を送信
+      if (isNewArtwork) {
+        try {
+          // フォロワーを取得
+          const followers = await prisma.follow.findMany({
+            where: { following_id: ctx.auth?.id as number },
+            include: { followedBy: true }
+          });
+
+          // 各フォロワーに通知を作成
+          for (const follower of followers) {
+            await createNotification(
+              follower.followed_by_id, // フォロワーに通知
+              ctx.auth?.id as number, // 作品投稿者
+              'NEW_ARTWORK',
+              '新しい作品が投稿されました',
+              `${result.user.name}さんが新しい作品「${result.title}」を投稿しました`,
+              result.id
+            );
+          }
+        } catch (error) {
+          console.error('Failed to create notifications for new artwork:', error);
+          // 通知作成に失敗しても作品投稿は成功とする
+        }
+      }
+
+      return result;
     },
   })
 );

@@ -29,7 +29,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 
 export default function UserDashboard() {
   const { user } = useAuth();
-  const { unreadCount } = useNotifications();
+  const { unreadCount, notifications } = useNotifications();
   
   const [{ data: dashboardData, fetching: dashboardFetching }] = useQuery({
     query: DashboardDocument,
@@ -344,9 +344,9 @@ export default function UserDashboard() {
                   <Typography variant="h6" gutterBottom>
                     最近の通知
                   </Typography>
-                  {recentNotifications.length > 0 ? (
+                  {notifications.length > 0 ? (
                     <Box>
-                      {recentNotifications.slice(0, 3).map((notification) => (
+                      {notifications.slice(0, 3).map((notification) => (
                         <Box key={notification.id} sx={{ mb: 2, pb: 2, borderBottom: '1px solid #eee' }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                             <Typography variant="body2" fontWeight={notification.is_read ? 'normal' : 'bold'}>

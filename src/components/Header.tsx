@@ -50,14 +50,18 @@ export default function Header (){
                                 <Skeleton animation="wave" variant="circular" width={56} height={56} />
                             </Box>
                         ) : isLoggedIn && user ? (
-                            <Box sx={{display:'flex', alignItems: 'center'}}>
+                            <Box sx={{display:'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 }}}>
                                 <IconButton 
                                     component={Link} 
                                     href="/notifications"
-                                    sx={{height:'fit-content'}}
+                                    sx={{
+                                        height:'fit-content',
+                                        p: { xs: 1, sm: 1.5 }
+                                    }}
+                                    aria-label="通知"
                                 >
                                     <Badge badgeContent={unreadCount} color="error">
-                                        <NotificationsNone sx={{fontSize: 40}} />
+                                        <NotificationsNone sx={{fontSize: { xs: 32, sm: 40 }}} />
                                     </Badge>
                                 </IconButton>
                                 <AvatorPopover auth={user} />

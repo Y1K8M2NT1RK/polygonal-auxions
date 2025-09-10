@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
 import { 
   Box, 
   Container, 
@@ -320,7 +321,7 @@ const NotificationDetail: React.FC<NotificationDetailProps> = ({
 export default function NotificationsPage() {
   const router = useRouter();
   const { isSmallScreen } = useResponsive();
-  const { user } = useAuth();
+  const { user, fetching } = useAuth();
   const { id } = router.query;
   
   const [selectedNotificationId, setSelectedNotificationId] = useState<string | undefined>(
@@ -392,8 +393,8 @@ export default function NotificationsPage() {
     }
   }, [id, user, selectedNotification]);
 
-  // Show loading state if user is not available yet
-  if (!user) {
+  // Show loading state if authentication is still being checked
+  if (fetching) {
     return (
       <Container maxWidth="md" sx={{ py: 2 }}>
         <Paper sx={{ p: 4, textAlign: 'center' }}>
@@ -406,53 +407,85 @@ export default function NotificationsPage() {
     );
   }
 
-  if (isSmallScreen) {
-    // スマートフォン: 通知一覧のみ表示（詳細は別ページ）
-    if (id) {
-      return (
-        <Container maxWidth="md" sx={{ py: 2 }}>
-          <NotificationDetail 
-            notification={selectedNotification} 
-            showBackButton={true}
-            onBack={handleBackToList}
-          />
-        </Container>
-      );
-    }
-    
+  // Redirect unauthenticated users to home page
+  if (!user) {
+    router.push('/');
     return (
       <Container maxWidth="md" sx={{ py: 2 }}>
-        <NotificationList 
-          notifications={notifications}
-          onNotificationSelect={handleNotificationSelect}
-          onMarkAllAsRead={handleMarkAllAsRead}
-          onMarkAsRead={handleMarkAsRead}
-          showUnreadOnly={showUnreadOnly}
-          onToggleUnreadOnly={handleToggleUnreadOnly}
-        />
+        <Paper sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant="h6" gutterBottom>
+            ログインが必要です
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            通知を表示するにはログインしてください。
+          </Typography>
+        </Paper>
       </Container>
     );
   }
 
-  // PC/タブレット: 分割画面
-  return (
-    <Container maxWidth="xl" sx={{ py: 2 }}>
-      <Box sx={{ display: 'flex', gap: 2, height: 'calc(100vh - 200px)' }}>
-        <Box sx={{ width: '33%', minWidth: 300 }}>
-          <NotificationList
+  if (isSmallScreen) {
+    // スマートフォン: 通知一覧のみ表示（詳細は別ページ）
+    if (id) {
+      return (
+        <>
+          <Head>
+            <title>通知詳細 - Polygonal Auxions</title>
+          </Head>
+          <Container maxWidth="md" sx={{ py: 2 }}>
+            <NotificationDetail 
+              notification={selectedNotification} 
+              showBackButton={true}
+              onBack={handleBackToList}
+            />
+          </Container>
+        </>
+      );
+    }
+    
+    return (
+      <>
+        <Head>
+          <title>通知一覧 - Polygonal Auxions</title>
+        </Head>
+        <Container maxWidth="md" sx={{ py: 2 }}>
+          <NotificationList 
             notifications={notifications}
-            selectedNotificationId={selectedNotificationId}
             onNotificationSelect={handleNotificationSelect}
             onMarkAllAsRead={handleMarkAllAsRead}
             onMarkAsRead={handleMarkAsRead}
             showUnreadOnly={showUnreadOnly}
             onToggleUnreadOnly={handleToggleUnreadOnly}
           />
+        </Container>
+      </>
+    );
+  }
+
+  // PC/タブレット: 分割画面
+  return (
+    <>
+      <Head>
+        <title>通知 - Polygonal Auxions</title>
+      </Head>
+      <Container maxWidth="xl" sx={{ py: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2, height: 'calc(100vh - 200px)' }}>
+          <Box sx={{ width: '33%', minWidth: 300 }}>
+            <NotificationList
+              notifications={notifications}
+              selectedNotificationId={selectedNotificationId}
+              onNotificationSelect={handleNotificationSelect}
+              onMarkAllAsRead={handleMarkAllAsRead}
+              onMarkAsRead={handleMarkAsRead}
+              showUnreadOnly={showUnreadOnly}
+              onToggleUnreadOnly={handleToggleUnreadOnly}
+            />
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <NotificationDetail notification={selectedNotification} />
+          </Box>
         </Box>
-        <Box sx={{ flex: 1 }}>
-          <NotificationDetail notification={selectedNotification} />
-        </Box>
-      </Box>
-    </Container>
+      </Container>
+    </>
   );
 }
