@@ -9,13 +9,18 @@ import {
 import Link from 'next/link';
 import type { Comment } from '@/generated/generated-graphql';
 import DefaultUserIcon from '@/components/DefaultUserIcon';
-import { RemoveCommentDocument } from "@/generated/generated-graphql";
+import { RemoveCommentDocument, useGetReportReasonsQuery } from "@/generated/generated-graphql";
 import { useAuth } from '@/contexts/AuthContexts';
 import { useMutation } from "urql";
+import { gql } from 'urql';
 import { DateTime } from 'luxon';
 import WarningIcon from '@mui/icons-material/Warning';
+import ReportIcon from '@mui/icons-material/Report';
 import AlertDialog from '@/components/AlertDialog';
+import CommentReportDialog from '@/components/CommentReportDialog';
+import ReportSuccessDialog from '@/components/ReportSuccessDialog';
 import { Dispatch, SetStateAction, useState } from 'react';
+import { toast } from 'react-toastify';
 
 type Props = {
     comment: Comment & {deletedInFront: boolean;};
@@ -34,10 +39,51 @@ export default function ArtworkComments({comment, deletedCommentsInFront, setDel
     const { user, isLoggedIn } = useAuth();
 
     const [, RemoveComment] = useMutation(RemoveCommentDocument);
+    
+    // Define the AddCommentRank mutation directly
+    const AddCommentRankDocument = gql`
+        mutation AddCommentRank($comment_slug_id: String!, $rank_id: String!) {
+            addCommentRank(comment_slug_id: $comment_slug_id, rank_id: $rank_id)
+        }
+    `;
+    const [, addCommentRank] = useMutation(AddCommentRankDocument);
 
     const [openDialog, setOpenDialog] = useState(false);
     const handleDialogOpen = () => setOpenDialog(true);
     const handleDialogClose = () => setOpenDialog(false);
+
+    // Report functionality
+    const [openReportDialog, setOpenReportDialog] = useState(false);
+    const [openReportSuccessDialog, setOpenReportSuccessDialog] = useState(false);
+    
+    const [reportReasonsResult] = useGetReportReasonsQuery();
+
+    const handleReportClick = () => {
+        if (!isLoggedIn) {
+            toast.error('報告するにはログインが必要です');
+            return;
+        }
+        setOpenReportDialog(true);
+    };
+
+    const handleReportDialogClose = () => setOpenReportDialog(false);
+    const handleReportSuccessDialogClose = () => setOpenReportSuccessDialog(false);
+
+    const handleReportSubmit = async (rankId: string) => {
+        try {
+            await addCommentRank({
+                comment_slug_id: comment.slug_id,
+                rank_id: rankId,
+            });
+            setOpenReportDialog(false);
+            setOpenReportSuccessDialog(true);
+            toast.success('報告が完了しました');
+        } catch (error) {
+            console.error('Comment report submission error:', error);
+            toast.error('報告の送信に失敗しました');
+            throw error;
+        }
+    };
 
     return (
         !!deletedCommentsInFront?.some(val => val.comment_slug_id == comment.slug_id)
@@ -69,34 +115,64 @@ export default function ArtworkComments({comment, deletedCommentsInFront, setDel
                     </>
                 }
             />
-            {
-                (isLoggedIn && user?.handle_name === comment?.user.handle_name)
-                ? <AlertDialog
-                    button={<Button color="error" onClick={handleDialogOpen}>削除</Button>}
-                    isDialogOpen={openDialog}
-                    content={
-                        <Box>
-                            <Typography>以下のコメントを削除してもよろしいですか？</Typography><br />
-                            <Box sx={{overflow: "auto", maxHeight: '200px', mb: 2}}>
-                                <Typography>{comment.body}</Typography><br />
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                {/* Delete button - only for comment author */}
+                {(isLoggedIn && user?.handle_name === comment?.user.handle_name) && (
+                    <AlertDialog
+                        button={<Button color="error" onClick={handleDialogOpen}>削除</Button>}
+                        isDialogOpen={openDialog}
+                        content={
+                            <Box>
+                                <Typography>以下のコメントを削除してもよろしいですか？</Typography><br />
+                                <Box sx={{overflow: "auto", maxHeight: '200px', mb: 2}}>
+                                    <Typography>{comment.body}</Typography><br />
+                                </Box>
+                                <Typography sx={{ fontWeight: 'bold'}} color="error"><WarningIcon />この操作は取り消せません</Typography>
                             </Box>
-                            <Typography sx={{ fontWeight: 'bold'}} color="error"><WarningIcon />この操作は取り消せません</Typography>
-                        </Box>
-                    }
-                    onConfirm={() => {
-                        RemoveComment({comment_slug_id: comment.slug_id});
-                        if (setDeletedCommentsInFront) {
-                            setDeletedCommentsInFront(status => [...status, {
-                                comment_slug_id: comment.slug_id,
-                                deleted: true,
-                            }]);
                         }
-                        handleDialogClose();
-                    }}
-                    onCancel={handleDialogClose}
-                />
-                : null
-            }
+                        onConfirm={() => {
+                            RemoveComment({comment_slug_id: comment.slug_id});
+                            if (setDeletedCommentsInFront) {
+                                setDeletedCommentsInFront(status => [...status, {
+                                    comment_slug_id: comment.slug_id,
+                                    deleted: true,
+                                }]);
+                            }
+                            handleDialogClose();
+                        }}
+                        onCancel={handleDialogClose}
+                    />
+                )}
+                
+                {/* Report button - for other users' comments */}
+                {(isLoggedIn && user?.handle_name !== comment?.user.handle_name) && (
+                    <Button
+                        size="small"
+                        startIcon={<ReportIcon />}
+                        onClick={handleReportClick}
+                        sx={{ fontSize: '0.75rem' }}
+                    >
+                        報告
+                    </Button>
+                )}
+            </Box>
+            
+            {/* Report Dialog */}
+            <CommentReportDialog
+                open={openReportDialog}
+                onClose={handleReportDialogClose}
+                commentSlugId={comment.slug_id}
+                commentBody={comment.body}
+                onReportSubmit={handleReportSubmit}
+                reportReasons={reportReasonsResult.data?.getReportReasons || []}
+                loading={reportReasonsResult.fetching}
+            />
+            
+            {/* Report Success Dialog */}
+            <ReportSuccessDialog
+                open={openReportSuccessDialog}
+                onClose={handleReportSuccessDialogClose}
+            />
         </ListItem>
     )
 }

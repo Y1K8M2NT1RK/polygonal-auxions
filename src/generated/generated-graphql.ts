@@ -78,6 +78,7 @@ export type Comment = {
   artwork_id: Scalars['ID']['output'];
   body: Scalars['String']['output'];
   created_at: Scalars['Date']['output'];
+  id: Scalars['ID']['output'];
   slug_id: Scalars['ID']['output'];
   user: User;
 };
@@ -116,6 +117,7 @@ export type ImageInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   addArtworkRank: ArtworkRanks;
+  addCommentRank: Scalars['Boolean']['output'];
   addUserRank: UserRanks;
   adminCreateUser: MutationAdminCreateUserResult;
   adminDeleteUser: MutationAdminDeleteUserResult;
@@ -125,6 +127,8 @@ export type Mutation = {
   login: MutationLoginResult;
   logout: Scalars['Boolean']['output'];
   logoutAll: Scalars['Boolean']['output'];
+  markAllNotificationsAsRead: Scalars['Boolean']['output'];
+  markNotificationAsRead: Notification;
   removeArtwork: Artwork;
   removeArtworkRank: ArtworkRanks;
   removeComment: Comment;
@@ -143,6 +147,12 @@ export type Mutation = {
 
 export type MutationAddArtworkRankArgs = {
   artwork_id: Scalars['String']['input'];
+  rank_id: Scalars['String']['input'];
+};
+
+
+export type MutationAddCommentRankArgs = {
+  comment_slug_id: Scalars['String']['input'];
   rank_id: Scalars['String']['input'];
 };
 
@@ -193,6 +203,11 @@ export type MutationFollowOrUnfollowArgs = {
 export type MutationLoginArgs = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+
+export type MutationMarkNotificationAsReadArgs = {
+  slug_id: Scalars['String']['input'];
 };
 
 
@@ -360,6 +375,36 @@ export type MutationUpsertCommentSuccess = {
   data: Comment;
 };
 
+export type Notification = {
+  __typename?: 'Notification';
+  actor?: Maybe<User>;
+  artwork?: Maybe<Artwork>;
+  comment?: Maybe<Comment>;
+  created_at: Scalars['Date']['output'];
+  id: Scalars['ID']['output'];
+  is_read: Scalars['Boolean']['output'];
+  message: Scalars['String']['output'];
+  recipient: User;
+  slug_id: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  type: NotificationType;
+  updated_at: Scalars['Date']['output'];
+};
+
+export enum NotificationType {
+  Follow = 'FOLLOW',
+  NewArtwork = 'NEW_ARTWORK',
+  NewComment = 'NEW_COMMENT'
+}
+
+export type NotificationsListResponse = {
+  __typename?: 'NotificationsListResponse';
+  hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
+  notifications: Array<Notification>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
   UserProfile: User;
@@ -379,6 +424,14 @@ export type Query = {
   getMyTotalFavorites: Scalars['Int']['output'];
   getReportReasons: Array<Ranks>;
   me: User;
+  notification: Notification;
+  /**
+   * Backward compatible simple list (deprecated: use notificationsList)
+   * @deprecated Use notificationsList for pagination metadata
+   */
+  notifications: Array<Notification>;
+  notificationsList: NotificationsListResponse;
+  unreadNotificationsCount: Scalars['Int']['output'];
 };
 
 
@@ -430,6 +483,25 @@ export type QueryGetAuthArtworkRanksArgs = {
   artwork_id?: InputMaybe<Scalars['String']['input']>;
 };
 
+
+export type QueryNotificationArgs = {
+  slug_id: Scalars['String']['input'];
+};
+
+
+export type QueryNotificationsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  onlyUnread?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type QueryNotificationsListArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  onlyUnread?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 export type RankTypes = {
   __typename?: 'RankTypes';
   id: Scalars['ID']['output'];
@@ -459,6 +531,8 @@ export type User = {
   introduction: Scalars['String']['output'];
   name: Scalars['String']['output'];
   name_kana?: Maybe<Scalars['String']['output']>;
+  notifications_received: Array<Notification>;
+  notifications_sent: Array<Notification>;
   phone_number?: Maybe<Scalars['String']['output']>;
   role: UserRole;
   slug_id: Scalars['String']['output'];
@@ -557,6 +631,26 @@ export type RemoveCommentMutationVariables = Exact<{
 
 
 export type RemoveCommentMutation = { __typename?: 'Mutation', removeComment: { __typename: 'Comment' } };
+
+export type AddCommentRankMutationVariables = Exact<{
+  comment_slug_id: Scalars['String']['input'];
+  rank_id: Scalars['String']['input'];
+}>;
+
+
+export type AddCommentRankMutation = { __typename?: 'Mutation', addCommentRank: boolean };
+
+export type MarkNotificationAsReadMutationVariables = Exact<{
+  slug_id: Scalars['String']['input'];
+}>;
+
+
+export type MarkNotificationAsReadMutation = { __typename?: 'Mutation', markNotificationAsRead: { __typename?: 'Notification', id: string, slug_id: string, is_read: boolean, updated_at: any } };
+
+export type MarkAllNotificationsAsReadMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MarkAllNotificationsAsReadMutation = { __typename?: 'Mutation', markAllNotificationsAsRead: boolean };
 
 export type LoginMutationVariables = Exact<{
   email: Scalars['String']['input'];
@@ -719,7 +813,28 @@ export type GetArtworkCommentsQueryVariables = Exact<{
 }>;
 
 
-export type GetArtworkCommentsQuery = { __typename?: 'Query', getArtworkComments: Array<{ __typename?: 'Comment', body: string, artwork_id: string, slug_id: string, created_at: any, user: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> } }> };
+export type GetArtworkCommentsQuery = { __typename?: 'Query', getArtworkComments: Array<{ __typename?: 'Comment', id: string, body: string, artwork_id: string, slug_id: string, created_at: any, user: { __typename?: 'User', id: string, handle_name: string, user_files: Array<{ __typename?: 'UserFiles', file_path: string }> } }> };
+
+export type GetNotificationsQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  onlyUnread?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type GetNotificationsQuery = { __typename?: 'Query', notifications: Array<{ __typename?: 'Notification', id: string, slug_id: string, type: NotificationType, title: string, message: string, is_read: boolean, created_at: any, actor?: { __typename?: 'User', id: string, name: string, handle_name: string } | null, artwork?: { __typename?: 'Artwork', id: string, slug_id: string, title: string } | null, comment?: { __typename?: 'Comment', id: string, slug_id: string, body: string } | null }> };
+
+export type GetNotificationQueryVariables = Exact<{
+  slug_id: Scalars['String']['input'];
+}>;
+
+
+export type GetNotificationQuery = { __typename?: 'Query', notification: { __typename?: 'Notification', id: string, slug_id: string, type: NotificationType, title: string, message: string, is_read: boolean, created_at: any, actor?: { __typename?: 'User', id: string, name: string, handle_name: string } | null, artwork?: { __typename?: 'Artwork', id: string, slug_id: string, title: string, user: { __typename?: 'User', name: string, handle_name: string } } | null, comment?: { __typename?: 'Comment', id: string, slug_id: string, body: string, artwork: { __typename?: 'Artwork', title: string } } | null } };
+
+export type GetUnreadNotificationsCountQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetUnreadNotificationsCountQuery = { __typename?: 'Query', unreadNotificationsCount: number };
 
 export type UserProfileQueryVariables = Exact<{
   handle_name: Scalars['String']['input'];
@@ -858,6 +973,38 @@ export const RemoveCommentDocument = gql`
 
 export function useRemoveCommentMutation() {
   return Urql.useMutation<RemoveCommentMutation, RemoveCommentMutationVariables>(RemoveCommentDocument);
+};
+export const AddCommentRankDocument = gql`
+    mutation AddCommentRank($comment_slug_id: String!, $rank_id: String!) {
+  addCommentRank(comment_slug_id: $comment_slug_id, rank_id: $rank_id)
+}
+    `;
+
+export function useAddCommentRankMutation() {
+  return Urql.useMutation<AddCommentRankMutation, AddCommentRankMutationVariables>(AddCommentRankDocument);
+};
+export const MarkNotificationAsReadDocument = gql`
+    mutation MarkNotificationAsRead($slug_id: String!) {
+  markNotificationAsRead(slug_id: $slug_id) {
+    id
+    slug_id
+    is_read
+    updated_at
+  }
+}
+    `;
+
+export function useMarkNotificationAsReadMutation() {
+  return Urql.useMutation<MarkNotificationAsReadMutation, MarkNotificationAsReadMutationVariables>(MarkNotificationAsReadDocument);
+};
+export const MarkAllNotificationsAsReadDocument = gql`
+    mutation MarkAllNotificationsAsRead {
+  markAllNotificationsAsRead
+}
+    `;
+
+export function useMarkAllNotificationsAsReadMutation() {
+  return Urql.useMutation<MarkAllNotificationsAsReadMutation, MarkAllNotificationsAsReadMutationVariables>(MarkAllNotificationsAsReadDocument);
 };
 export const LoginDocument = gql`
     mutation Login($email: String!, $password: String!) {
@@ -1243,6 +1390,7 @@ export function useGetReportReasonsQuery(options?: Omit<Urql.UseQueryArgs<GetRep
 export const GetArtworkCommentsDocument = gql`
     query getArtworkComments($artwork_id: String!) {
   getArtworkComments(artwork_id: $artwork_id) {
+    id
     body
     artwork_id
     slug_id
@@ -1260,6 +1408,86 @@ export const GetArtworkCommentsDocument = gql`
 
 export function useGetArtworkCommentsQuery(options: Omit<Urql.UseQueryArgs<GetArtworkCommentsQueryVariables>, 'query'>) {
   return Urql.useQuery<GetArtworkCommentsQuery, GetArtworkCommentsQueryVariables>({ query: GetArtworkCommentsDocument, ...options });
+};
+export const GetNotificationsDocument = gql`
+    query GetNotifications($limit: Int, $offset: Int, $onlyUnread: Boolean) {
+  notifications(limit: $limit, offset: $offset, onlyUnread: $onlyUnread) {
+    id
+    slug_id
+    type
+    title
+    message
+    is_read
+    created_at
+    actor {
+      id
+      name
+      handle_name
+    }
+    artwork {
+      id
+      slug_id
+      title
+    }
+    comment {
+      id
+      slug_id
+      body
+    }
+  }
+}
+    `;
+
+export function useGetNotificationsQuery(options?: Omit<Urql.UseQueryArgs<GetNotificationsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetNotificationsQuery, GetNotificationsQueryVariables>({ query: GetNotificationsDocument, ...options });
+};
+export const GetNotificationDocument = gql`
+    query GetNotification($slug_id: String!) {
+  notification(slug_id: $slug_id) {
+    id
+    slug_id
+    type
+    title
+    message
+    is_read
+    created_at
+    actor {
+      id
+      name
+      handle_name
+    }
+    artwork {
+      id
+      slug_id
+      title
+      user {
+        name
+        handle_name
+      }
+    }
+    comment {
+      id
+      slug_id
+      body
+      artwork {
+        title
+      }
+    }
+  }
+}
+    `;
+
+export function useGetNotificationQuery(options: Omit<Urql.UseQueryArgs<GetNotificationQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetNotificationQuery, GetNotificationQueryVariables>({ query: GetNotificationDocument, ...options });
+};
+export const GetUnreadNotificationsCountDocument = gql`
+    query GetUnreadNotificationsCount {
+  unreadNotificationsCount
+}
+    `;
+
+export function useGetUnreadNotificationsCountQuery(options?: Omit<Urql.UseQueryArgs<GetUnreadNotificationsCountQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetUnreadNotificationsCountQuery, GetUnreadNotificationsCountQueryVariables>({ query: GetUnreadNotificationsCountDocument, ...options });
 };
 export const UserProfileDocument = gql`
     query UserProfile($handle_name: String!) {

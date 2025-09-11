@@ -1,0 +1,12 @@
+mutation MarkNotificationAsRead($slug_id: String!) {
+  markNotificationAsRead(slug_id: $slug_id) {
+    id
+    slug_id
+    is_read
+    updated_at
+  }
+}
+
+mutation MarkAllNotificationsAsRead {
+  markAllNotificationsAsRead
+}

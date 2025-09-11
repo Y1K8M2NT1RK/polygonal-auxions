@@ -1,0 +1,64 @@
+query GetNotifications($limit: Int, $offset: Int, $onlyUnread: Boolean) {
+  notifications(limit: $limit, offset: $offset, onlyUnread: $onlyUnread) {
+    id
+    slug_id
+    type
+    title
+    message
+    is_read
+    created_at
+    actor {
+      id
+      name
+      handle_name
+    }
+    artwork {
+      id
+      slug_id
+      title
+    }
+    comment {
+      id
+      slug_id
+      body
+    }
+  }
+}
+
+query GetNotification($slug_id: String!) {
+  notification(slug_id: $slug_id) {
+    id
+    slug_id
+    type
+    title
+    message
+    is_read
+    created_at
+    actor {
+      id
+      name
+      handle_name
+    }
+    artwork {
+      id
+      slug_id
+      title
+      user {
+        name
+        handle_name
+      }
+    }
+    comment {
+      id
+      slug_id
+      body
+      artwork {
+        title
+      }
+    }
+  }
+}
+
+query GetUnreadNotificationsCount {
+  unreadNotificationsCount
+}
