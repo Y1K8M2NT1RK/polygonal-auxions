@@ -1,22 +1,37 @@
 # microCMSから記事を同期
 mutation SyncArticleFromMicroCMS($microCmsId: String!) {
   syncArticleFromMicroCMS(microCmsId: $microCmsId) {
-    id
-    slugId
-    title
-    content
-    excerpt
-    status
-    publishedAt
-    microCmsId
-    tags
-    featuredImage
-    createdAt
-    updatedAt
-    author {
-      id
-      name
-      handleName: handle_name
+    __typename
+    ... on MutationSyncArticleFromMicroCMSSuccess {
+      __typename
+      data {
+        id
+        slugId
+        title
+        content
+        excerpt
+        status
+        publishedAt
+        microCmsId
+        tags
+        featuredImage
+        createdAt
+        updatedAt
+        author {
+          id
+          name
+          handleName: handle_name
+        }
+      }
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors { message }
+    }
+    ... on CsrfError {
+      __typename
+      message
     }
   }
 }
@@ -24,22 +39,37 @@ mutation SyncArticleFromMicroCMS($microCmsId: String!) {
 # 記事作成
 mutation CreateArticle($input: ArticleInput!, $syncToMicroCMS: Boolean) {
   createArticle(input: $input, syncToMicroCMS: $syncToMicroCMS) {
-    id
-    slugId
-    title
-    content
-    excerpt
-    status
-    publishedAt
-    microCmsId
-    tags
-    featuredImage
-    createdAt
-    updatedAt
-    author {
-      id
-      name
-      handleName: handle_name
+    __typename
+    ... on MutationCreateArticleSuccess {
+      __typename
+      data {
+        id
+        slugId
+        title
+        content
+        excerpt
+        status
+        publishedAt
+        microCmsId
+        tags
+        featuredImage
+        createdAt
+        updatedAt
+        author {
+          id
+          name
+          handleName: handle_name
+        }
+      }
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors { message }
+    }
+    ... on CsrfError {
+      __typename
+      message
     }
   }
 }
@@ -47,39 +77,84 @@ mutation CreateArticle($input: ArticleInput!, $syncToMicroCMS: Boolean) {
 # 記事更新
 mutation UpdateArticle($id: Int!, $input: ArticleInput!, $syncToMicroCMS: Boolean) {
   updateArticle(id: $id, input: $input, syncToMicroCMS: $syncToMicroCMS) {
-    id
-    slugId
-    title
-    content
-    excerpt
-    status
-    publishedAt
-    microCmsId
-    tags
-    featuredImage
-    createdAt
-    updatedAt
-    author {
-      id
-      name
-      handleName: handle_name
+    __typename
+    ... on MutationUpdateArticleSuccess {
+      __typename
+      data {
+        id
+        slugId
+        title
+        content
+        excerpt
+        status
+        publishedAt
+        microCmsId
+        tags
+        featuredImage
+        createdAt
+        updatedAt
+        author {
+          id
+          name
+          handleName: handle_name
+        }
+      }
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors { message }
+    }
+    ... on CsrfError {
+      __typename
+      message
     }
   }
 }
 
 # 記事削除
 mutation DeleteArticle($id: Int!, $deleteFromMicroCMS: Boolean) {
-  deleteArticle(id: $id, deleteFromMicroCMS: $deleteFromMicroCMS)
+  deleteArticle(id: $id, deleteFromMicroCMS: $deleteFromMicroCMS) {
+    __typename
+    ... on MutationDeleteArticleSuccess {
+      __typename
+      data
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors { message }
+    }
+    ... on CsrfError {
+      __typename
+      message
+    }
+  }
 }
 
 # 記事即時公開
 mutation PublishArticleNow($id: Int!, $syncToMicroCMS: Boolean) {
   publishArticleNow(id: $id, syncToMicroCMS: $syncToMicroCMS) {
-    id
-    slugId
-    title
-    status
-    publishedAt
-    updatedAt
+    __typename
+    ... on MutationPublishArticleNowSuccess {
+      __typename
+      data {
+        id
+        slugId
+        title
+        status
+        publishedAt
+        updatedAt
+      }
+    }
+    ... on ZodError {
+      __typename
+      message
+      fieldErrors { message }
+    }
+    ... on CsrfError {
+      __typename
+      message
+    }
   }
 }

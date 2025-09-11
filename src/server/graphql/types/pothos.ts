@@ -1,6 +1,5 @@
 /* eslint-disable */
-// NOTE: Adjusted import path to module specifier to work in both host and container builds
-import type { Prisma, User, UserFiles, Purpose, AuthPayload, PasswordResetToken, Follow, Artwork, ArtworkFile, ArtworkGizmo, Comment, CommentRanks, ArtworkRanks, UserRanks, Ranks, RankTypes, Notification } from "@prisma/client";
+import type { Prisma, User, UserFiles, Purpose, AuthPayload, PasswordResetToken, Follow, Artwork, ArtworkFile, ArtworkGizmo, Comment, CommentRanks, ArtworkRanks, UserRanks, Ranks, RankTypes, Notification, Article } from "@prisma/client";
 export default interface PrismaTypes {
     User: {
         Name: "User";
@@ -12,8 +11,8 @@ export default interface PrismaTypes {
         Where: Prisma.UserWhereInput;
         Create: {};
         Update: {};
-        RelationName: "auth_payload" | "password_reset_tokens" | "user_files" | "artworks" | "artwork_ranks" | "user_ranks_reported" | "user_ranks_reporter" | "comments" | "comment_ranks" | "followed_by" | "following" | "notifications_received" | "notifications_sent";
-        ListRelations: "password_reset_tokens" | "user_files" | "artworks" | "artwork_ranks" | "user_ranks_reported" | "user_ranks_reporter" | "comments" | "comment_ranks" | "followed_by" | "following" | "notifications_received" | "notifications_sent";
+        RelationName: "auth_payload" | "password_reset_tokens" | "user_files" | "artworks" | "artwork_ranks" | "user_ranks_reported" | "user_ranks_reporter" | "comments" | "comment_ranks" | "followed_by" | "following" | "notifications_received" | "notifications_sent" | "articles";
+        ListRelations: "password_reset_tokens" | "user_files" | "artworks" | "artwork_ranks" | "user_ranks_reported" | "user_ranks_reporter" | "comments" | "comment_ranks" | "followed_by" | "following" | "notifications_received" | "notifications_sent" | "articles";
         Relations: {
             auth_payload: {
                 Shape: AuthPayload | null;
@@ -78,6 +77,11 @@ export default interface PrismaTypes {
             notifications_sent: {
                 Shape: Notification[];
                 Name: "Notification";
+                Nullable: false;
+            };
+            articles: {
+                Shape: Article[];
+                Name: "Article";
                 Nullable: false;
             };
         };
@@ -488,6 +492,26 @@ export default interface PrismaTypes {
             comment: {
                 Shape: Comment | null;
                 Name: "Comment";
+                Nullable: true;
+            };
+        };
+    };
+    Article: {
+        Name: "Article";
+        Shape: Article;
+        Include: Prisma.ArticleInclude;
+        Select: Prisma.ArticleSelect;
+        OrderBy: Prisma.ArticleOrderByWithRelationInput;
+        WhereUnique: Prisma.ArticleWhereUniqueInput;
+        Where: Prisma.ArticleWhereInput;
+        Create: {};
+        Update: {};
+        RelationName: "author";
+        ListRelations: never;
+        Relations: {
+            author: {
+                Shape: User | null;
+                Name: "User";
                 Nullable: true;
             };
         };

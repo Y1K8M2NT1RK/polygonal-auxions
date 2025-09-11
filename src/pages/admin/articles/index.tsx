@@ -83,16 +83,44 @@ const GET_ARTICLES = `
 
 const DELETE_ARTICLE = `
   mutation DeleteArticle($id: Int!, $deleteFromMicroCMS: Boolean) {
-    deleteArticle(id: $id, deleteFromMicroCMS: $deleteFromMicroCMS)
+    deleteArticle(id: $id, deleteFromMicroCMS: $deleteFromMicroCMS) {
+      __typename
+      ... on MutationDeleteArticleSuccess {
+        __typename
+        data
+      }
+      ... on ZodError {
+        __typename
+        message
+      }
+      ... on CsrfError {
+        __typename
+        message
+      }
+    }
   }
 `;
 
 const PUBLISH_ARTICLE_NOW = `
   mutation PublishArticleNow($id: Int!, $syncToMicroCMS: Boolean) {
     publishArticleNow(id: $id, syncToMicroCMS: $syncToMicroCMS) {
-      id
-      status
-      publishedAt
+      __typename
+      ... on MutationPublishArticleNowSuccess {
+        __typename
+        data {
+          id
+          status
+          publishedAt
+        }
+      }
+      ... on ZodError {
+        __typename
+        message
+      }
+      ... on CsrfError {
+        __typename
+        message
+      }
     }
   }
 `;
@@ -100,9 +128,23 @@ const PUBLISH_ARTICLE_NOW = `
 const SYNC_ARTICLE_FROM_MICROCMS = `
   mutation SyncArticleFromMicroCMS($microCmsId: String!) {
     syncArticleFromMicroCMS(microCmsId: $microCmsId) {
-      id
-      title
-      status
+      __typename
+      ... on MutationSyncArticleFromMicroCMSSuccess {
+        __typename
+        data {
+          id
+          title
+          status
+        }
+      }
+      ... on ZodError {
+        __typename
+        message
+      }
+      ... on CsrfError {
+        __typename
+        message
+      }
     }
   }
 `;
@@ -196,8 +238,14 @@ const AdminArticleListPage: NextPage = () => {
       deleteFromMicroCMS,
     });
 
-    if (result.error) {
-      alert('削除に失敗しました: ' + result.error.message);
+    const typename = result.data?.deleteArticle?.__typename;
+    if (result.error || typename !== 'MutationDeleteArticleSuccess') {
+      const message =
+        (result.data?.deleteArticle?.__typename === 'ZodError' && (result.data as any)?.deleteArticle?.message) ||
+        (result.data?.deleteArticle?.__typename === 'CsrfError' && (result.data as any)?.deleteArticle?.message) ||
+        result.error?.message ||
+        '削除に失敗しました。';
+      alert('削除に失敗しました: ' + message);
     } else {
       refetchArticles({ requestPolicy: 'network-only' });
     }
@@ -211,8 +259,14 @@ const AdminArticleListPage: NextPage = () => {
       syncToMicroCMS: !!article.microCmsId,
     });
 
-    if (result.error) {
-      alert('公開に失敗しました: ' + result.error.message);
+    const typename = result.data?.publishArticleNow?.__typename;
+    if (result.error || typename !== 'MutationPublishArticleNowSuccess') {
+      const message =
+        (result.data?.publishArticleNow?.__typename === 'ZodError' && (result.data as any)?.publishArticleNow?.message) ||
+        (result.data?.publishArticleNow?.__typename === 'CsrfError' && (result.data as any)?.publishArticleNow?.message) ||
+        result.error?.message ||
+        '公開に失敗しました。';
+      alert('公開に失敗しました: ' + message);
     } else {
       refetchArticles({ requestPolicy: 'network-only' });
     }
@@ -225,8 +279,14 @@ const AdminArticleListPage: NextPage = () => {
       microCmsId: syncMicroCmsId.trim(),
     });
 
-    if (result.error) {
-      alert('同期に失敗しました: ' + result.error.message);
+    const typename = result.data?.syncArticleFromMicroCMS?.__typename;
+    if (result.error || typename !== 'MutationSyncArticleFromMicroCMSSuccess') {
+      const message =
+        (result.data?.syncArticleFromMicroCMS?.__typename === 'ZodError' && (result.data as any)?.syncArticleFromMicroCMS?.message) ||
+        (result.data?.syncArticleFromMicroCMS?.__typename === 'CsrfError' && (result.data as any)?.syncArticleFromMicroCMS?.message) ||
+        result.error?.message ||
+        '同期に失敗しました。';
+      alert('同期に失敗しました: ' + message);
     } else {
       setSyncMicroCmsId('');
       refetchArticles({ requestPolicy: 'network-only' });
