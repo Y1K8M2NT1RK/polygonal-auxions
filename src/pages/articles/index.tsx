@@ -21,9 +21,9 @@ import {
   Alert,
 } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Visibility as ViewIcon } from '@mui/icons-material';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
-import { Preparing } from '@/components/Preparing';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import Preparing from '@/components/Preparing';
 import {
   useGetPublishedArticlesQuery,
   useGetArticleTagsQuery,

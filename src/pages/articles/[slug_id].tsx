@@ -13,10 +13,10 @@ import {
   Alert,
 } from '@mui/material';
 import { ArrowBack as ArrowBackIcon, Edit as EditIcon } from '@mui/icons-material';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
-import { Preparing } from '@/components/Preparing';
-import { NotFound } from '@/components/NotFound';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import Preparing from '@/components/Preparing';
+import NotFound from '@/components/NotFound';
 import { useGetArticleQuery } from '@/generated/generated-graphql';
 
 interface ArticleDetailPageProps {
