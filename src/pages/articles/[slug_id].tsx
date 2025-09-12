@@ -2,7 +2,6 @@ import React from 'react';
 import { NextPage, GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useQuery } from 'urql';
 import {
   Box,
   Typography,
@@ -18,40 +17,14 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Preparing } from '@/components/Preparing';
 import { NotFound } from '@/components/NotFound';
-
-// GraphQL query for single article
-const GET_ARTICLE = `
-  query GetArticle($slugId: String) {
-    article(slugId: $slugId) {
-      id
-      slugId
-      title
-      content
-      excerpt
-      status
-      publishedAt
-      microCmsId
-      tags
-      featuredImage
-      createdAt
-      updatedAt
-      author {
-        id
-        name
-        handleName: handle_name
-        introduction
-      }
-    }
-  }
-`;
+import { useGetArticleQuery } from '@/generated/generated-graphql';
 
 interface ArticleDetailPageProps {
   slugId: string;
 }
 
 const ArticleDetailPage: NextPage<ArticleDetailPageProps> = ({ slugId }) => {
-  const [{ data, fetching, error }] = useQuery({
-    query: GET_ARTICLE,
+  const [{ data, fetching, error }] = useGetArticleQuery({
     variables: { slugId },
   });
 

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useQuery, useMutation } from 'urql';
 import {
   Box,
   Typography,
@@ -44,111 +43,15 @@ import {
   Publish as PublishIcon,
   Sync as SyncIcon,
 } from '@mui/icons-material';
+import AdminLayout from '@/components/admin/AdminLayout';
+import {
+  useGetArticlesQuery,
+  useDeleteArticleMutation,
+  usePublishArticleNowMutation,
+  useSyncArticleFromMicroCmsMutation,
+} from '@/generated/generated-graphql';
 
-// GraphQL queries and mutations
-const GET_ARTICLES = `
-  query GetArticles($first: Int, $after: String, $filter: ArticleFilter, $source: String) {
-    articles(first: $first, after: $after, filter: $filter, source: $source) {
-      edges {
-        node {
-          id
-          slugId
-          title
-          excerpt
-          status
-          publishedAt
-          tags
-          featuredImage
-          createdAt
-          updatedAt
-          microCmsId
-          author {
-            id
-            name
-            handleName: handle_name
-          }
-        }
-        cursor
-      }
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
-      }
-      totalCount
-    }
-  }
-`;
-
-const DELETE_ARTICLE = `
-  mutation DeleteArticle($id: Int!, $deleteFromMicroCMS: Boolean) {
-    deleteArticle(id: $id, deleteFromMicroCMS: $deleteFromMicroCMS) {
-      __typename
-      ... on MutationDeleteArticleSuccess {
-        __typename
-        data
-      }
-      ... on ZodError {
-        __typename
-        message
-      }
-      ... on CsrfError {
-        __typename
-        message
-      }
-    }
-  }
-`;
-
-const PUBLISH_ARTICLE_NOW = `
-  mutation PublishArticleNow($id: Int!, $syncToMicroCMS: Boolean) {
-    publishArticleNow(id: $id, syncToMicroCMS: $syncToMicroCMS) {
-      __typename
-      ... on MutationPublishArticleNowSuccess {
-        __typename
-        data {
-          id
-          status
-          publishedAt
-        }
-      }
-      ... on ZodError {
-        __typename
-        message
-      }
-      ... on CsrfError {
-        __typename
-        message
-      }
-    }
-  }
-`;
-
-const SYNC_ARTICLE_FROM_MICROCMS = `
-  mutation SyncArticleFromMicroCMS($microCmsId: String!) {
-    syncArticleFromMicroCMS(microCmsId: $microCmsId) {
-      __typename
-      ... on MutationSyncArticleFromMicroCMSSuccess {
-        __typename
-        data {
-          id
-          title
-          status
-        }
-      }
-      ... on ZodError {
-        __typename
-        message
-      }
-      ... on CsrfError {
-        __typename
-        message
-      }
-    }
-  }
-`;
-
+// Delete confirmation dialog component
 interface DeleteDialogProps {
   open: boolean;
   article: any;
@@ -204,9 +107,8 @@ const AdminArticleListPage: NextPage = () => {
   const [syncMicroCmsId, setSyncMicroCmsId] = useState('');
   const articlesPerPage = 20;
 
-  // Fetch articles
-  const [{ data: articlesData, fetching: articlesFetching, error: articlesError }, refetchArticles] = useQuery({
-    query: GET_ARTICLES,
+  // Fetch articles using generated hook
+  const [{ data: articlesData, fetching: articlesFetching, error: articlesError }, refetchArticles] = useGetArticlesQuery({
     variables: {
       first: articlesPerPage,
       filter: {
@@ -217,10 +119,10 @@ const AdminArticleListPage: NextPage = () => {
     },
   });
 
-  // Mutations
-  const [, deleteArticle] = useMutation(DELETE_ARTICLE);
-  const [, publishArticleNow] = useMutation(PUBLISH_ARTICLE_NOW);
-  const [, syncArticleFromMicroCMS] = useMutation(SYNC_ARTICLE_FROM_MICROCMS);
+  // Mutations using generated hooks
+  const [, deleteArticle] = useDeleteArticleMutation();
+  const [, publishArticleNow] = usePublishArticleNowMutation();
+  const [, syncArticleFromMicroCMS] = useSyncArticleFromMicroCmsMutation();
 
   const articles = articlesData?.articles?.edges?.map((edge: any) => edge.node) || [];
   const totalCount = articlesData?.articles?.totalCount || 0;
@@ -316,7 +218,7 @@ const AdminArticleListPage: NextPage = () => {
   };
 
   return (
-    <>
+    <AdminLayout>
       <Head>
         <title>記事管理 | 管理画面</title>
       </Head>
@@ -551,7 +453,7 @@ const AdminArticleListPage: NextPage = () => {
         onClose={() => setDeleteDialog({ open: false, article: null })}
         onConfirm={handleDeleteConfirm}
       />
-    </>
+    </AdminLayout>
   );
 };
 

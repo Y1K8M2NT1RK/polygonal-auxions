@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useQuery } from 'urql';
 import {
   Box,
   Typography,
@@ -25,45 +24,10 @@ import { Add as AddIcon, Edit as EditIcon, Visibility as ViewIcon } from '@mui/i
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Preparing } from '@/components/Preparing';
-
-// GraphQL query for articles
-const GET_PUBLISHED_ARTICLES = `
-  query GetPublishedArticles($first: Int, $after: String, $tags: [String!], $search: String) {
-    publishedArticles(first: $first, after: $after, tags: $tags, search: $search) {
-      edges {
-        node {
-          id
-          slugId
-          title
-          excerpt
-          tags
-          featuredImage
-          publishedAt
-          createdAt
-          author {
-            id
-            name
-            handleName: handle_name
-          }
-        }
-        cursor
-      }
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
-      }
-      totalCount
-    }
-  }
-`;
-
-const GET_ARTICLE_TAGS = `
-  query GetArticleTags {
-    articleTags
-  }
-`;
+import {
+  useGetPublishedArticlesQuery,
+  useGetArticleTagsQuery,
+} from '@/generated/generated-graphql';
 
 const ArticleCard: React.FC<{ article: any }> = ({ article }) => {
   const formatDate = (dateString: string) => {
@@ -129,9 +93,8 @@ const ArticleListPage: NextPage = () => {
   const [page, setPage] = useState(1);
   const articlesPerPage = 12;
 
-  // Fetch articles
-  const [{ data: articlesData, fetching: articlesFetching, error: articlesError }] = useQuery({
-    query: GET_PUBLISHED_ARTICLES,
+  // Fetch articles using generated hook
+  const [{ data: articlesData, fetching: articlesFetching, error: articlesError }] = useGetPublishedArticlesQuery({
     variables: {
       first: articlesPerPage,
       search: searchTerm || undefined,
@@ -139,10 +102,8 @@ const ArticleListPage: NextPage = () => {
     },
   });
 
-  // Fetch available tags
-  const [{ data: tagsData }] = useQuery({
-    query: GET_ARTICLE_TAGS,
-  });
+  // Fetch available tags using generated hook
+  const [{ data: tagsData }] = useGetArticleTagsQuery();
 
   const articles = articlesData?.publishedArticles?.edges?.map((edge: any) => edge.node) || [];
   const totalCount = articlesData?.publishedArticles?.totalCount || 0;

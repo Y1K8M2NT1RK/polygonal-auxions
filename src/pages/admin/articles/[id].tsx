@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { NextPage, GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useQuery, useMutation } from 'urql';
 import {
   Box,
   Typography,
@@ -31,59 +30,19 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { ja } from 'date-fns/locale';
 import dynamic from 'next/dynamic';
+import AdminLayout from '@/components/admin/AdminLayout';
+import {
+  useGetArticleQuery,
+  useCreateArticleMutation,
+  useUpdateArticleMutation,
+} from '@/generated/generated-graphql';
+import dynamic from 'next/dynamic';
 
 // Dynamic import for markdown editor (client-side only)
 const MDEditor = dynamic(
   () => import('@uiw/react-md-editor').then(mod => mod.default),
   { ssr: false }
 );
-
-// GraphQL queries and mutations
-const GET_ARTICLE = `
-  query GetArticle($id: Int) {
-    article(id: $id) {
-      id
-      slugId
-      title
-      content
-      excerpt
-      status
-      publishedAt
-      microCmsId
-      tags
-      featuredImage
-      createdAt
-      updatedAt
-      author {
-        id
-        name
-        handleName: handle_name
-      }
-    }
-  }
-`;
-
-const CREATE_ARTICLE = `
-  mutation CreateArticle($input: ArticleInput!, $syncToMicroCMS: Boolean) {
-    createArticle(input: $input, syncToMicroCMS: $syncToMicroCMS) {
-      id
-      slugId
-      title
-      status
-    }
-  }
-`;
-
-const UPDATE_ARTICLE = `
-  mutation UpdateArticle($id: Int!, $input: ArticleInput!, $syncToMicroCMS: Boolean) {
-    updateArticle(id: $id, input: $input, syncToMicroCMS: $syncToMicroCMS) {
-      id
-      slugId
-      title
-      status
-    }
-  }
-`;
 
 interface ArticleFormPageProps {
   id?: number;
@@ -105,16 +64,15 @@ const ArticleFormPage: NextPage<ArticleFormPageProps> = ({ id }) => {
   const [syncToMicroCMS, setSyncToMicroCMS] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
 
-  // Fetch article data for editing
-  const [{ data: articleData, fetching: articleFetching }] = useQuery({
-    query: GET_ARTICLE,
+  // Fetch article data for editing using generated hook
+  const [{ data: articleData, fetching: articleFetching }] = useGetArticleQuery({
     variables: { id },
     pause: !isEdit,
   });
 
-  // Mutations
-  const [{ fetching: creating }, createArticle] = useMutation(CREATE_ARTICLE);
-  const [{ fetching: updating }, updateArticle] = useMutation(UPDATE_ARTICLE);
+  // Mutations using generated hooks
+  const [{ fetching: creating }, createArticle] = useCreateArticleMutation();
+  const [{ fetching: updating }, updateArticle] = useUpdateArticleMutation();
 
   const saving = creating || updating;
   const article = articleData?.article;
@@ -197,22 +155,26 @@ const ArticleFormPage: NextPage<ArticleFormPageProps> = ({ id }) => {
 
   if (isEdit && articleFetching) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-        <CircularProgress />
-      </Box>
+      <AdminLayout>
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+          <CircularProgress />
+        </Box>
+      </AdminLayout>
     );
   }
 
   if (isEdit && !articleFetching && !article) {
     return (
-      <Box sx={{ p: 4 }}>
-        <Alert severity="error">記事が見つかりませんでした</Alert>
-      </Box>
+      <AdminLayout>
+        <Box sx={{ p: 4 }}>
+          <Alert severity="error">記事が見つかりませんでした</Alert>
+        </Box>
+      </AdminLayout>
     );
   }
 
   return (
-    <>
+    <AdminLayout>
       <Head>
         <title>{isEdit ? '記事編集' : '新規記事'} | 管理画面</title>
       </Head>
@@ -440,7 +402,7 @@ const ArticleFormPage: NextPage<ArticleFormPageProps> = ({ id }) => {
           <Button onClick={() => setPreviewOpen(false)}>閉じる</Button>
         </DialogActions>
       </Dialog>
-    </>
+    </AdminLayout>
   );
 };
 
