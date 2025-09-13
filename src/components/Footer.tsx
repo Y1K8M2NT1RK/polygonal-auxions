@@ -8,7 +8,7 @@ import {
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
-import { NotificationsNone, PaletteOutlined, ArticleOutlined } from "@mui/icons-material";
+import { NotificationsNone, ViewInAr, ArticleOutlined } from "@mui/icons-material";
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -61,7 +61,7 @@ export default function Footer() {
                     ? (
                         <BottomNavigation>
                             <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'ホーム'} icon={<HomeIcon />} href={'/'} />
-                            <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'作品'} icon={<PaletteOutlined />} href={'/artworks'} />
+                            <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'作品'} icon={<ViewInAr />} href={'/artworks'} />
                             <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'記事'} icon={<ArticleOutlined />} href={'/articles'} />
                             <BottomNavigationAction
                                 showLabel={true}
@@ -103,7 +103,7 @@ export default function Footer() {
                                         <ListItemText primary={'ダッシュボード'} onClick={handleDrawerClose} />
                                     </ListItemButton>
                                     <ListItemButton LinkComponent={Link} href="/artworks">
-                                        <ListItemIcon><PaletteOutlined /></ListItemIcon>
+                                        <ListItemIcon><ViewInAr /></ListItemIcon>
                                         <ListItemText primary={'作品'} onClick={handleDrawerClose} />
                                     </ListItemButton>
                                     <ListItemButton LinkComponent={Link} href="/articles">
@@ -140,7 +140,7 @@ export default function Footer() {
                     ) : (
                         <BottomNavigation>
                             <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'ホーム'} icon={<HomeIcon />} href={'/'} />
-                            <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'作品'} icon={<PaletteOutlined />} href={'/artworks'} />
+                            <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'作品'} icon={<ViewInAr />} href={'/artworks'} />
                             <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'記事'} icon={<ArticleOutlined />} href={'/articles'} />
                             <BottomNavigationAction
                                 showLabel={true}
