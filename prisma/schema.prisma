@@ -58,6 +58,7 @@ model User {
   following         Follow[]        @relation("following")
   notifications_received Notification[] @relation("notifications_recipient")
   notifications_sent     Notification[] @relation("notifications_actor")
+  articles          Article[]       @relation("article_author")
 
   @@map(name: "users")
 }
@@ -289,6 +290,32 @@ enum NotificationType {
   FOLLOW          // フォローされた
   NEW_ARTWORK     // フォローしたユーザーが作品を追加
   NEW_COMMENT     // 自身の作品にコメント追加
+}
+
+model Article {
+  id            Int       @id @default(autoincrement())
+  slug_id       String    @unique @default(cuid())
+  title         String    @db.VarChar(200)
+  content       String?   @db.Text
+  excerpt       String?   @db.VarChar(500)
+  status        ArticleStatus @default(DRAFT)
+  published_at  DateTime?
+  author_id     Int?
+  micro_cms_id  String?   @unique @db.VarChar(100) // microCMSのcontentId
+  tags          String[]  @default([])
+  featured_image String?  @db.VarChar(500)
+  created_at    DateTime  @default(now()) @db.Timestamp()
+  updated_at    DateTime  @default(now()) @db.Timestamp() @updatedAt
+
+  author        User?     @relation("article_author", fields: [author_id], references: [id], onUpdate: Cascade, onDelete: SetNull)
+
+  @@map(name: "articles")
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
 
 // model ArtworksInCart {}

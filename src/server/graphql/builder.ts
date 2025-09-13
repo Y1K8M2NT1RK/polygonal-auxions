@@ -14,7 +14,10 @@ export const builder = new SchemaBuilder<{
   AuthScopes: { isAuthenticated: boolean; isAdmin: boolean };
   Context: YogaContext;
   PrismaTypes: PrismaTypes;
-  Scalars: { Date: { Input: Date; Output: Date } };
+  Scalars: {
+    Date: { Input: Date; Output: Date };
+    DateTime: { Input: Date; Output: Date };
+  };
 }>({
   plugins: [
     PrismaPlugin,
@@ -38,5 +41,6 @@ export const builder = new SchemaBuilder<{
 });
 
 builder.addScalarType('Date', DateTimeResolver);
+builder.addScalarType('DateTime', DateTimeResolver);
 builder.queryType({});
 builder.mutationType({});

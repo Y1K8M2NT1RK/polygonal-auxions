@@ -27,12 +27,50 @@ export const User = builder.prismaObject('User', {
 		updated_at: t.expose('updated_at', {type: 'Date'}),
 		user_files: t.relation('user_files'),
 		artworks: t.relation('artworks'),
+		articles: t.relation('articles'),
 		comments: t.relation('comments'),
 		following: t.relation('following'),
 		// Notification relations (enable both received & sent once Notification type is defined)
 		notifications_received: t.relation('notifications_received'),
 		notifications_sent: t.relation('notifications_sent'),
 	}),
+});
+
+// Article関連の型定義
+export const Article = builder.prismaObject('Article', {
+  fields: (t) => ({
+    id: t.exposeID('id'),
+    slugId: t.exposeString('slug_id'),
+    title: t.exposeString('title'),
+    content: t.exposeString('content', { nullable: true }),
+    excerpt: t.exposeString('excerpt', { nullable: true }),
+    status: t.exposeString('status'),
+    publishedAt: t.expose('published_at', { type: 'DateTime', nullable: true }),
+    microCmsId: t.exposeString('micro_cms_id', { nullable: true }),
+    tags: t.exposeStringList('tags'),
+    featuredImage: t.exposeString('featured_image', { nullable: true }),
+    createdAt: t.expose('created_at', { type: 'DateTime' }),
+    updatedAt: t.expose('updated_at', { type: 'DateTime' }),
+    author: t.relation('author', { nullable: true }),
+  }),
+});
+
+// ArticleStatus enum
+export const ArticleStatus = builder.enumType('ArticleStatus', {
+  values: ['DRAFT', 'PUBLISHED', 'ARCHIVED'] as const,
+});
+
+// ArticleInput type
+export const ArticleInput = builder.inputType('ArticleInput', {
+  fields: (t) => ({
+    title: t.string({ required: true, validate: { maxLength: 200 } }),
+    content: t.string({ required: false }),
+    excerpt: t.string({ required: false, validate: { maxLength: 500 } }),
+    status: t.field({ type: ArticleStatus, required: false }),
+    publishedAt: t.field({ type: 'DateTime', required: false }),
+    tags: t.stringList({ required: false }),
+    featuredImage: t.string({ required: false }),
+  }),
 });
 
 export const UserFile = builder.prismaObject('UserFiles', {

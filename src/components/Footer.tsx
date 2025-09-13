@@ -8,7 +8,7 @@ import {
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
-import { NotificationsNone } from "@mui/icons-material";
+import { NotificationsNone, ViewInAr, ArticleOutlined } from "@mui/icons-material";
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -61,6 +61,8 @@ export default function Footer() {
                     ? (
                         <BottomNavigation>
                             <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'ホーム'} icon={<HomeIcon />} href={'/'} />
+                            <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'作品'} icon={<ViewInAr />} href={'/artworks'} />
+                            <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'記事'} icon={<ArticleOutlined />} href={'/articles'} />
                             <BottomNavigationAction
                                 showLabel={true}
                                 label={'検索'}
@@ -100,6 +102,14 @@ export default function Footer() {
                                         <ListItemIcon><DashboardIcon /></ListItemIcon>
                                         <ListItemText primary={'ダッシュボード'} onClick={handleDrawerClose} />
                                     </ListItemButton>
+                                    <ListItemButton LinkComponent={Link} href="/artworks">
+                                        <ListItemIcon><ViewInAr /></ListItemIcon>
+                                        <ListItemText primary={'作品'} onClick={handleDrawerClose} />
+                                    </ListItemButton>
+                                    <ListItemButton LinkComponent={Link} href="/articles">
+                                        <ListItemIcon><ArticleOutlined /></ListItemIcon>
+                                        <ListItemText primary={'記事'} onClick={handleDrawerClose} />
+                                    </ListItemButton>
                                     <ListItemButton LinkComponent={Link} href={`/profile/${user.handle_name}`}>
                                         <ListItemIcon><AccountBoxIcon /></ListItemIcon>
                                         <ListItemText primary={'プロフィール'} onClick={handleDrawerClose} />
@@ -130,6 +140,8 @@ export default function Footer() {
                     ) : (
                         <BottomNavigation>
                             <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'ホーム'} icon={<HomeIcon />} href={'/'} />
+                            <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'作品'} icon={<ViewInAr />} href={'/artworks'} />
+                            <BottomNavigationAction LinkComponent={Link} showLabel={true} label={'記事'} icon={<ArticleOutlined />} href={'/articles'} />
                             <BottomNavigationAction
                                 showLabel={true}
                                 label={'検索'}

@@ -22,7 +22,7 @@ export default function Header (){
 
     return (
         <Fragment>
-            <AppBar color='transparent' sx={{backdropFilter: 'blur(5px)'}}>
+            <AppBar color='transparent' sx={{backdropFilter: 'blur(5px)', background: 'rgba(255, 255, 255, 0.8)'}}>
                 <Toolbar sx={{justifyContent: "space-between",}}>
                     <Typography
                         variant="h6"
@@ -35,34 +35,49 @@ export default function Header (){
                     >
                         Polygonal Auxions
                     </Typography>
-                    <SearchInput inputPaddingSize={'small'} labelFontSize={'1rem'} inputFontSize={'1rem'}/>
-                    {
-                        fetching
-                        ?   (
-                            <Box sx={{display:'flex'}}>
-                                <Skeleton animation="wave" variant="circular" width={56} height={56} />
-                                <Skeleton animation="wave" variant="circular" width={56} height={56} />
-                                <Skeleton animation="wave" variant="circular" width={56} height={56} />
-                            </Box>
-                        ) : isLoggedIn && user ? (
-                            <Box sx={{display:'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 }}}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <SearchInput inputPaddingSize={'small'} labelFontSize={'1rem'} inputFontSize={'1rem'}/>
+                        <Button
+                            component={Link}
+                            href="/artworks"
+                            color="inherit"
+                            sx={{ display: { xs: 'none', sm: 'block' } }}
+                        >
+                            作品
+                        </Button>
+                        <Button
+                            component={Link}
+                            href="/articles"
+                            color="inherit"
+                            sx={{ display: { xs: 'none', sm: 'block' } }}
+                        >
+                            記事
+                        </Button>
+                        {
+                            fetching
+                            ?   (
+                                <Box sx={{display:'flex'}}>
+                                    <Skeleton animation="wave" variant="circular" width={56} height={56} />
+                                    <Skeleton animation="wave" variant="circular" width={56} height={56} />
+                                </Box>
+                            ) : isLoggedIn && user ? (
                                 <AvatorPopover auth={user} />
-                            </Box>
-                        ) : (
-                            <LoginDialog
-                                button={
-                                    <Button
-                                        onClick={handleDialogOpen}
-                                        color="inherit"
-                                    >
-                                        ログイン
-                                    </Button>
-                                }
-                                openDialog={openDialog}
-                                setOpenDialog={setOpenDialog}
-                            />
-                        )
-                    }
+                            ) : (
+                                <LoginDialog
+                                    button={
+                                        <Button
+                                            onClick={handleDialogOpen}
+                                            color="inherit"
+                                        >
+                                            ログイン
+                                        </Button>
+                                    }
+                                    openDialog={openDialog}
+                                    setOpenDialog={setOpenDialog}
+                                />
+                            )
+                        }
+                    </Box>
                 </Toolbar>
             </AppBar>
             <Toolbar />
