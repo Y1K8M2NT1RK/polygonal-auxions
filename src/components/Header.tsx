@@ -22,7 +22,7 @@ export default function Header (){
 
     return (
         <Fragment>
-            <AppBar color='transparent' sx={{backdropFilter: 'blur(5px)'}}>
+            <AppBar color='transparent' sx={{backdropFilter: 'blur(5px)', background: 'rgba(255, 255, 255, 0.8)'}}>
                 <Toolbar sx={{justifyContent: "space-between",}}>
                     <Typography
                         variant="h6"
@@ -36,6 +36,7 @@ export default function Header (){
                         Polygonal Auxions
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <SearchInput inputPaddingSize={'small'} labelFontSize={'1rem'} inputFontSize={'1rem'}/>
                         <Button
                             component={Link}
                             href="/artworks"
@@ -52,7 +53,6 @@ export default function Header (){
                         >
                             記事
                         </Button>
-                        <SearchInput inputPaddingSize={'small'} labelFontSize={'1rem'} inputFontSize={'1rem'}/>
                         {
                             fetching
                             ?   (
